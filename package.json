@@ -1,0 +1,17 @@
+{
+  "name": "隱湖小竹",
+  "version": "1.0.0",
+  "description": "隱湖小竹網站",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "serve": "node server.js"
+  },
+  "keywords": [
+    "website",
+    "static"
+  ],
+  "author": "",
+  "license": "MIT"
+}
