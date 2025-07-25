@@ -2,13 +2,237 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>會員中心 | 隱湖小竹</title>
     <link rel="stylesheet" href="styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* 會員中心專用樣式 */
+      .member-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .member-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+        border-radius: 20px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(45, 90, 39, 0.3);
+      }
+
+      .member-header h1 {
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .member-header p {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.9;
+      }
+
+      .member-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(45, 90, 39, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .member-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .member-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        border-left: 4px solid #2d5a27;
+        transition: all 0.3s ease;
+      }
+
+      .info-item:hover {
+        background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+        transform: translateX(5px);
+      }
+
+      .info-icon {
+        width: 50px;
+        height: 50px;
+        background: #2d5a27;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .info-content {
+        flex: 1;
+      }
+
+      .info-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+
+      .info-value {
+        font-size: 1.1rem;
+        color: #2d5a27;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .points-display {
+        text-align: center;
+        padding: 30px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+      }
+
+      .points-display h3 {
+        color: #8b6914;
+        margin: 0 0 10px 0;
+        font-size: 1.3rem;
+      }
+
+      .points-number {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #8b6914;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(139, 105, 20, 0.3);
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn-member {
+        padding: 15px 30px;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(45, 90, 39, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 90, 39, 0.4);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+      }
+
+      .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+      }
+
+      .welcome-message {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+        border-radius: 15px;
+        border: 2px dashed #2d5a27;
+      }
+
+      .welcome-message h2 {
+        color: #2d5a27;
+        margin: 0 0 10px 0;
+        font-size: 1.5rem;
+      }
+
+      .welcome-message p {
+        color: #4a7c59;
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 768px) {
+        .member-container {
+          padding: 20px 15px;
+        }
+
+        .member-header {
+          padding: 20px;
+        }
+
+        .member-header h1 {
+          font-size: 2rem;
+        }
+
+        .member-card {
+          padding: 25px;
+        }
+
+        .member-info {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn-member {
+          width: 100%;
+          max-width: 250px;
+        }
+      }
+    </style>
   </head>
   <body>
     <header>
@@ -20,18 +244,184 @@
           <li><a href="index.html">首頁</a></li>
           <li><a href="menu.html">菜單</a></li>
           <li><a href="order.html">線上訂餐</a></li>
-          <li><a href="member.html" class="active">會員中心</a></li>
+          <li><a href="member.html">會員中心</a></li>
           <li><a href="about.html">關於我們</a></li>
           <li><a href="news.html">最新消息</a></li>
         </ul>
       </nav>
     </header>
-    <main class="container">
-      <h1>會員中心</h1>
-      <p>此處將結合 Firebase 身份驗證、積分與訂單歷史。</p>
+
+    <main class="member-container">
+      <div class="member-header">
+        <h1>會員中心</h1>
+        <p>歡迎回到隱湖小竹，享受您的專屬服務</p>
+      </div>
+
+      <div class="member-card">
+        <div class="welcome-message">
+          <h2>👋 歡迎回來！</h2>
+          <p>感謝您選擇隱湖小竹，我們致力於為您提供最優質的茶麵體驗</p>
+        </div>
+
+        <div class="points-display">
+          <h3>🎁 我的積分</h3>
+          <p class="points-number" id="displayPoints">0</p>
+        </div>
+
+        <div class="member-info">
+          <div class="info-item">
+            <div class="info-icon">👤</div>
+            <div class="info-content">
+              <div class="info-label">姓名</div>
+              <div class="info-value" id="displayName">載入中...</div>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">📧</div>
+            <div class="info-content">
+              <div class="info-label">電子郵件</div>
+              <div class="info-value" id="displayEmail">載入中...</div>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">📱</div>
+            <div class="info-content">
+              <div class="info-label">聯絡電話</div>
+              <div class="info-value" id="displayPhone">載入中...</div>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-icon">🆔</div>
+            <div class="info-content">
+              <div class="info-label">會員狀態</div>
+              <div class="info-value">活躍會員</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-member btn-primary" id="signOutBtn">
+            🚪 登出系統
+          </button>
+          <a href="order.html" class="btn-member btn-secondary">
+            🍜 立即訂餐
+          </a>
+          <a href="menu.html" class="btn-member btn-secondary"> 📋 查看菜單 </a>
+        </div>
+      </div>
     </main>
+
     <footer>
       <p>© 2023 隱湖小竹 | 人文茶麵館</p>
     </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/user.service.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        console.log("會員中心頁面載入完成");
+
+        // 檢查 Firebase 是否正確初始化
+        console.log("檢查 Firebase 初始化狀態:");
+        console.log("window.firebaseAuth:", window.firebaseAuth);
+        console.log("window.firebaseDB:", window.firebaseDB);
+        console.log("window.AuthService:", window.AuthService);
+        console.log("window.UserService:", window.UserService);
+
+        if (!window.AuthService) {
+          console.error("AuthService 未正確載入！");
+          return;
+        }
+
+        console.log("等待 Auth 狀態就緒...");
+        AuthService.onAuthStateChanged(async (user) => {
+          console.log("Auth 狀態就緒，用戶:", user);
+
+          if (!user) {
+            console.log("未登入，安全跳轉到登入頁面");
+            window.location.href = "login.html";
+            return;
+          }
+
+          console.log("已登入，使用者 ID:", user.uid);
+          let userData = null;
+          try {
+            userData = await UserService.getUser(user.uid);
+            console.log("從 Firestore 獲取的資料:", userData);
+          } catch (error) {
+            console.error("獲取使用者資料失敗:", error);
+          }
+
+          // 如果找不到使用者資料，則嘗試從 sessionStorage 創建
+          if (!userData) {
+            console.log(
+              "Firestore 中找不到使用者文件，正在檢查 sessionStorage..."
+            );
+            const pendingDataJSON = sessionStorage.getItem("pending_user_data");
+            console.log(
+              "sessionStorage 中的 pending_user_data:",
+              pendingDataJSON
+            );
+
+            if (pendingDataJSON) {
+              try {
+                const pendingData = JSON.parse(pendingDataJSON);
+                console.log("解析後的待處理資料:", pendingData);
+
+                // 確保 session 中的 email 與當前登入用戶匹配
+                if (pendingData.email === user.email) {
+                  console.log(
+                    "Email 匹配，正在嘗試從 sessionStorage 的資料建立文件..."
+                  );
+                  await UserService.createUserDocument(user.uid, pendingData);
+                  console.log("文件建立成功，正在重新獲取資料...");
+                  userData = await UserService.getUser(user.uid);
+                  console.log("重新獲取到的資料:", userData);
+                  sessionStorage.removeItem("pending_user_data");
+                  console.log("已清除 sessionStorage 備份");
+                } else {
+                  console.log("Email 不匹配，清除過期資料");
+                  console.log("sessionStorage email:", pendingData.email);
+                  console.log("當前用戶 email:", user.email);
+                  sessionStorage.removeItem("pending_user_data");
+                }
+              } catch (error) {
+                console.error("處理 sessionStorage 資料時發生錯誤:", error);
+              }
+            } else {
+              console.log(
+                "sessionStorage 中沒有找到待處理的資料 - 可能需要重新註冊"
+              );
+            }
+          } else {
+            console.log("從 Firestore 成功獲取到資料:", userData);
+          }
+
+          // 顯示最終資料（即使 userData 為 null，也顯示基本資訊）
+          console.log("準備顯示資料，userData:", userData);
+          document.getElementById("displayName").textContent =
+            userData?.name || user.email || "未知";
+          document.getElementById("displayPhone").textContent =
+            userData?.phone || "";
+          document.getElementById("displayEmail").textContent =
+            user.email || "未知";
+          document.getElementById("displayPoints").textContent =
+            userData?.points ?? 0;
+          console.log("資料顯示完成");
+        });
+
+        document.getElementById("signOutBtn").addEventListener("click", () => {
+          console.log("點擊登出按鈕");
+          AuthService.signOut();
+        });
+      });
+    </script>
   </body>
 </html>

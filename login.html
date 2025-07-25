@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>會員登入 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html">首頁</a></li>
+          <li><a href="menu.html">菜單</a></li>
+          <li><a href="order.html">線上訂餐</a></li>
+          <li><a href="member.html">會員中心</a></li>
+          <li><a href="about.html">關於我們</a></li>
+          <li><a href="news.html">最新消息</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="container" style="max-width: 400px; padding: 40px 20px">
+      <h1 id="formTitle" style="text-align: center; margin-bottom: 20px">
+        登入
+      </h1>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required />
+        </div>
+        <div class="form-group">
+          <label>密碼</label>
+          <input type="password" id="loginPassword" required />
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%">
+          登入
+        </button>
+      </form>
+
+      <form id="signUpForm" style="display: none">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="signUpName" required />
+        </div>
+        <div class="form-group">
+          <label>電話</label>
+          <input type="tel" id="signUpPhone" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="signUpEmail" required />
+        </div>
+        <div class="form-group">
+          <label>密碼</label>
+          <input type="password" id="signUpPassword" required />
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%">
+          註冊
+        </button>
+      </form>
+
+      <p id="toggleLink" style="text-align: center; margin-top: 15px">
+        還沒有帳號？<a href="#" id="switchToSignUp">註冊</a>
+      </p>
+      <p id="errorMsg" style="color: red; text-align: center"></p>
+
+      <!-- 已登入狀態顯示 -->
+      <div
+        id="loggedInMessage"
+        style="display: none; text-align: center; margin-top: 20px"
+      >
+        <p>您已經登入！</p>
+        <button id="goToMemberBtn" class="btn-primary">前往會員中心</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2023 隱湖小竹 | 人文茶麵館</p>
+    </footer>
+
+    <!-- Firebase CDN -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- 自家腳本 -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const loginForm = document.getElementById("loginForm");
+        const signUpForm = document.getElementById("signUpForm");
+        const formTitle = document.getElementById("formTitle");
+        const toggleLink = document.getElementById("toggleLink");
+        const switchToSignUp = document.getElementById("switchToSignUp");
+        const errorMsg = document.getElementById("errorMsg");
+        const loggedInMessage = document.getElementById("loggedInMessage");
+        const goToMemberBtn = document.getElementById("goToMemberBtn");
+
+        // 轉換登入/註冊表單
+        switchToSignUp.addEventListener("click", (e) => {
+          e.preventDefault();
+          const isLoginShowing = loginForm.style.display !== "none";
+          if (isLoginShowing) {
+            loginForm.style.display = "none";
+            signUpForm.style.display = "block";
+            formTitle.textContent = "註冊";
+            switchToSignUp.textContent = "登入";
+            toggleLink.childNodes[0].textContent = "已有帳號？";
+          } else {
+            loginForm.style.display = "block";
+            signUpForm.style.display = "none";
+            formTitle.textContent = "登入";
+            switchToSignUp.textContent = "註冊";
+            toggleLink.childNodes[0].textContent = "還沒有帳號？";
+          }
+          errorMsg.textContent = "";
+        });
+
+        // 登入
+        loginForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          errorMsg.textContent = "";
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+          try {
+            await AuthService.signIn(email, password);
+            window.location.href = "member.html";
+          } catch (err) {
+            errorMsg.textContent = "登入失敗：" + err.message;
+          }
+        });
+
+        // 註冊
+        signUpForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          errorMsg.textContent = "";
+          const name = document.getElementById("signUpName").value;
+          const phone = document.getElementById("signUpPhone").value;
+          const email = document.getElementById("signUpEmail").value;
+          const password = document.getElementById("signUpPassword").value;
+
+          console.log("開始註冊流程，資料:", { name, phone, email });
+
+          try {
+            const user = await AuthService.signUp(email, password, name, phone);
+            console.log("註冊成功，用戶:", user);
+
+            // 將註冊資料存入 sessionStorage 作為備份
+            const backupData = { name, phone, email };
+            console.log("準備存入 sessionStorage 的資料:", backupData);
+            sessionStorage.setItem(
+              "pending_user_data",
+              JSON.stringify(backupData)
+            );
+            console.log("sessionStorage 存入成功");
+
+            // 驗證是否真的存入了
+            const storedData = sessionStorage.getItem("pending_user_data");
+            console.log("驗證 sessionStorage 中的資料:", storedData);
+
+            window.location.href = "member.html";
+          } catch (err) {
+            console.error("註冊失敗:", err);
+            errorMsg.textContent = "註冊失敗：" + err.message;
+          }
+        });
+
+        // 檢查登入狀態，並處理顯示
+        console.log("登入頁面載入，檢查 Auth 狀態...");
+        AuthService.onAuthStateChanged((user) => {
+          console.log("Auth 狀態變更:", user);
+          if (user) {
+            console.log("用戶已登入，隱藏表單並顯示訊息");
+            formTitle.style.display = "none";
+            loginForm.style.display = "none";
+            signUpForm.style.display = "none";
+            toggleLink.style.display = "none";
+            loggedInMessage.style.display = "block";
+
+            goToMemberBtn.addEventListener("click", () => {
+              window.location.href = "member.html";
+            });
+          } else {
+            console.log("用戶未登入，顯示表單");
+            formTitle.style.display = "block";
+            loginForm.style.display = "block";
+            signUpForm.style.display = "none";
+            toggleLink.style.display = "block";
+            loggedInMessage.style.display = "none";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
