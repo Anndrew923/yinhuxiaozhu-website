@@ -427,8 +427,6 @@
           </div>
         </div>
       </div>
-
-
     </main>
 
     <!-- 底部導覽列 -->
@@ -473,6 +471,12 @@
         if (!window.AuthService) {
           console.error("AuthService 未正確載入！");
           return;
+        }
+
+        // 初始化顯示預設值
+        const greetingElement = document.getElementById("greetingText");
+        if (greetingElement) {
+          greetingElement.textContent = "Hi, 會員, 歡迎回來！";
         }
 
         console.log("等待 Auth 狀態就緒...");
@@ -532,16 +536,62 @@
 
           // 顯示用戶資料
           console.log("準備顯示資料，userData:", userData);
-          const displayName =
-            userData?.name || user.email?.split("@")[0] || "會員";
-          document.getElementById(
-            "greetingText"
-          ).textContent = `Hi, ${displayName}, 歡迎回來！`;
-          document.getElementById(
-            "memberId"
-          ).textContent = `會員編號 ${user.uid.slice(-8)}`;
-          document.getElementById("displayPoints").textContent =
-            userData?.points ?? 0;
+
+          // 優化的用戶名稱顯示邏輯
+          let displayName = "會員";
+
+          // 優先使用 Firestore 中的姓名
+          if (userData && userData.name && userData.name.trim()) {
+            displayName = userData.name.trim();
+            console.log("使用 Firestore 中的姓名:", displayName);
+          }
+          // 其次使用 Firebase Auth 中的 displayName
+          else if (user.displayName && user.displayName.trim()) {
+            displayName = user.displayName.trim();
+            console.log("使用 Firebase Auth 中的 displayName:", displayName);
+          }
+          // 再次使用 email 的前綴
+          else if (user.email) {
+            const emailPrefix = user.email.split("@")[0];
+            if (emailPrefix && emailPrefix.trim()) {
+              displayName = emailPrefix.trim();
+              console.log("使用 email 前綴作為姓名:", displayName);
+            }
+          }
+
+          // 確保顯示名稱不為空且長度合理
+          if (!displayName || displayName.length === 0) {
+            displayName = "會員";
+          }
+
+          // 限制顯示名稱長度，避免過長
+          if (displayName.length > 10) {
+            displayName = displayName.substring(0, 10) + "...";
+          }
+
+          console.log("最終顯示的姓名:", displayName);
+
+          // 更新頁面顯示
+          const greetingElement = document.getElementById("greetingText");
+          if (greetingElement) {
+            greetingElement.textContent = `Hi, ${displayName}, 歡迎回來！`;
+          } else {
+            console.error("找不到 greetingText 元素");
+          }
+
+          const memberIdElement = document.getElementById("memberId");
+          if (memberIdElement) {
+            memberIdElement.textContent = `會員編號 ${user.uid.slice(-8)}`;
+          } else {
+            console.error("找不到 memberId 元素");
+          }
+
+          const pointsElement = document.getElementById("displayPoints");
+          if (pointsElement) {
+            pointsElement.textContent = userData?.points ?? 0;
+          } else {
+            console.error("找不到 displayPoints 元素");
+          }
 
           // 更新點數描述
           const currentPoints = userData?.points ?? 0;
@@ -558,6 +608,18 @@
           }
 
           console.log("資料顯示完成");
+
+          // 添加重試機制，確保顯示正確
+          setTimeout(() => {
+            const greetingElement = document.getElementById("greetingText");
+            if (
+              greetingElement &&
+              greetingElement.textContent.includes("會員")
+            ) {
+              console.log("檢測到預設顯示，嘗試重新更新...");
+              greetingElement.textContent = `Hi, ${displayName}, 歡迎回來！`;
+            }
+          }, 1000);
         });
       });
 

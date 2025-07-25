@@ -2,14 +2,20 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>付款 | 隱湖小竹</title>
     <link rel="stylesheet" href="styles.css?v=1.1" />
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
   </head>
   <body>
     <header class="order-header">
@@ -52,7 +58,7 @@
           <div class="order-items" id="orderItems">
             <!-- 訂單項目會動態插入這裡 -->
           </div>
-          
+
           <div class="order-totals">
             <div class="total-row">
               <span>商品總計</span>
@@ -62,7 +68,7 @@
               <span>運費</span>
               <span id="shippingFee">NT$ 0</span>
             </div>
-            <div class="total-row" id="discountRow" style="display: none;">
+            <div class="total-row" id="discountRow" style="display: none">
               <span>優惠折扣</span>
               <span id="discountAmount">-NT$ 0</span>
             </div>
@@ -79,7 +85,13 @@
         <h2>付款方式</h2>
         <div class="payment-methods">
           <div class="payment-method" onclick="selectPayment('credit')">
-            <input type="radio" name="payment" id="credit" value="credit" checked />
+            <input
+              type="radio"
+              name="payment"
+              id="credit"
+              value="credit"
+              checked
+            />
             <label for="credit">
               <div class="method-info">
                 <div class="method-icon">
@@ -92,7 +104,7 @@
               </div>
             </label>
           </div>
-          
+
           <div class="payment-method" onclick="selectPayment('linepay')">
             <input type="radio" name="payment" id="linepay" value="linepay" />
             <label for="linepay">
@@ -107,7 +119,7 @@
               </div>
             </label>
           </div>
-          
+
           <div class="payment-method" onclick="selectPayment('cod')">
             <input type="radio" name="payment" id="cod" value="cod" />
             <label for="cod">
@@ -131,18 +143,32 @@
         <div class="credit-card-form">
           <div class="form-group">
             <label>持卡人姓名</label>
-            <input type="text" id="cardHolderName" placeholder="請輸入持卡人姓名" />
+            <input
+              type="text"
+              id="cardHolderName"
+              placeholder="請輸入持卡人姓名"
+            />
           </div>
-          
+
           <div class="form-group">
             <label>信用卡號碼</label>
-            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" />
+            <input
+              type="text"
+              id="cardNumber"
+              placeholder="0000 0000 0000 0000"
+              maxlength="19"
+            />
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label>有效期限</label>
-              <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" />
+              <input
+                type="text"
+                id="cardExpiry"
+                placeholder="MM/YY"
+                maxlength="5"
+              />
             </div>
             <div class="form-group">
               <label>安全碼</label>
@@ -157,7 +183,13 @@
         <h2>發票資訊</h2>
         <div class="invoice-options">
           <div class="invoice-option" onclick="selectInvoice('personal')">
-            <input type="radio" name="invoice" id="personal" value="personal" checked />
+            <input
+              type="radio"
+              name="invoice"
+              id="personal"
+              value="personal"
+              checked
+            />
             <label for="personal">
               <div class="option-info">
                 <div class="option-title">個人發票</div>
@@ -165,7 +197,7 @@
               </div>
             </label>
           </div>
-          
+
           <div class="invoice-option" onclick="selectInvoice('company')">
             <input type="radio" name="invoice" id="company" value="company" />
             <label for="company">
@@ -176,15 +208,20 @@
             </label>
           </div>
         </div>
-        
-        <div class="invoice-form" id="companyInvoiceForm" style="display: none;">
+
+        <div class="invoice-form" id="companyInvoiceForm" style="display: none">
           <div class="form-group">
             <label>公司名稱</label>
             <input type="text" id="companyName" placeholder="請輸入公司名稱" />
           </div>
           <div class="form-group">
             <label>統一編號</label>
-            <input type="text" id="companyTaxId" placeholder="請輸入統一編號" maxlength="8" />
+            <input
+              type="text"
+              id="companyTaxId"
+              placeholder="請輸入統一編號"
+              maxlength="8"
+            />
           </div>
         </div>
       </div>
@@ -195,7 +232,10 @@
           <i class="fas fa-shield-alt"></i>
           <div class="notice-content">
             <h3>付款安全</h3>
-            <p>您的付款資訊將透過 SSL 加密傳輸，確保交易安全。我們不會儲存您的信用卡資訊。</p>
+            <p>
+              您的付款資訊將透過 SSL
+              加密傳輸，確保交易安全。我們不會儲存您的信用卡資訊。
+            </p>
           </div>
         </div>
       </div>
@@ -214,7 +254,7 @@
     </div>
 
     <!-- 付款處理遮罩 -->
-    <div class="payment-overlay" id="paymentOverlay" style="display: none;">
+    <div class="payment-overlay" id="paymentOverlay" style="display: none">
       <div class="payment-processing">
         <div class="processing-spinner">
           <i class="fas fa-spinner fa-spin"></i>
@@ -224,8 +264,8 @@
       </div>
     </div>
 
-    <!-- 底部導覽列 -->
-    <div class="bottom-nav">
+    <!-- 底部導覽列 - 付款頁面隱藏 -->
+    <div class="bottom-nav" style="display: none">
       <div class="nav-item" onclick="window.location.href='index.html'">
         <i class="fas fa-home"></i>
         <span>首頁</span>
@@ -244,6 +284,19 @@
       </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase 配置和服務 -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/point.service.js"></script>
+    <script src="js/services/order.service.js"></script>
+    <script src="js/services/user.service.js"></script>
+
+    <!-- 主要功能 -->
     <script src="payment.js?v=1.1"></script>
   </body>
-</html> 
+</html>

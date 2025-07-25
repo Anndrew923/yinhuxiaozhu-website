@@ -1329,7 +1329,7 @@ textarea:focus {
   border-top: 1px solid #f0f0f0;
   display: flex;
   gap: 15px;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .btn-secondary {
@@ -1346,6 +1346,12 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  height: 48px !important; /* 強制高度，防止覆蓋 */
+  box-sizing: border-box;
+  line-height: 48px; /* 匹配高度，防止文字偏移 */
+  overflow: hidden; /* 防止內容撐高 */
+  white-space: nowrap; /* 防止文字換行 */
+  min-width: 140px;
 }
 
 .btn-secondary:hover {
@@ -1353,7 +1359,7 @@ textarea:focus {
 }
 
 .btn-primary {
-  flex: 2;
+  flex: 1;
   padding: 15px;
   background: #4caf50;
   color: white;
@@ -1366,6 +1372,12 @@ textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  height: 48px !important; /* 強制高度，防止覆蓋 */
+  box-sizing: border-box;
+  line-height: 48px; /* 匹配高度，防止文字偏移 */
+  overflow: hidden; /* 防止內容撐高 */
+  white-space: nowrap; /* 防止文字換行 */
+  min-width: 140px;
 }
 
 .btn-primary:hover {
@@ -1410,6 +1422,14 @@ textarea:focus {
   .btn-primary {
     padding: 12px;
     font-size: 14px;
+    height: 48px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    line-height: 48px;
+    overflow: hidden;
+    white-space: nowrap;
   }
 }
 
@@ -1815,7 +1835,7 @@ textarea:focus {
   border-top: 1px solid #f0f0f0;
   display: flex;
   gap: 15px;
-  z-index: 999;
+  z-index: 1000;
 }
 
 /* 響應式設計 */
@@ -1860,6 +1880,14 @@ textarea:focus {
   .btn-primary {
     padding: 12px;
     font-size: 14px;
+    height: 48px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    line-height: 48px;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .contact-item {

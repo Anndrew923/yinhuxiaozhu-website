@@ -397,6 +397,22 @@
         const successMsg = document.getElementById("successMsg");
 
         let isLoginMode = true;
+        
+        // 檢查 URL 參數，如果 action=signup 則自動切換到註冊模式
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('action') === 'signup') {
+          isLoginMode = false;
+          // 自動切換到註冊模式
+          loginTitle.textContent = "會員註冊";
+          formSubtitle.textContent = "請填寫以下資料以建立帳戶";
+          loginForm.style.display = "none";
+          registerForm.style.display = "block";
+          document.querySelector(".social-login").style.display = "none";
+          document.querySelector(".separator").style.display = "none";
+          mainActionBtn.textContent = "註冊";
+          toggleText.textContent = "已經有帳號？";
+          toggleLink.textContent = "立即登入";
+        }
 
         toggleLink.addEventListener("click", (e) => {
           e.preventDefault();
