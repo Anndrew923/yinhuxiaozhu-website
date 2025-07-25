@@ -12,318 +12,400 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
     <style>
       /* 會員中心專用樣式 */
-      .member-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 40px 20px;
-      }
-
-      .member-header {
-        text-align: center;
-        margin-bottom: 40px;
-        padding: 30px;
-        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
-        border-radius: 20px;
-        color: white;
-        box-shadow: 0 10px 30px rgba(45, 90, 39, 0.3);
-      }
-
-      .member-header h1 {
-        font-size: 2.5rem;
-        margin: 0 0 10px 0;
-        font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .member-header p {
-        font-size: 1.1rem;
+      body {
+        background: #f8f9fa;
         margin: 0;
-        opacity: 0.9;
+        padding: 0;
+        font-family: "Noto Sans TC", sans-serif;
       }
 
+      .member-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        padding-bottom: 100px;
+      }
+
+      /* 頂部問候區域 */
+      .greeting-section {
+        margin-bottom: 20px;
+      }
+
+      .greeting-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+      }
+
+      /* 會員卡片 */
       .member-card {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(45, 90, 39, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        color: white;
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
       }
 
-      .member-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-      }
-
-      .member-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 25px;
-        margin-bottom: 30px;
-      }
-
-      .info-item {
+      .member-card-content {
         display: flex;
         align-items: center;
-        padding: 20px;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-radius: 15px;
-        border-left: 4px solid #2d5a27;
-        transition: all 0.3s ease;
+        gap: 15px;
       }
 
-      .info-item:hover {
-        background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-        transform: translateX(5px);
+      .avatar-section {
+        text-align: center;
       }
 
-      .info-icon {
-        width: 50px;
-        height: 50px;
-        background: #2d5a27;
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-right: 15px;
-        color: white;
-        font-size: 1.2rem;
-        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 2rem;
+        color: #ff6b6b;
       }
 
-      .info-content {
+      .profile-link {
+        font-size: 0.8rem;
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .member-details {
         flex: 1;
       }
 
-      .info-label {
+      .member-id {
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin-bottom: 10px;
+      }
+
+      .member-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 12px;
+        border-radius: 8px;
         font-size: 0.9rem;
-        color: #6c757d;
-        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .stat-value {
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .stat-arrow {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* 點數兌換區域 */
+      .points-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .points-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .points-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+      }
+
+      .see-more-link {
+        color: #ff6b6b;
+        text-decoration: none;
+        font-size: 0.9rem;
         font-weight: 500;
       }
 
-      .info-value {
-        font-size: 1.1rem;
-        color: #2d5a27;
-        font-weight: 600;
-        margin: 0;
+      .points-description {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        line-height: 1.4;
       }
 
-      .points-display {
-        text-align: center;
-        padding: 30px;
-        background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-        border-radius: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+      /* 商品兌換區域 */
+      .products-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
 
-      .points-display h3 {
-        color: #8b6914;
-        margin: 0 0 10px 0;
-        font-size: 1.3rem;
-      }
-
-      .points-number {
-        font-size: 3rem;
-        font-weight: 700;
-        color: #8b6914;
-        margin: 0;
-        text-shadow: 0 2px 4px rgba(139, 105, 20, 0.3);
-      }
-
-      .action-buttons {
-        display: flex;
+      .products-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
       }
 
-      .btn-member {
-        padding: 15px 30px;
-        border: none;
-        border-radius: 50px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
+      .product-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .product-card:hover {
+        transform: translateY(-2px);
+      }
+
+      .product-image {
+        position: relative;
+        height: 120px;
+        background: #f8f9fa;
+        display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 140px;
       }
 
-      .btn-primary {
-        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+      .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .product-placeholder {
+        font-size: 2rem;
+        color: #ccc;
+      }
+
+      .points-badge {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        background: #ff6b6b;
         color: white;
-        box-shadow: 0 4px 15px rgba(45, 90, 39, 0.3);
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
       }
 
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(45, 90, 39, 0.4);
+      .product-info {
+        padding: 12px;
       }
 
-      .btn-secondary {
-        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-      }
-
-      .btn-secondary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-      }
-
-      .welcome-message {
-        text-align: center;
-        margin-bottom: 30px;
-        padding: 20px;
-        background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-        border-radius: 15px;
-        border: 2px dashed #2d5a27;
-      }
-
-      .welcome-message h2 {
-        color: #2d5a27;
-        margin: 0 0 10px 0;
-        font-size: 1.5rem;
-      }
-
-      .welcome-message p {
-        color: #4a7c59;
+      .product-name {
+        font-size: 0.9rem;
+        color: #333;
         margin: 0;
-        font-size: 1rem;
+        line-height: 1.3;
       }
 
-      @media (max-width: 768px) {
+      /* 浮動客服按鈕 */
+      .floating-service {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: #ff6b6b;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        z-index: 1000;
+      }
+
+      .service-icon {
+        font-size: 1.2rem;
+        margin-bottom: 2px;
+      }
+
+      .service-text {
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 480px) {
         .member-container {
-          padding: 20px 15px;
+          padding: 15px;
         }
 
-        .member-header {
-          padding: 20px;
-        }
-
-        .member-header h1 {
-          font-size: 2rem;
-        }
-
-        .member-card {
-          padding: 25px;
-        }
-
-        .member-info {
+        .member-stats {
           grid-template-columns: 1fr;
-          gap: 15px;
+          gap: 8px;
         }
 
-        .action-buttons {
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .btn-member {
-          width: 100%;
-          max-width: 250px;
+        .products-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="logo">
-        <img src="assets/logo.png" alt="隱湖小竹 Logo" />
-      </div>
-      <nav>
-        <ul>
-          <li><a href="index.html">首頁</a></li>
-          <li><a href="menu.html">菜單</a></li>
-          <li><a href="order.html">線上訂餐</a></li>
-          <li><a href="member.html">會員中心</a></li>
-          <li><a href="about.html">關於我們</a></li>
-          <li><a href="news.html">最新消息</a></li>
-        </ul>
-      </nav>
-    </header>
-
     <main class="member-container">
-      <div class="member-header">
-        <h1>會員中心</h1>
-        <p>歡迎回到隱湖小竹，享受您的專屬服務</p>
+      <!-- 問候區域 -->
+      <div class="greeting-section">
+        <p class="greeting-text" id="greetingText">Hi, 歡迎回來！</p>
       </div>
 
+      <!-- 會員卡片 -->
       <div class="member-card">
-        <div class="welcome-message">
-          <h2>👋 歡迎回來！</h2>
-          <p>感謝您選擇隱湖小竹，我們致力於為您提供最優質的茶麵體驗</p>
-        </div>
-
-        <div class="points-display">
-          <h3>🎁 我的積分</h3>
-          <p class="points-number" id="displayPoints">0</p>
-        </div>
-
-        <div class="member-info">
-          <div class="info-item">
-            <div class="info-icon">👤</div>
-            <div class="info-content">
-              <div class="info-label">姓名</div>
-              <div class="info-value" id="displayName">載入中...</div>
+        <div class="member-card-content">
+          <div class="avatar-section">
+            <div class="avatar">👤</div>
+            <a href="#" class="profile-link">
+              <span>會員檔案</span>
+              <i class="fas fa-cog"></i>
+            </a>
+          </div>
+          <div class="member-details">
+            <div class="member-id" id="memberId">會員編號 載入中...</div>
+            <div class="member-stats">
+              <div class="stat-item">
+                <div class="stat-label">
+                  <span>優惠券</span>
+                </div>
+                <div class="stat-value">2</div>
+                <i class="fas fa-chevron-right stat-arrow"></i>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">
+                  <span>點數</span>
+                  <i class="fas fa-star" style="color: #ffd700"></i>
+                </div>
+                <div class="stat-value" id="displayPoints">0</div>
+                <i class="fas fa-chevron-right stat-arrow"></i>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">
+                  <span>隨饗券</span>
+                </div>
+                <div class="stat-value">0</div>
+                <i class="fas fa-chevron-right stat-arrow"></i>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">
+                  <span>儲值金</span>
+                  <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-value">$0</div>
+                <i class="fas fa-chevron-right stat-arrow"></i>
+              </div>
             </div>
           </div>
-
-          <div class="info-item">
-            <div class="info-icon">📧</div>
-            <div class="info-content">
-              <div class="info-label">電子郵件</div>
-              <div class="info-value" id="displayEmail">載入中...</div>
-            </div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-icon">📱</div>
-            <div class="info-content">
-              <div class="info-label">聯絡電話</div>
-              <div class="info-value" id="displayPhone">載入中...</div>
-            </div>
-          </div>
-
-          <div class="info-item">
-            <div class="info-icon">🆔</div>
-            <div class="info-content">
-              <div class="info-label">會員狀態</div>
-              <div class="info-value">活躍會員</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="action-buttons">
-          <button class="btn-member btn-primary" id="signOutBtn">
-            🚪 登出系統
-          </button>
-          <a href="order.html" class="btn-member btn-secondary">
-            🍜 立即訂餐
-          </a>
-          <a href="menu.html" class="btn-member btn-secondary"> 📋 查看菜單 </a>
         </div>
       </div>
+
+      <!-- 點數兌換區域 -->
+      <div class="points-section">
+        <div class="points-header">
+          <h2 class="points-title">點數換美味</h2>
+          <a href="#" class="see-more-link">看更多 ></a>
+        </div>
+        <p class="points-description" id="pointsDescription">
+          再累積 30 點即可兌換：50點 - 招牌茶飲 + 小點心
+        </p>
+      </div>
+
+      <!-- 商品兌換區域 -->
+      <div class="products-section">
+        <div class="products-grid">
+          <div class="product-card" onclick="redeemProduct('tea', 20)">
+            <div class="product-image">
+              <div class="product-placeholder">🍵</div>
+              <div class="points-badge">20點</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">招牌茶飲 (中)</h3>
+            </div>
+          </div>
+          <div class="product-card" onclick="redeemProduct('noodles', 30)">
+            <div class="product-image">
+              <div class="product-placeholder">🍜</div>
+              <div class="points-badge">30點</div>
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">招牌麵食 (小)</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 浮動客服按鈕 -->
+      <a href="#" class="floating-service">
+        <i class="fas fa-headset service-icon"></i>
+        <span class="service-text">線上客服</span>
+      </a>
     </main>
 
-    <footer>
-      <p>© 2023 隱湖小竹 | 人文茶麵館</p>
-    </footer>
+    <!-- 底部導覽列 -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="window.location.href='index.html'">
+        <i class="fas fa-home"></i>
+        <span>首頁</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='menu.html'">
+        <i class="fas fa-utensils"></i>
+        <span>菜單</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='order.html'">
+        <i class="fas fa-shopping-cart"></i>
+        <span>訂餐</span>
+      </div>
+      <div class="nav-item active" onclick="window.location.href='member.html'">
+        <i class="fas fa-user"></i>
+        <span>會員</span>
+      </div>
+    </div>
 
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/services/auth.service.js"></script>
     <script src="js/services/user.service.js"></script>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         console.log("會員中心頁面載入完成");
@@ -375,7 +457,6 @@
                 const pendingData = JSON.parse(pendingDataJSON);
                 console.log("解析後的待處理資料:", pendingData);
 
-                // 確保 session 中的 email 與當前登入用戶匹配
                 if (pendingData.email === user.email) {
                   console.log(
                     "Email 匹配，正在嘗試從 sessionStorage 的資料建立文件..."
@@ -388,40 +469,96 @@
                   console.log("已清除 sessionStorage 備份");
                 } else {
                   console.log("Email 不匹配，清除過期資料");
-                  console.log("sessionStorage email:", pendingData.email);
-                  console.log("當前用戶 email:", user.email);
                   sessionStorage.removeItem("pending_user_data");
                 }
               } catch (error) {
                 console.error("處理 sessionStorage 資料時發生錯誤:", error);
               }
-            } else {
-              console.log(
-                "sessionStorage 中沒有找到待處理的資料 - 可能需要重新註冊"
-              );
             }
-          } else {
-            console.log("從 Firestore 成功獲取到資料:", userData);
           }
 
-          // 顯示最終資料（即使 userData 為 null，也顯示基本資訊）
+          // 顯示用戶資料
           console.log("準備顯示資料，userData:", userData);
-          document.getElementById("displayName").textContent =
-            userData?.name || user.email || "未知";
-          document.getElementById("displayPhone").textContent =
-            userData?.phone || "";
-          document.getElementById("displayEmail").textContent =
-            user.email || "未知";
+          const displayName =
+            userData?.name || user.email?.split("@")[0] || "會員";
+          document.getElementById(
+            "greetingText"
+          ).textContent = `Hi, ${displayName}, 歡迎回來！`;
+          document.getElementById(
+            "memberId"
+          ).textContent = `會員編號 ${user.uid.slice(-8)}`;
           document.getElementById("displayPoints").textContent =
             userData?.points ?? 0;
+
+          // 更新點數描述
+          const currentPoints = userData?.points ?? 0;
+          const nextReward = 50;
+          const pointsNeeded = nextReward - currentPoints;
+          if (pointsNeeded > 0) {
+            document.getElementById(
+              "pointsDescription"
+            ).textContent = `再累積 ${pointsNeeded} 點即可兌換：${nextReward}點 - 招牌茶飲 + 小點心`;
+          } else {
+            document.getElementById(
+              "pointsDescription"
+            ).textContent = `恭喜！您已可以兌換：${nextReward}點 - 招牌茶飲 + 小點心`;
+          }
+
           console.log("資料顯示完成");
         });
-
-        document.getElementById("signOutBtn").addEventListener("click", () => {
-          console.log("點擊登出按鈕");
-          AuthService.signOut();
-        });
       });
+
+      // 點數兌換功能接口
+      function redeemProduct(productId, points) {
+        console.log(`兌換商品: ${productId}, 需要點數: ${points}`);
+
+        // TODO: 實現點數兌換邏輯
+        // 1. 檢查用戶點數是否足夠
+        // 2. 扣除點數
+        // 3. 將商品加入購物車
+        // 4. 更新用戶資料
+
+        alert(`即將兌換商品，需要 ${points} 點`);
+
+        // 這裡可以調用購物車服務
+        // addToCartFromPoints(productId, points);
+      }
+
+      // 購物車連動接口
+      function addToCartFromPoints(productId, points) {
+        console.log(`從點數兌換加入購物車: ${productId}`);
+
+        // TODO: 實現購物車連動
+        // 1. 檢查點數是否足夠
+        // 2. 扣除點數
+        // 3. 將商品加入購物車
+        // 4. 跳轉到購物車頁面
+
+        // 示例代碼：
+        // if (checkPoints(points)) {
+        //   deductPoints(points);
+        //   addToCart(productId);
+        //   window.location.href = 'order.html';
+        // }
+      }
+
+      // 點數計算接口
+      function calculatePoints(orderAmount) {
+        // TODO: 實現點數計算邏輯
+        // 通常按照消費金額計算，例如：每消費 100 元獲得 1 點
+        const pointsPerHundred = 1;
+        return Math.floor(orderAmount / 100) * pointsPerHundred;
+      }
+
+      // 更新用戶點數接口
+      async function updateUserPoints(userId, newPoints) {
+        try {
+          await UserService.updateUser(userId, { points: newPoints });
+          console.log("點數更新成功");
+        } catch (error) {
+          console.error("點數更新失敗:", error);
+        }
+      }
     </script>
   </body>
 </html>

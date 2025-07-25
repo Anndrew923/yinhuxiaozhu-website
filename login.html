@@ -12,196 +12,465 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      /* 登入頁面專用樣式 */
+      body {
+        background: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        font-family: "Noto Sans TC", sans-serif;
+      }
+
+      .login-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .logo-section {
+        text-align: center;
+        margin: 20px 0;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .logo-placeholder {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+        border-radius: 50%;
+        margin: 0 auto 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+        box-shadow: 0 8px 25px rgba(45, 90, 39, 0.3);
+        border: 4px solid white;
+      }
+
+      .login-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2d5a27;
+        margin: 0 0 10px 0;
+      }
+
+      .login-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        margin: 0 0 30px 0;
+        line-height: 1.5;
+      }
+
+      .form-section {
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 18px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        background: white;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #2d5a27;
+        box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+      }
+
+      .separator {
+        position: relative;
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      .separator::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e9ecef;
+      }
+
+      .separator span {
+        background: #f8f9fa;
+        padding: 0 20px;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .social-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px solid #e9ecef;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+      }
+
+      .social-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .social-btn.google {
+        color: #4285f4;
+      }
+      .social-btn.facebook {
+        background: #1877f2;
+        color: white;
+        border-color: #1877f2;
+      }
+      .social-btn.line {
+        background: #00b900;
+        color: white;
+        border-color: #00b900;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(45, 90, 39, 0.3);
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 90, 39, 0.4);
+      }
+
+      .register-section {
+        text-align: center;
+        margin-top: 25px;
+      }
+
+      .register-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+      }
+
+      .register-text a {
+        color: #2d5a27;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .register-text a:hover {
+        text-decoration: underline;
+      }
+
+      .error-message {
+        color: #dc3545;
+        text-align: center;
+        margin: 15px 0;
+        font-size: 0.9rem;
+        padding: 10px;
+        background: #f8d7da;
+        border-radius: 8px;
+        border: 1px solid #f5c6cb;
+      }
+
+      .success-message {
+        color: #155724;
+        text-align: center;
+        margin: 15px 0;
+        font-size: 0.9rem;
+        padding: 10px;
+        background: #d4edda;
+        border-radius: 8px;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <div class="logo">
-        <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+    <div class="login-container">
+      <!-- Logo 區域 -->
+      <div class="logo-section">
+        <div class="logo-placeholder">隱湖</div>
+        <h1 class="login-title">會員登入</h1>
+        <p class="login-subtitle" id="formSubtitle">請輸入您的電子郵件與密碼</p>
       </div>
-      <nav>
-        <ul>
-          <li><a href="index.html">首頁</a></li>
-          <li><a href="menu.html">菜單</a></li>
-          <li><a href="order.html">線上訂餐</a></li>
-          <li><a href="member.html">會員中心</a></li>
-          <li><a href="about.html">關於我們</a></li>
-          <li><a href="news.html">最新消息</a></li>
-        </ul>
-      </nav>
-    </header>
 
-    <main class="container" style="max-width: 400px; padding: 40px 20px">
-      <h1 id="formTitle" style="text-align: center; margin-bottom: 20px">
-        登入
-      </h1>
-
-      <form id="loginForm">
+      <!-- 登入表單 -->
+      <div id="loginForm" class="form-section">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="loginEmail" required />
+          <input
+            type="email"
+            class="form-input"
+            placeholder="電子郵件"
+            id="loginEmail"
+            required
+          />
         </div>
         <div class="form-group">
-          <label>密碼</label>
-          <input type="password" id="loginPassword" required />
+          <input
+            type="password"
+            class="form-input"
+            placeholder="密碼"
+            id="loginPassword"
+            required
+          />
         </div>
-        <button type="submit" class="btn-primary" style="width: 100%">
-          登入
-        </button>
-      </form>
-
-      <form id="signUpForm" style="display: none">
-        <div class="form-group">
-          <label>姓名</label>
-          <input type="text" id="signUpName" required />
-        </div>
-        <div class="form-group">
-          <label>電話</label>
-          <input type="tel" id="signUpPhone" required />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="signUpEmail" required />
-        </div>
-        <div class="form-group">
-          <label>密碼</label>
-          <input type="password" id="signUpPassword" required />
-        </div>
-        <button type="submit" class="btn-primary" style="width: 100%">
-          註冊
-        </button>
-      </form>
-
-      <p id="toggleLink" style="text-align: center; margin-top: 15px">
-        還沒有帳號？<a href="#" id="switchToSignUp">註冊</a>
-      </p>
-      <p id="errorMsg" style="color: red; text-align: center"></p>
-
-      <!-- 已登入狀態顯示 -->
-      <div
-        id="loggedInMessage"
-        style="display: none; text-align: center; margin-top: 20px"
-      >
-        <p>您已經登入！</p>
-        <button id="goToMemberBtn" class="btn-primary">前往會員中心</button>
       </div>
-    </main>
 
-    <footer>
-      <p>© 2023 隱湖小竹 | 人文茶麵館</p>
-    </footer>
+      <!-- 註冊表單 (預設隱藏) -->
+      <div id="registerForm" class="form-section" style="display: none">
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-input"
+            placeholder="姓名"
+            id="registerName"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="tel"
+            class="form-input"
+            placeholder="手機號碼"
+            id="registerPhone"
+            maxlength="10"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="email"
+            class="form-input"
+            placeholder="電子郵件"
+            id="registerEmail"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <input
+            type="password"
+            class="form-input"
+            placeholder="密碼"
+            id="registerPassword"
+            required
+          />
+        </div>
+      </div>
 
-    <!-- Firebase CDN -->
+      <!-- 主按鈕 -->
+      <button class="login-btn" id="mainActionBtn">登入</button>
+
+      <!-- 分隔線 -->
+      <div class="separator">
+        <span>或</span>
+      </div>
+
+      <!-- 社群登入 -->
+      <div class="social-login">
+        <div class="social-btn google" id="googleLogin">
+          <span style="font-size: 1.8rem">G</span>
+        </div>
+        <div class="social-btn facebook" id="facebookLogin">
+          <span style="font-size: 1.5rem">f</span>
+        </div>
+        <div class="social-btn line" id="lineLogin">
+          <span style="font-size: 1.2rem; font-weight: bold">LINE</span>
+        </div>
+      </div>
+
+      <!-- 切換連結 -->
+      <div class="register-section">
+        <p class="register-text">
+          <span id="toggleText">還沒有帳號？</span>
+          <a href="#" id="toggleLink">立即註冊</a>
+        </p>
+      </div>
+
+      <!-- 錯誤/成功訊息 -->
+      <div id="errorMsg" class="error-message" style="display: none"></div>
+      <div id="successMsg" class="success-message" style="display: none"></div>
+    </div>
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <!-- 自家腳本 -->
     <script src="js/firebase-config.js"></script>
     <script src="js/services/auth.service.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const loginForm = document.getElementById("loginForm");
-        const signUpForm = document.getElementById("signUpForm");
-        const formTitle = document.getElementById("formTitle");
+        const registerForm = document.getElementById("registerForm");
+        const mainActionBtn = document.getElementById("mainActionBtn");
         const toggleLink = document.getElementById("toggleLink");
-        const switchToSignUp = document.getElementById("switchToSignUp");
+        const toggleText = document.getElementById("toggleText");
+        const formSubtitle = document.getElementById("formSubtitle");
+        const loginTitle = document.querySelector(".login-title");
+
         const errorMsg = document.getElementById("errorMsg");
-        const loggedInMessage = document.getElementById("loggedInMessage");
-        const goToMemberBtn = document.getElementById("goToMemberBtn");
+        const successMsg = document.getElementById("successMsg");
 
-        // 轉換登入/註冊表單
-        switchToSignUp.addEventListener("click", (e) => {
+        let isLoginMode = true;
+
+        toggleLink.addEventListener("click", (e) => {
           e.preventDefault();
-          const isLoginShowing = loginForm.style.display !== "none";
-          if (isLoginShowing) {
-            loginForm.style.display = "none";
-            signUpForm.style.display = "block";
-            formTitle.textContent = "註冊";
-            switchToSignUp.textContent = "登入";
-            toggleLink.childNodes[0].textContent = "已有帳號？";
-          } else {
+          isLoginMode = !isLoginMode;
+
+          if (isLoginMode) {
+            loginTitle.textContent = "會員登入";
+            formSubtitle.textContent = "請輸入您的電子郵件與密碼";
             loginForm.style.display = "block";
-            signUpForm.style.display = "none";
-            formTitle.textContent = "登入";
-            switchToSignUp.textContent = "註冊";
-            toggleLink.childNodes[0].textContent = "還沒有帳號？";
-          }
-          errorMsg.textContent = "";
-        });
-
-        // 登入
-        loginForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          errorMsg.textContent = "";
-          const email = document.getElementById("loginEmail").value;
-          const password = document.getElementById("loginPassword").value;
-          try {
-            await AuthService.signIn(email, password);
-            window.location.href = "member.html";
-          } catch (err) {
-            errorMsg.textContent = "登入失敗：" + err.message;
-          }
-        });
-
-        // 註冊
-        signUpForm.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          errorMsg.textContent = "";
-          const name = document.getElementById("signUpName").value;
-          const phone = document.getElementById("signUpPhone").value;
-          const email = document.getElementById("signUpEmail").value;
-          const password = document.getElementById("signUpPassword").value;
-
-          console.log("開始註冊流程，資料:", { name, phone, email });
-
-          try {
-            const user = await AuthService.signUp(email, password, name, phone);
-            console.log("註冊成功，用戶:", user);
-
-            // 將註冊資料存入 sessionStorage 作為備份
-            const backupData = { name, phone, email };
-            console.log("準備存入 sessionStorage 的資料:", backupData);
-            sessionStorage.setItem(
-              "pending_user_data",
-              JSON.stringify(backupData)
-            );
-            console.log("sessionStorage 存入成功");
-
-            // 驗證是否真的存入了
-            const storedData = sessionStorage.getItem("pending_user_data");
-            console.log("驗證 sessionStorage 中的資料:", storedData);
-
-            window.location.href = "member.html";
-          } catch (err) {
-            console.error("註冊失敗:", err);
-            errorMsg.textContent = "註冊失敗：" + err.message;
-          }
-        });
-
-        // 檢查登入狀態，並處理顯示
-        console.log("登入頁面載入，檢查 Auth 狀態...");
-        AuthService.onAuthStateChanged((user) => {
-          console.log("Auth 狀態變更:", user);
-          if (user) {
-            console.log("用戶已登入，隱藏表單並顯示訊息");
-            formTitle.style.display = "none";
-            loginForm.style.display = "none";
-            signUpForm.style.display = "none";
-            toggleLink.style.display = "none";
-            loggedInMessage.style.display = "block";
-
-            goToMemberBtn.addEventListener("click", () => {
-              window.location.href = "member.html";
-            });
+            registerForm.style.display = "none";
+            document.querySelector(".social-login").style.display = "flex";
+            document.querySelector(".separator").style.display = "block";
+            mainActionBtn.textContent = "登入";
+            toggleText.textContent = "還沒有帳號？";
+            toggleLink.textContent = "立即註冊";
           } else {
-            console.log("用戶未登入，顯示表單");
-            formTitle.style.display = "block";
-            loginForm.style.display = "block";
-            signUpForm.style.display = "none";
-            toggleLink.style.display = "block";
-            loggedInMessage.style.display = "none";
+            loginTitle.textContent = "會員註冊";
+            formSubtitle.textContent = "請填寫以下資料以建立帳戶";
+            loginForm.style.display = "none";
+            registerForm.style.display = "block";
+            document.querySelector(".social-login").style.display = "none";
+            document.querySelector(".separator").style.display = "none";
+            mainActionBtn.textContent = "註冊";
+            toggleText.textContent = "已經有帳號？";
+            toggleLink.textContent = "立即登入";
+          }
+          errorMsg.style.display = "none";
+          successMsg.style.display = "none";
+        });
+
+        mainActionBtn.addEventListener("click", async () => {
+          errorMsg.style.display = "none";
+          successMsg.style.display = "none";
+
+          if (isLoginMode) {
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!email || !password) {
+              showError("請填寫電子郵件與密碼");
+              return;
+            }
+
+            try {
+              await AuthService.signIn(email, password);
+              showSuccess("登入成功！正在跳轉...");
+              setTimeout(() => {
+                window.location.href = "member.html";
+              }, 1500);
+            } catch (err) {
+              console.error("登入失敗:", err);
+              showError("登入失敗：" + err.message);
+            }
+          } else {
+            const name = document.getElementById("registerName").value.trim();
+            const phone = document.getElementById("registerPhone").value.trim();
+            const email = document.getElementById("registerEmail").value.trim();
+            const password = document.getElementById("registerPassword").value;
+
+            if (!name || !phone || !email || !password) {
+              showError("請填寫所有欄位");
+              return;
+            }
+            if (phone.length !== 10) {
+              showError("請輸入正確的手機號碼（10位數字）");
+              return;
+            }
+            if (password.length < 6) {
+              showError("密碼長度至少需要 6 個字元");
+              return;
+            }
+
+            try {
+              await AuthService.signUp(email, password, name, phone);
+              const backupData = { name, phone, email };
+              sessionStorage.setItem(
+                "pending_user_data",
+                JSON.stringify(backupData)
+              );
+
+              showSuccess("註冊成功！正在跳轉...");
+              setTimeout(() => {
+                window.location.href = "member.html";
+              }, 1500);
+            } catch (err) {
+              console.error("註冊失敗:", err);
+              showError("註冊失敗：" + err.message);
+            }
           }
         });
+
+        function showError(message) {
+          errorMsg.textContent = message;
+          errorMsg.style.display = "block";
+        }
+
+        function showSuccess(message) {
+          successMsg.textContent = message;
+          successMsg.style.display = "block";
+        }
+
+        document
+          .getElementById("googleLogin")
+          .addEventListener("click", () =>
+            showError("Google 登入功能開發中...")
+          );
+        document
+          .getElementById("facebookLogin")
+          .addEventListener("click", () =>
+            showError("Facebook 登入功能開發中...")
+          );
+        // 電話號碼自動格式化
+        const phoneInput = document.getElementById("registerPhone");
+        phoneInput.addEventListener("input", (e) => {
+          let value = e.target.value.replace(/\D/g, "");
+          if (value.length > 0) {
+            value = value.replace(/(\d{4})(\d{3})(\d{3})/, "$1-$2-$3");
+          }
+          e.target.value = value;
+        });
+
+        document
+          .getElementById("lineLogin")
+          .addEventListener("click", () => showError("LINE 登入功能開發中..."));
       });
     </script>
   </body>

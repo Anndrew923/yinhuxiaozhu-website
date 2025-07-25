@@ -2,14 +2,20 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>訂單詳情 | 隱湖小竹</title>
     <link rel="stylesheet" href="styles.css?v=1.1" />
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
   </head>
   <body>
     <header class="order-header">
@@ -88,7 +94,7 @@
         <div class="order-items" id="orderItems">
           <!-- 訂單項目會動態插入這裡 -->
         </div>
-        
+
         <div class="order-summary">
           <div class="summary-row">
             <span>商品總計</span>
@@ -98,7 +104,7 @@
             <span>運費</span>
             <span id="shippingFee">NT$ 0</span>
           </div>
-          <div class="summary-row" id="discountRow" style="display: none;">
+          <div class="summary-row" id="discountRow" style="display: none">
             <span>優惠折扣</span>
             <span id="discountAmount">-NT$ 0</span>
           </div>
@@ -110,7 +116,7 @@
       </div>
 
       <!-- 備註 -->
-      <div class="detail-section" id="noteSection" style="display: none;">
+      <div class="detail-section" id="noteSection" style="display: none">
         <h2>備註</h2>
         <div class="note-content" id="orderNote">
           <!-- 備註內容會動態插入這裡 -->
@@ -130,6 +136,26 @@
       </div>
     </main>
 
+    <!-- 底部導覽列 -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="window.location.href='index.html'">
+        <i class="fas fa-home"></i>
+        <span>首頁</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='menu.html'">
+        <i class="fas fa-utensils"></i>
+        <span>菜單</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='order.html'">
+        <i class="fas fa-shopping-cart"></i>
+        <span>訂餐</span>
+      </div>
+      <div class="nav-item active" onclick="window.location.href='member.html'">
+        <i class="fas fa-user"></i>
+        <span>會員</span>
+      </div>
+    </div>
+
     <script src="order-detail.js?v=1.1"></script>
   </body>
-</html> 
+</html>
