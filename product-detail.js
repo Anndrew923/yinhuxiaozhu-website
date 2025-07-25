@@ -376,4 +376,18 @@ function checkout() {
     }
     
     alert('結帳功能開發中...\n\n訂單總計：NT$ ' + cartTotal);
+}
+
+// 導航功能
+function goToHome() {
+    window.location.href = 'index.html';
+}
+
+function goToFeatured() {
+    // 可以跳轉到精選頁面或顯示精選商品
+    alert('精選功能開發中...');
+}
+
+function goToMember() {
+    window.location.href = 'member.html';
 } 

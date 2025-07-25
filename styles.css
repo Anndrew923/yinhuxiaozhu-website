@@ -602,7 +602,7 @@ footer {
 }
 
 .product-detail-main {
-  padding-bottom: 100px;
+  padding-bottom: 180px;
 }
 
 /* 商品圖片輪播 */
@@ -789,7 +789,7 @@ footer {
 /* 底部購買按鈕 */
 .product-actions {
   position: fixed;
-  bottom: 0;
+  bottom: 60px;
   left: 0;
   right: 0;
   background: white;
@@ -856,6 +856,7 @@ footer {
   
   .product-actions {
     padding: 12px 15px;
+    bottom: 60px;
   }
   
   .add-to-cart-large,

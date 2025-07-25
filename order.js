@@ -250,6 +250,20 @@ function goToProduct(productId) {
     window.location.href = `product.html?id=${productId}`;
 }
 
+// 導航功能
+function goToHome() {
+    window.location.href = 'index.html';
+}
+
+function goToFeatured() {
+    // 可以跳轉到精選頁面或顯示精選商品
+    alert('精選功能開發中...');
+}
+
+function goToMember() {
+    window.location.href = 'member.html';
+}
+
 // 點擊購物車外部關閉側邊欄
 document.addEventListener('click', function(event) {
     const cartSidebar = document.getElementById('cartSidebar');
