@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>商品詳情 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+        <div class="header-actions">
+          <a href="order.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+          <i class="fas fa-search"></i>
+          <i class="fas fa-clock"></i>
+        </div>
+      </div>
+    </header>
+
+    <main class="product-detail-main">
+      <!-- 商品圖片輪播 -->
+      <div class="product-gallery">
+        <div class="main-image">
+          <img id="productImage" src="" alt="" />
+        </div>
+        <div class="image-thumbnails" id="imageThumbnails">
+          <!-- 縮圖會動態生成 -->
+        </div>
+      </div>
+
+      <!-- 商品資訊 -->
+      <div class="product-detail-info">
+        <div class="product-header">
+          <h1 id="productName" class="product-title"></h1>
+          <div class="product-labels" id="productLabels">
+            <!-- 標籤會動態生成 -->
+          </div>
+        </div>
+
+        <div class="product-price-section">
+          <div class="price-info">
+            <span class="current-price" id="currentPrice"></span>
+            <span class="original-price" id="originalPrice"></span>
+          </div>
+          <div class="quantity-selector">
+            <button class="qty-btn" onclick="changeQuantity(-1)">-</button>
+            <span id="quantity">1</span>
+            <button class="qty-btn" onclick="changeQuantity(1)">+</button>
+          </div>
+        </div>
+
+        <div class="product-description">
+          <h3>商品說明</h3>
+          <p id="productDescription"></p>
+        </div>
+
+        <div class="product-details">
+          <h3>商品詳情</h3>
+          <div class="detail-item">
+            <span class="detail-label">規格：</span>
+            <span id="productSpec"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">保存方式：</span>
+            <span id="storageMethod"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">有效期限：</span>
+            <span id="expiryDate"></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">產地：</span>
+            <span id="origin"></span>
+          </div>
+        </div>
+
+        <div class="product-ingredients">
+          <h3>成分說明</h3>
+          <p id="ingredients"></p>
+        </div>
+
+        <div class="product-notice">
+          <h3>注意事項</h3>
+          <ul id="noticeList">
+            <!-- 注意事項會動態生成 -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- 底部購買按鈕 -->
+      <div class="product-actions">
+        <button class="add-to-cart-large" onclick="addToCartFromDetail()">
+          <i class="fas fa-shopping-cart"></i>
+          加入購物車
+        </button>
+        <button class="buy-now" onclick="buyNow()">
+          立即購買
+        </button>
+      </div>
+    </main>
+
+    <!-- 購物車浮動按鈕 -->
+    <div class="cart-fab" onclick="toggleCart()">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-count" id="cartCount">0</span>
+    </div>
+
+    <!-- 購物車側邊欄 -->
+    <div class="cart-sidebar" id="cartSidebar">
+      <div class="cart-header">
+        <h3>購物車</h3>
+        <button class="close-cart" onclick="toggleCart()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="cart-items" id="cartItems">
+        <!-- 購物車項目會動態插入這裡 -->
+      </div>
+      <div class="cart-footer">
+        <div class="cart-total">
+          <span>總計：</span>
+          <span id="cartTotal">NT$ 0</span>
+        </div>
+        <button class="checkout-btn" onclick="checkout()">
+          結帳
+        </button>
+      </div>
+    </div>
+
+    <script src="product-detail.js"></script>
+  </body>
+</html> 
