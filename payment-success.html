@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>付款成功 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="success-main">
+      <!-- 結帳步驟指示器 -->
+      <div class="checkout-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <span>配送資訊</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <span>確認訂單</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+          <div class="step-number">3</div>
+          <span>完成付款</span>
+        </div>
+      </div>
+
+      <!-- 付款成功訊息 -->
+      <div class="success-section">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>付款成功！</h1>
+        <p>感謝您的購買，訂單已成功建立</p>
+      </div>
+
+      <!-- 訂單資訊 -->
+      <div class="success-section">
+        <h2>訂單資訊</h2>
+        <div class="order-info">
+          <div class="info-row">
+            <span class="info-label">訂單編號</span>
+            <span class="info-value" id="orderNumber">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">付款金額</span>
+            <span class="info-value" id="orderAmount">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">付款方式</span>
+            <span class="info-value" id="paymentMethod">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">付款時間</span>
+            <span class="info-value" id="paymentTime">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 配送資訊 -->
+      <div class="success-section">
+        <h2>配送資訊</h2>
+        <div class="delivery-info">
+          <div class="info-row">
+            <span class="info-label">收件人</span>
+            <span class="info-value" id="customerName">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">聯絡電話</span>
+            <span class="info-value" id="customerPhone">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">配送地址</span>
+            <span class="info-value" id="deliveryAddress">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">配送方式</span>
+            <span class="info-value" id="deliveryMethod">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 訂單商品 -->
+      <div class="success-section">
+        <h2>訂購商品</h2>
+        <div class="order-items" id="orderItems">
+          <!-- 訂單項目會動態插入這裡 -->
+        </div>
+      </div>
+
+      <!-- 後續步驟 -->
+      <div class="success-section">
+        <h2>後續步驟</h2>
+        <div class="next-steps">
+          <div class="step-item">
+            <div class="step-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="step-content">
+              <h3>確認信已發送</h3>
+              <p>我們已將訂單確認信發送到您的信箱</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-icon">
+              <i class="fas fa-truck"></i>
+            </div>
+            <div class="step-content">
+              <h3>商品準備中</h3>
+              <p>我們將在 1-2 個工作天內為您準備商品</p>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="step-content">
+              <h3>配送通知</h3>
+              <p>商品出貨時會以簡訊通知您</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 客服資訊 -->
+      <div class="success-section">
+        <div class="customer-service">
+          <h2>需要協助？</h2>
+          <p>如有任何問題，歡迎聯繫我們的客服</p>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fas fa-phone"></i>
+              <span>客服專線：0800-123-456</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span>客服信箱：service@yinhu.com</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-clock"></i>
+              <span>服務時間：週一至週五 9:00-18:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部按鈕 -->
+    <div class="success-actions">
+      <button class="btn-secondary" onclick="viewOrderHistory()">
+        <i class="fas fa-list"></i>
+        查看訂單
+      </button>
+      <button class="btn-primary" onclick="goToHome()">
+        <i class="fas fa-home"></i>
+        返回首頁
+      </button>
+    </div>
+
+    <script src="payment-success.js"></script>
+  </body>
+</html> 

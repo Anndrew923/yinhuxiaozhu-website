@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>訂單歷史 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+        <div class="header-actions">
+          <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="order-history-main">
+      <h1>訂單歷史</h1>
+      
+      <!-- 訂單篩選 -->
+      <div class="filter-section">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="filterOrders('all')">全部訂單</button>
+          <button class="filter-tab" onclick="filterOrders('pending')">待處理</button>
+          <button class="filter-tab" onclick="filterOrders('shipped')">已出貨</button>
+          <button class="filter-tab" onclick="filterOrders('completed')">已完成</button>
+        </div>
+      </div>
+
+      <!-- 訂單列表 -->
+      <div class="orders-container" id="ordersContainer">
+        <!-- 訂單會動態插入這裡 -->
+      </div>
+
+      <!-- 空狀態 -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h3>還沒有訂單</h3>
+        <p>開始您的第一次購物吧！</p>
+        <button class="btn-primary" onclick="goToShop()">
+          <i class="fas fa-shopping-cart"></i>
+          去購物
+        </button>
+      </div>
+    </main>
+
+    <!-- 底部導航 -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="goToHome()">
+        <i class="fas fa-home"></i>
+        <span>首頁</span>
+      </div>
+      <div class="nav-item" onclick="goToFeatured()">
+        <i class="fas fa-star"></i>
+        <span>精選</span>
+      </div>
+      <div class="nav-item" onclick="goToCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span>購物車</span>
+      </div>
+      <div class="nav-item active" onclick="goToMember()">
+        <i class="fas fa-user"></i>
+        <span>會員</span>
+      </div>
+    </div>
+
+    <script src="order-history.js"></script>
+  </body>
+</html> 

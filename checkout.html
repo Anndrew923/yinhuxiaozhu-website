@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>結帳 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+        <div class="header-actions">
+          <a href="order.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="checkout-main">
+      <!-- 結帳步驟指示器 -->
+      <div class="checkout-steps">
+        <div class="step active">
+          <div class="step-number">1</div>
+          <span>配送資訊</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <span>確認訂單</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <span>完成付款</span>
+        </div>
+      </div>
+
+      <!-- 配送資訊 -->
+      <div class="checkout-section">
+        <h2>配送資訊</h2>
+        
+        <!-- 聯絡資訊 -->
+        <div class="form-group">
+          <label>聯絡資訊</label>
+          <div class="form-row">
+            <input type="text" id="customerName" placeholder="收件人姓名" required />
+            <input type="tel" id="customerPhone" placeholder="聯絡電話" required />
+          </div>
+        </div>
+
+        <!-- 配送地址 -->
+        <div class="form-group">
+          <label>配送地址</label>
+          <div class="form-row">
+            <input type="text" id="customerAddress" placeholder="詳細地址" required />
+          </div>
+          <div class="form-row">
+            <input type="text" id="customerCity" placeholder="縣市" required />
+            <input type="text" id="customerDistrict" placeholder="鄉鎮市區" required />
+          </div>
+        </div>
+
+        <!-- 配送方式 -->
+        <div class="form-group">
+          <label>配送方式</label>
+          <div class="delivery-options">
+            <div class="delivery-option" onclick="selectDelivery('home')">
+              <input type="radio" name="delivery" id="home" value="home" checked />
+              <label for="home">
+                <div class="option-info">
+                  <div class="option-title">宅配到府</div>
+                  <div class="option-desc">1-2個工作天送達</div>
+                </div>
+                <div class="option-price">NT$ 150</div>
+              </label>
+            </div>
+            
+            <div class="delivery-option" onclick="selectDelivery('convenience')">
+              <input type="radio" name="delivery" id="convenience" value="convenience" />
+              <label for="convenience">
+                <div class="option-info">
+                  <div class="option-title">超商取貨</div>
+                  <div class="option-desc">2-3個工作天送達</div>
+                </div>
+                <div class="option-price">NT$ 80</div>
+              </label>
+            </div>
+            
+            <div class="delivery-option" onclick="selectDelivery('pickup')">
+              <input type="radio" name="delivery" id="pickup" value="pickup" />
+              <label for="pickup">
+                <div class="option-info">
+                  <div class="option-title">門市自取</div>
+                  <div class="option-desc">當日可取貨</div>
+                </div>
+                <div class="option-price">免費</div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 備註 -->
+        <div class="form-group">
+          <label>備註</label>
+          <textarea id="orderNote" placeholder="如有特殊需求請在此說明..."></textarea>
+        </div>
+      </div>
+
+      <!-- 訂單摘要 -->
+      <div class="checkout-section">
+        <h2>訂單摘要</h2>
+        <div class="order-summary">
+          <div class="order-items" id="orderItems">
+            <!-- 訂單項目會動態插入這裡 -->
+          </div>
+          
+          <div class="order-totals">
+            <div class="total-row">
+              <span>商品總計</span>
+              <span id="subtotal">NT$ 0</span>
+            </div>
+            <div class="total-row">
+              <span>運費</span>
+              <span id="shippingFee">NT$ 0</span>
+            </div>
+            <div class="total-row total-final">
+              <span>總計</span>
+              <span id="finalTotal">NT$ 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 優惠券 -->
+      <div class="checkout-section">
+        <h2>優惠券</h2>
+        <div class="coupon-section">
+          <div class="coupon-input">
+            <input type="text" id="couponCode" placeholder="輸入優惠券代碼" />
+            <button onclick="applyCoupon()">使用</button>
+          </div>
+          <div class="coupon-applied" id="couponApplied" style="display: none;">
+            <span id="couponText"></span>
+            <button onclick="removeCoupon()">移除</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部結帳按鈕 -->
+    <div class="checkout-actions">
+      <button class="btn-secondary" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        返回購物車
+      </button>
+      <button class="btn-primary" onclick="proceedToPayment()">
+        確認訂單
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+
+    <script src="checkout.js"></script>
+  </body>
+</html> 

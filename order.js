@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 綁定搜尋功能
     bindSearchEvents();
+    
+    // 設置滾動隱藏功能
+    setupScrollHide();
 });
 
 // 載入購物車資料
@@ -235,14 +238,8 @@ function checkout() {
         return;
     }
     
-    // 這裡可以添加結帳邏輯
-    // 例如：跳轉到結帳頁面或顯示結帳表單
-    alert('結帳功能開發中...\n\n訂單總計：NT$ ' + cartTotal);
-    
-    // 清空購物車（測試用）
-    // cart = [];
-    // updateCartDisplay();
-    // saveCartToStorage();
+    // 跳轉到結帳頁面
+    window.location.href = 'checkout.html';
 }
 
 // 跳轉到商品詳情頁
@@ -262,6 +259,36 @@ function goToFeatured() {
 
 function goToMember() {
     window.location.href = 'member.html';
+}
+
+// 滾動隱藏功能
+let lastScrollTop = 0;
+let scrollThreshold = 100; // 滾動多少像素後開始隱藏
+
+function setupScrollHide() {
+    window.addEventListener('scroll', function() {
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const header = document.getElementById('orderHeader');
+        
+        if (!header) return;
+        
+        // 如果滾動距離超過閾值
+        if (currentScrollTop > scrollThreshold) {
+            // 向下滾動時隱藏 header
+            if (currentScrollTop > lastScrollTop) {
+                header.classList.add('header-hidden');
+            } 
+            // 向上滾動時顯示 header
+            else {
+                header.classList.remove('header-hidden');
+            }
+        } else {
+            // 在頂部時總是顯示 header
+            header.classList.remove('header-hidden');
+        }
+        
+        lastScrollTop = currentScrollTop;
+    });
 }
 
 // 點擊購物車外部關閉側邊欄

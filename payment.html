@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>付款 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+        <div class="header-actions">
+          <a href="checkout.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="payment-main">
+      <!-- 結帳步驟指示器 -->
+      <div class="checkout-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <span>配送資訊</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+          <div class="step-number">2</div>
+          <span>確認訂單</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <span>完成付款</span>
+        </div>
+      </div>
+
+      <!-- 訂單摘要 -->
+      <div class="payment-section">
+        <h2>訂單摘要</h2>
+        <div class="order-summary">
+          <div class="order-items" id="orderItems">
+            <!-- 訂單項目會動態插入這裡 -->
+          </div>
+          
+          <div class="order-totals">
+            <div class="total-row">
+              <span>商品總計</span>
+              <span id="subtotal">NT$ 0</span>
+            </div>
+            <div class="total-row">
+              <span>運費</span>
+              <span id="shippingFee">NT$ 0</span>
+            </div>
+            <div class="total-row" id="discountRow" style="display: none;">
+              <span>優惠折扣</span>
+              <span id="discountAmount">-NT$ 0</span>
+            </div>
+            <div class="total-row total-final">
+              <span>總計</span>
+              <span id="finalTotal">NT$ 0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 付款方式 -->
+      <div class="payment-section">
+        <h2>付款方式</h2>
+        <div class="payment-methods">
+          <div class="payment-method" onclick="selectPayment('credit')">
+            <input type="radio" name="payment" id="credit" value="credit" checked />
+            <label for="credit">
+              <div class="method-info">
+                <div class="method-icon">
+                  <i class="fas fa-credit-card"></i>
+                </div>
+                <div class="method-details">
+                  <div class="method-title">信用卡付款</div>
+                  <div class="method-desc">支援 Visa、MasterCard、JCB</div>
+                </div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="payment-method" onclick="selectPayment('linepay')">
+            <input type="radio" name="payment" id="linepay" value="linepay" />
+            <label for="linepay">
+              <div class="method-info">
+                <div class="method-icon">
+                  <i class="fab fa-line"></i>
+                </div>
+                <div class="method-details">
+                  <div class="method-title">Line Pay</div>
+                  <div class="method-desc">使用 Line Pay 快速付款</div>
+                </div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="payment-method" onclick="selectPayment('cod')">
+            <input type="radio" name="payment" id="cod" value="cod" />
+            <label for="cod">
+              <div class="method-info">
+                <div class="method-icon">
+                  <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="method-details">
+                  <div class="method-title">貨到付款</div>
+                  <div class="method-desc">商品送達時付款</div>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 信用卡資訊 -->
+      <div class="payment-section" id="creditCardSection">
+        <h2>信用卡資訊</h2>
+        <div class="credit-card-form">
+          <div class="form-group">
+            <label>持卡人姓名</label>
+            <input type="text" id="cardHolderName" placeholder="請輸入持卡人姓名" />
+          </div>
+          
+          <div class="form-group">
+            <label>信用卡號碼</label>
+            <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" />
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>有效期限</label>
+              <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" />
+            </div>
+            <div class="form-group">
+              <label>安全碼</label>
+              <input type="text" id="cardCvv" placeholder="CVV" maxlength="4" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 發票資訊 -->
+      <div class="payment-section">
+        <h2>發票資訊</h2>
+        <div class="invoice-options">
+          <div class="invoice-option" onclick="selectInvoice('personal')">
+            <input type="radio" name="invoice" id="personal" value="personal" checked />
+            <label for="personal">
+              <div class="option-info">
+                <div class="option-title">個人發票</div>
+                <div class="option-desc">開立個人電子發票</div>
+              </div>
+            </label>
+          </div>
+          
+          <div class="invoice-option" onclick="selectInvoice('company')">
+            <input type="radio" name="invoice" id="company" value="company" />
+            <label for="company">
+              <div class="option-info">
+                <div class="option-title">公司發票</div>
+                <div class="option-desc">開立公司統一發票</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="invoice-form" id="companyInvoiceForm" style="display: none;">
+          <div class="form-group">
+            <label>公司名稱</label>
+            <input type="text" id="companyName" placeholder="請輸入公司名稱" />
+          </div>
+          <div class="form-group">
+            <label>統一編號</label>
+            <input type="text" id="companyTaxId" placeholder="請輸入統一編號" maxlength="8" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 安全提示 -->
+      <div class="payment-section">
+        <div class="security-notice">
+          <i class="fas fa-shield-alt"></i>
+          <div class="notice-content">
+            <h3>付款安全</h3>
+            <p>您的付款資訊將透過 SSL 加密傳輸，確保交易安全。我們不會儲存您的信用卡資訊。</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部付款按鈕 -->
+    <div class="payment-actions">
+      <button class="btn-secondary" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        返回結帳
+      </button>
+      <button class="btn-primary" onclick="processPayment()">
+        <i class="fas fa-lock"></i>
+        確認付款
+      </button>
+    </div>
+
+    <!-- 付款處理遮罩 -->
+    <div class="payment-overlay" id="paymentOverlay" style="display: none;">
+      <div class="payment-processing">
+        <div class="processing-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <h3>付款處理中</h3>
+        <p>請稍候，正在處理您的付款...</p>
+      </div>
+    </div>
+
+    <script src="payment.js"></script>
+  </body>
+</html> 

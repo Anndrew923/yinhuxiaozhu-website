@@ -259,13 +259,45 @@ function addToCartFromDetail() {
 
 // 立即購買
 function buyNow() {
-    if (!currentProduct) return;
+    if (currentQuantity <= 0) {
+        alert('請選擇商品數量');
+        return;
+    }
     
-    // 先加入購物車
-    addToCartFromDetail();
+    if (!currentProduct) {
+        alert('商品資訊錯誤');
+        return;
+    }
+    
+    // 創建單一商品的訂單
+    const singleItemOrder = {
+        items: [{
+            id: currentProduct.id,
+            name: currentProduct.name,
+            price: currentProduct.price,
+            quantity: currentQuantity
+        }],
+        subtotal: currentProduct.price * currentQuantity,
+        shippingFee: 150, // 預設宅配運費
+        discountAmount: 0,
+        finalTotal: (currentProduct.price * currentQuantity) + 150,
+        delivery: 'home',
+        customer: {
+            name: '',
+            phone: '',
+            address: '',
+            city: '',
+            district: ''
+        },
+        note: '',
+        coupon: null
+    };
+    
+    // 儲存訂單資料到 localStorage
+    localStorage.setItem('yinhuOrder', JSON.stringify(singleItemOrder));
     
     // 跳轉到結帳頁面
-    alert('立即購買功能開發中...\n\n商品：' + currentProduct.name + '\n數量：' + currentQuantity + '\n總價：NT$ ' + (currentProduct.price * currentQuantity));
+    window.location.href = 'checkout.html';
 }
 
 // 載入購物車資料
@@ -375,7 +407,8 @@ function checkout() {
         return;
     }
     
-    alert('結帳功能開發中...\n\n訂單總計：NT$ ' + cartTotal);
+    // 跳轉到結帳頁面
+    window.location.href = 'checkout.html';
 }
 
 // 導航功能
