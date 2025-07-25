@@ -10,6 +10,23 @@
   box-sizing: border-box;
 }
 
+/* 防止文字縮放 */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* 防止用戶縮放 */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: "Noto Sans TC", sans-serif;
   color: var(--text-color);
@@ -590,6 +607,92 @@ footer {
   
   .order-main {
     padding: 15px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+  
+  .current-price {
+    font-size: 20px;
+  }
+  
+  .product-price-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .main-image {
+    height: 250px;
+  }
+  
+  .product-actions {
+    padding: 12px 15px;
+    bottom: 60px;
+  }
+  
+  .add-to-cart-large,
+  .buy-now {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* 更小螢幕的優化 */
+@media (max-width: 480px) {
+  .order-main {
+    padding: 10px;
+  }
+  
+  .product-card {
+    height: 110px;
+  }
+
+  .product-image {
+    width: 110px;
+    height: 110px;
+  }
+
+  .product-name {
+    font-size: 13px;
+  }
+
+  .price {
+    font-size: 15px;
+  }
+
+  .add-to-cart {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .category-menu {
+    padding: 0 15px 12px;
+    gap: 15px;
+  }
+
+  .category-item {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .search-bar {
+    margin: 12px 15px;
+  }
+
+  .search-bar input {
+    padding: 10px 35px 10px 35px;
+    font-size: 13px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+  
+  .current-price {
+    font-size: 18px;
   }
 }
 
