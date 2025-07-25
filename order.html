@@ -2,8 +2,14 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      http-equiv="Cache-Control"
+      content="no-cache, no-store, must-revalidate"
+    />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>線上訂餐 | 隱湖小竹</title>
@@ -12,175 +18,198 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
     <script src="css-check.js"></script>
   </head>
   <body>
-    <header class="order-header" id="orderHeader">
-      <div class="header-top">
-        <div class="logo">
-          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
-          <span class="brand-name">隱湖小竹</span>
+    <div class="container">
+      <header class="order-header" id="orderHeader">
+        <div class="header-top">
+          <div class="logo">
+            <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+            <span class="brand-name">隱湖小竹</span>
+          </div>
+          <div class="header-actions">
+            <i class="fas fa-search"></i>
+            <i class="fas fa-clock"></i>
+          </div>
         </div>
-        <div class="header-actions">
+
+        <div class="search-bar">
           <i class="fas fa-search"></i>
-          <i class="fas fa-clock"></i>
+          <input type="text" placeholder="搜尋商品..." />
         </div>
-      </div>
-      
-      <div class="search-bar">
-        <i class="fas fa-search"></i>
-        <input type="text" placeholder="搜尋商品..." />
-      </div>
-      
-      <div class="category-menu" id="categoryMenu">
-        <div class="category-item active">冷凍</div>
-        <div class="category-item">常溫</div>
-        <div class="category-item">醬料</div>
-        <div class="category-item">特價</div>
-        <div class="category-item">新品</div>
-      </div>
-    </header>
 
-    <main class="order-main">
-      <div class="favorite-categories">
-        <h3>熱門分類</h3>
-        <div class="category-tags">
-          <span class="tag">餛飩系列</span>
-          <span class="tag">醬料包</span>
-          <span class="tag">辣椒醬</span>
-          <span class="tag">冷凍包</span>
+        <div class="category-menu" id="categoryMenu">
+          <div class="category-item active">冷凍</div>
+          <div class="category-item">常溫</div>
+          <div class="category-item">醬料</div>
+          <div class="category-item">特價</div>
+          <div class="category-item">新品</div>
         </div>
-      </div>
+      </header>
 
-      <div class="products-grid">
-        <div class="product-card" onclick="goToProduct('gift-box')">
-          <div class="product-image">
-            <img src="assets/gift-box.jpg" alt="禮盒" />
-            <div class="product-labels">
-              <span class="label">主打</span>
-              <span class="label" style="background: #e74c3c;">熱銷</span>
-            </div>
-          </div>
-          <div class="product-info">
-            <h4 class="product-name">禮盒</h4>
-            <p class="product-desc">(一盒六入)</p>
-            <div class="product-price">
-              <span class="price">NT$ 540</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('禮盒', 540)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
-            </div>
+      <main class="order-main">
+        <div class="favorite-categories">
+          <h3>熱門分類</h3>
+          <div class="category-tags">
+            <span class="tag">餛飩系列</span>
+            <span class="tag">醬料包</span>
+            <span class="tag">辣椒醬</span>
+            <span class="tag">冷凍包</span>
           </div>
         </div>
 
-        <div class="product-card" onclick="goToProduct('wonton')">
-          <div class="product-image">
-            <div class="placeholder-image">
-              <i class="fas fa-image"></i>
+        <div class="products-grid">
+          <div class="product-card" onclick="goToProduct('gift-box')">
+            <div class="product-image">
+              <img src="assets/gift-box.jpg" alt="禮盒" />
+              <div class="product-labels">
+                <span class="label">主打</span>
+                <span class="label" style="background: #e74c3c">熱銷</span>
+              </div>
             </div>
-            <div class="product-labels">
-              <span class="label">冷凍</span>
+            <div class="product-info">
+              <h4 class="product-name">禮盒</h4>
+              <p class="product-desc">(一盒六入)</p>
+              <div class="product-price">
+                <span class="price">NT$ 540</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('禮盒', 540)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-info">
-            <h4 class="product-name">冷凍餛飩</h4>
-            <p class="product-desc">(12顆/盒)</p>
-            <div class="product-price">
-              <span class="price">NT$ 120</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('冷凍餛飩', 120)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div class="product-card" onclick="goToProduct('shrimp-wonton')">
-          <div class="product-image">
-            <div class="placeholder-image">
-              <i class="fas fa-image"></i>
+          <div class="product-card" onclick="goToProduct('wonton')">
+            <div class="product-image">
+              <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+              </div>
+              <div class="product-labels">
+                <span class="label">冷凍</span>
+              </div>
             </div>
-            <div class="product-labels">
-              <span class="label">冷凍</span>
+            <div class="product-info">
+              <h4 class="product-name">冷凍餛飩</h4>
+              <p class="product-desc">(12顆/盒)</p>
+              <div class="product-price">
+                <span class="price">NT$ 120</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('冷凍餛飩', 120)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-info">
-            <h4 class="product-name">冷凍鮮蝦餛飩</h4>
-            <p class="product-desc">(12顆/盒)</p>
-            <div class="product-price">
-              <span class="price">NT$ 150</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('冷凍鮮蝦餛飩', 150)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div class="product-card" onclick="goToProduct('zhajiang-sauce')">
-          <div class="product-image">
-            <div class="placeholder-image">
-              <i class="fas fa-image"></i>
+          <div class="product-card" onclick="goToProduct('shrimp-wonton')">
+            <div class="product-image">
+              <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+              </div>
+              <div class="product-labels">
+                <span class="label">冷凍</span>
+              </div>
             </div>
-            <div class="product-labels">
-              <span class="label">醬料</span>
+            <div class="product-info">
+              <h4 class="product-name">冷凍鮮蝦餛飩</h4>
+              <p class="product-desc">(12顆/盒)</p>
+              <div class="product-price">
+                <span class="price">NT$ 150</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('冷凍鮮蝦餛飩', 150)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-info">
-            <h4 class="product-name">炸醬冷凍包</h4>
-            <p class="product-desc">(250克/包,約2-3人份)</p>
-            <div class="product-price">
-              <span class="price">NT$ 90</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('炸醬冷凍包', 90)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div class="product-card" onclick="goToProduct('minced-pork-sauce')">
-          <div class="product-image">
-            <div class="placeholder-image">
-              <i class="fas fa-image"></i>
+          <div class="product-card" onclick="goToProduct('zhajiang-sauce')">
+            <div class="product-image">
+              <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+              </div>
+              <div class="product-labels">
+                <span class="label">醬料</span>
+              </div>
             </div>
-            <div class="product-labels">
-              <span class="label">醬料</span>
+            <div class="product-info">
+              <h4 class="product-name">炸醬冷凍包</h4>
+              <p class="product-desc">(250克/包,約2-3人份)</p>
+              <div class="product-price">
+                <span class="price">NT$ 90</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('炸醬冷凍包', 90)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-info">
-            <h4 class="product-name">肉燥冷凍包</h4>
-            <p class="product-desc">(250克/包,約2-3人份)</p>
-            <div class="product-price">
-              <span class="price">NT$ 90</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('肉燥冷凍包', 90)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div class="product-card" onclick="goToProduct('chili-sauce')">
-          <div class="product-image">
-            <div class="placeholder-image">
-              <i class="fas fa-image"></i>
+          <div class="product-card" onclick="goToProduct('minced-pork-sauce')">
+            <div class="product-image">
+              <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+              </div>
+              <div class="product-labels">
+                <span class="label">醬料</span>
+              </div>
             </div>
-            <div class="product-labels">
-              <span class="label">醬料</span>
-              <span class="label-warning">不可素食</span>
+            <div class="product-info">
+              <h4 class="product-name">肉燥冷凍包</h4>
+              <p class="product-desc">(250克/包,約2-3人份)</p>
+              <div class="product-price">
+                <span class="price">NT$ 90</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('肉燥冷凍包', 90)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-info">
-            <h4 class="product-name">自製辣椒醬</h4>
-            <p class="product-desc">(不可素食)</p>
-            <div class="product-price">
-              <span class="price">NT$ 80</span>
-              <button class="add-to-cart" onclick="event.stopPropagation(); addToCart('自製辣椒醬', 80)">
-                <i class="fas fa-shopping-cart"></i>
-              </button>
+
+          <div class="product-card" onclick="goToProduct('chili-sauce')">
+            <div class="product-image">
+              <div class="placeholder-image">
+                <i class="fas fa-image"></i>
+              </div>
+              <div class="product-labels">
+                <span class="label">醬料</span>
+                <span class="label-warning">不可素食</span>
+              </div>
+            </div>
+            <div class="product-info">
+              <h4 class="product-name">自製辣椒醬</h4>
+              <p class="product-desc">(不可素食)</p>
+              <div class="product-price">
+                <span class="price">NT$ 80</span>
+                <button
+                  class="add-to-cart"
+                  onclick="event.stopPropagation(); addToCart('自製辣椒醬', 80)"
+                >
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
 
     <!-- 購物車浮動按鈕 -->
     <div class="cart-fab" onclick="toggleCart()">
@@ -204,9 +233,7 @@
           <span>總計：</span>
           <span id="cartTotal">NT$ 0</span>
         </div>
-        <button class="checkout-btn" onclick="checkout()">
-          結帳
-        </button>
+        <button class="checkout-btn" onclick="checkout()">結帳</button>
       </div>
     </div>
 

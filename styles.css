@@ -31,6 +31,13 @@ body {
   font-family: "Noto Sans TC", sans-serif;
   color: var(--text-color);
   line-height: 1.6;
+  background-color: #f4f4f4; /* 添加一個淺灰色背景，讓內容區域更突出 */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 header {
@@ -219,6 +226,7 @@ footer {
 .order-main {
   padding: 20px;
   padding-bottom: 120px; /* 增加底部間距，避免被導航列遮擋 */
+  background-color: transparent; /* 移除 order-main 的背景色，由 body 控制 */
 }
 
 .favorite-categories {
@@ -712,7 +720,7 @@ footer {
   .current-price {
     font-size: 18px;
   }
-  
+
   .cart-fab {
     bottom: 100px; /* 在手機尺寸上調整購物車按鈕位置 */
   }
