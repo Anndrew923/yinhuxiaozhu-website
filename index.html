@@ -34,19 +34,21 @@
         list-style: none;
         margin: 0;
         padding: 0;
-        gap: 20px;
+        gap: 30px;
         align-items: center;
         flex-wrap: wrap;
+        justify-content: center;
+        flex: 1;
       }
 
       nav ul li a {
         color: white;
         text-decoration: none;
-        font-weight: 500;
-        font-size: 14px;
-        transition: color 0.3s;
-        padding: 8px 12px;
-        border-radius: 4px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s;
+        padding: 10px 16px;
+        border-radius: 6px;
         white-space: nowrap;
       }
 
@@ -62,29 +64,246 @@
         }
 
         nav ul {
-          gap: 8px;
+          gap: 15px;
         }
 
         nav ul li a {
-          font-size: 12px;
-          padding: 6px 8px;
+          font-size: 14px;
+          padding: 8px 12px;
         }
       }
 
       @media (max-width: 360px) {
         nav ul {
-          gap: 4px;
+          gap: 10px;
         }
 
         nav ul li a {
-          font-size: 11px;
-          padding: 4px 6px;
+          font-size: 13px;
+          padding: 6px 10px;
         }
       }
 
       nav ul li a:hover {
         color: #4a7c59;
         background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* === 浮動 NEWS 按鈕樣式 === */
+      .news-fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #2d5a27 0%, #4a7c59 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(45, 90, 39, 0.4);
+        z-index: 1000;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+
+      .news-fab::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 255, 255, 0.2) 50%,
+          transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .news-fab:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 10px 30px rgba(45, 90, 39, 0.6);
+      }
+
+      .news-fab:hover::before {
+        opacity: 1;
+      }
+
+      .news-fab-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .news-text {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 2px;
+        letter-spacing: 1px;
+      }
+
+      .news-fab i {
+        font-size: 18px;
+        margin-top: 2px;
+      }
+
+      /* === 新聞彈窗樣式 === */
+      .news-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1001;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .news-modal.open {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .news-modal-content {
+        background: white;
+        border-radius: 16px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        transform: scale(0.8);
+        transition: transform 0.3s ease;
+      }
+
+      .news-modal.open .news-modal-content {
+        transform: scale(1);
+      }
+
+      .news-modal-header {
+        padding: 25px 25px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-radius: 16px 16px 0 0;
+      }
+
+      .news-modal-header h2 {
+        margin: 0;
+        color: #2d5a27;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .close-news {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .close-news:hover {
+        background: #f0f0f0;
+        color: #333;
+      }
+
+      .news-modal-body {
+        padding: 20px 25px 25px;
+      }
+
+      .news-item {
+        padding: 20px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .news-item:last-child {
+        border-bottom: none;
+      }
+
+      .news-date {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .news-item h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .news-item p {
+        margin: 0;
+        color: #666;
+        line-height: 1.5;
+        font-size: 14px;
+      }
+
+      /* 手機版優化 */
+      @media (max-width: 480px) {
+        .news-fab {
+          bottom: 20px;
+          right: 20px;
+          width: 70px;
+          height: 70px;
+        }
+
+        .news-text {
+          font-size: 11px;
+        }
+
+        .news-fab i {
+          font-size: 16px;
+        }
+
+        .news-modal-content {
+          width: 95%;
+          max-height: 85vh;
+        }
+
+        .news-modal-header {
+          padding: 20px 20px 15px;
+        }
+
+        .news-modal-header h2 {
+          font-size: 1.3rem;
+        }
+
+        .news-modal-body {
+          padding: 15px 20px 20px;
+        }
+
+        .news-item {
+          padding: 15px 0;
+        }
+
+        .news-item h3 {
+          font-size: 1rem;
+        }
       }
     </style>
   </head>
@@ -99,7 +318,6 @@
           <li><a href="menu.html">菜單</a></li>
           <li><a href="order.html">線上訂餐</a></li>
           <li><a href="member.html">會員中心</a></li>
-          <li><a href="news.html">最新消息</a></li>
         </ul>
       </nav>
     </header>
@@ -113,5 +331,62 @@
     <footer>
       <p>© 2023 隱湖小竹 | 人文茶麵館</p>
     </footer>
+
+    <!-- 浮動 NEWS 按鈕 -->
+    <div class="news-fab" onclick="toggleNews()">
+      <div class="news-fab-content">
+        <span class="news-text">NEWS!!</span>
+        <i class="fas fa-newspaper"></i>
+      </div>
+    </div>
+
+    <!-- 新聞彈窗 -->
+    <div class="news-modal" id="newsModal">
+      <div class="news-modal-content">
+        <div class="news-modal-header">
+          <h2>📰 最新消息</h2>
+          <button class="close-news" onclick="toggleNews()">×</button>
+        </div>
+        <div class="news-modal-body">
+          <div class="news-item">
+            <div class="news-date">2024-01-15</div>
+            <h3>🎉 新年優惠活動開跑！</h3>
+            <p>即日起至 1/31，全館商品 9 折優惠，會員再享額外 5% 折扣！</p>
+          </div>
+          <div class="news-item">
+            <div class="news-date">2024-01-10</div>
+            <h3>🍜 新品上市：招牌牛肉麵</h3>
+            <p>嚴選澳洲牛肉，搭配秘製湯頭，現在就來品嚐這道經典美味！</p>
+          </div>
+          <div class="news-item">
+            <div class="news-date">2024-01-05</div>
+            <h3>🎁 會員點數系統上線</h3>
+            <p>消費即可累積點數，點數可兌換免費商品，趕快加入會員吧！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <script>
+      function toggleNews() {
+        const modal = document.getElementById("newsModal");
+        modal.classList.toggle("open");
+      }
+
+      // 點擊彈窗外部關閉
+      document
+        .getElementById("newsModal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) {
+            toggleNews();
+          }
+        });
+    </script>
   </body>
 </html>
