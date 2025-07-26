@@ -139,7 +139,6 @@ const AuthService = (() => {
             </div>
           </div>
           <div class="signup-modal-footer">
-            <button class="btn-secondary" onclick="closeSignupModal()">稍後再說</button>
             <button class="btn-primary" onclick="goToSignup()">立即註冊</button>
           </div>
         </div>
@@ -214,23 +213,21 @@ const AuthService = (() => {
             padding: 20px;
             border-top: 1px solid #eee;
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            justify-content: center;
           }
           .btn-primary, .btn-secondary {
-            flex: 1;
-            padding: 12px 20px;
+            padding: 0 20px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 16px;
             height: 48px !important; /* 強制高度，防止覆蓋 */
             display: flex;
             align-items: center;
             justify-content: center;
             box-sizing: border-box;
-            line-height: 48px; /* 匹配高度，防止文字偏移 */
+            line-height: 1; /* 與全站一致 */
             overflow: hidden; /* 防止內容撐高 */
             white-space: nowrap; /* 防止文字換行 */
             min-width: 140px;

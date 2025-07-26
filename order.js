@@ -88,10 +88,10 @@ function calculateCartTotal() {
 function updateCartDisplay() {
   calculateCartTotal();
 
-  // 更新購物車數量
-  const cartCount = document.getElementById("cartCount");
+  // 更新購物車數量徽章
+  const cartBadge = document.getElementById("cartBadge");
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-  cartCount.textContent = totalItems;
+  cartBadge.textContent = totalItems;
 
   // 更新購物車側邊欄
   const cartItems = document.getElementById("cartItems");
@@ -251,7 +251,7 @@ function checkout() {
     return;
   }
 
-    // 檢查是否應該顯示註冊邀請
+  // 檢查是否應該顯示註冊邀請
   if (
     typeof AuthService !== "undefined" &&
     AuthService &&

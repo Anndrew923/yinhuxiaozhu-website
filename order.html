@@ -211,12 +211,6 @@
       </main>
     </div>
 
-    <!-- 購物車浮動按鈕 -->
-    <div class="cart-fab" onclick="toggleCart()">
-      <i class="fas fa-shopping-cart"></i>
-      <span class="cart-count" id="cartCount">0</span>
-    </div>
-
     <!-- 購物車側邊欄 -->
     <div class="cart-sidebar" id="cartSidebar">
       <div class="cart-header">
@@ -247,9 +241,10 @@
         <i class="fas fa-utensils"></i>
         <span>菜單</span>
       </div>
-      <div class="nav-item active" onclick="window.location.href='order.html'">
+      <div class="nav-item active" onclick="toggleCart()">
         <i class="fas fa-shopping-cart"></i>
-        <span>訂餐</span>
+        <span>購物車</span>
+        <span class="cart-badge" id="cartBadge">0</span>
       </div>
       <div class="nav-item" onclick="window.location.href='member.html'">
         <i class="fas fa-user"></i>

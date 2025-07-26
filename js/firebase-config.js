@@ -23,18 +23,22 @@ try {
 window.firebaseAuth = firebase.auth();
 window.firebaseDB = firebase.firestore();
 
-// 解決 WebChannel 連線問題
+// 解決 WebChannel 連線問題和 host 衝突
 window.firebaseDB.settings({
   experimentalForceLongPolling: true,
   useFetchStreams: false,
+  // 移除可能造成衝突的 host 設定
 });
 
 // 本地測試專用設定
 if (
   window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
+  window.location.hostname === "127.0.0.1" ||
+  window.location.protocol === "file:"
 ) {
   console.log("檢測到本地環境，啟用本地測試模式");
+  console.log("當前協議:", window.location.protocol);
+  console.log("當前主機:", window.location.hostname);
 
   // 增加本地環境的除錯
   window.firebaseAuth.onAuthStateChanged((user) => {
@@ -50,5 +54,8 @@ if (
     .doc("connection")
     .get()
     .then(() => console.log("Firestore 連線正常"))
-    .catch((error) => console.error("Firestore 連線失敗:", error));
+    .catch((error) => {
+      console.warn("Firestore 連線失敗 (本地測試模式):", error.message);
+      console.log("這是正常的，因為 file:// 協議有限制");
+    });
 }
