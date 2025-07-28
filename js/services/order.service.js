@@ -64,6 +64,21 @@ const OrderService = (() => {
         }
       }
 
+      // 發送訂單通知
+      try {
+        if (typeof NotificationService !== 'undefined' && NotificationService) {
+          await NotificationService.createNotification(
+            NotificationService.NOTIFICATION_TYPES.NEW_ORDER,
+            { ...order, uid: uid },
+            ['email', 'line']
+          );
+          console.log("訂單通知發送成功");
+        }
+      } catch (notificationError) {
+        console.error("訂單通知發送失敗:", notificationError);
+        // 通知失敗不影響訂單建立
+      }
+
       return orderId;
     } catch (error) {
       console.error("建立訂單失敗:", error);

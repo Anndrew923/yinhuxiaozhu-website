@@ -12,6 +12,9 @@
     "website",
     "static"
   ],
+  "dependencies": {
+    "nodemailer": "^6.9.7"
+  },
   "author": "",
   "license": "MIT"
 }

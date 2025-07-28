@@ -187,7 +187,7 @@ function generateOrderNumber() {
 }
 
 // 處理付款
-function processPayment() {
+async function processPayment() {
     if (!orderData) {
         alert('沒有訂單資料');
         return;
@@ -206,30 +206,95 @@ function processPayment() {
     // 顯示付款處理遮罩
     document.getElementById('paymentOverlay').style.display = 'flex';
     
-    // 模擬付款處理
-    setTimeout(() => {
-        // 生成訂單編號
-        const orderNumber = generateOrderNumber();
+    try {
+        // 檢查 PaymentService 是否可用
+        if (typeof PaymentService === 'undefined' || !PaymentService) {
+            console.warn("PaymentService 未初始化，使用模擬付款");
+            await simulatePayment();
+            return;
+        }
         
-        // 準備完整的訂單資料
-        const completeOrder = {
-            ...orderData,
-            orderNumber: orderNumber,
-            paymentMethod: selectedPayment,
-            invoiceType: selectedInvoice,
-            paymentDate: new Date().toISOString(),
-            status: 'paid'
-        };
+        // 使用 PaymentService 建立支付訂單
+        const paymentResult = await PaymentService.createPaymentOrder(orderData, selectedPayment);
+        console.log("支付訂單建立成功:", paymentResult);
         
-        // 儲存訂單到本地
-        saveOrderToHistory(completeOrder);
+        // 根據平台處理支付
+        const config = PaymentService.getCurrentConfig();
         
-        // 清空購物車
-        localStorage.removeItem('yinhuCart');
+        if (currentPlatform === 'stripe') {
+            // Stripe 需要特殊處理（使用 Stripe Elements）
+            await handleStripePayment(paymentResult);
+        } else {
+            // 其他平台（綠界、藍新）使用表單提交
+            await handleFormPayment(paymentResult.paymentRequest);
+        }
         
-        // 跳轉到付款成功頁面
-        window.location.href = `payment-success.html?order=${orderNumber}`;
-    }, 3000);
+    } catch (error) {
+        console.error("支付處理失敗:", error);
+        document.getElementById('paymentOverlay').style.display = 'none';
+        alert('支付處理失敗，請稍後再試');
+    }
+}
+
+// 處理 Stripe 支付
+async function handleStripePayment(paymentResult) {
+    // 這裡需要實作 Stripe Elements 的整合
+    // 暫時使用模擬付款
+    console.log("Stripe 支付處理（待實作）");
+    await simulatePayment();
+}
+
+// 處理表單支付（綠界、藍新）
+async function handleFormPayment(paymentRequest) {
+    // 建立隱藏表單並提交
+    const form = document.createElement('form');
+    form.method = paymentRequest.method;
+    form.action = paymentRequest.url;
+    form.style.display = 'none';
+    
+    // 添加表單資料
+    Object.keys(paymentRequest.data).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = paymentRequest.data[key];
+        form.appendChild(input);
+    });
+    
+    // 添加表單到頁面並提交
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// 模擬付款（當 PaymentService 不可用時）
+async function simulatePayment() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // 生成訂單編號
+            const orderNumber = generateOrderNumber();
+            
+            // 準備完整的訂單資料
+            const completeOrder = {
+                ...orderData,
+                orderNumber: orderNumber,
+                paymentMethod: selectedPayment,
+                invoiceType: selectedInvoice,
+                paymentDate: new Date().toISOString(),
+                status: 'paid'
+            };
+            
+            // 儲存訂單到本地
+            saveOrderToHistory(completeOrder);
+            
+            // 清空購物車
+            localStorage.removeItem('yinhuCart');
+            
+            // 跳轉到付款成功頁面
+            window.location.href = `payment-success.html?order=${orderNumber}`;
+            
+            resolve();
+        }, 3000);
+    });
 }
 
 // 儲存訂單到歷史記錄

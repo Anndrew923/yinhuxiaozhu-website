@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支付處理中 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css?v=1.1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="callback-container">
+      <div class="callback-content">
+        <div class="callback-icon">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+        <h2>支付處理中</h2>
+        <p>正在處理您的支付結果，請稍候...</p>
+      </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase 配置和服務 -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/point.service.js"></script>
+    <script src="js/services/order.service.js"></script>
+    <script src="js/services/user.service.js"></script>
+    <script src="js/services/payment.service.js"></script>
+
+    <script>
+      // 處理支付回調
+      document.addEventListener("DOMContentLoaded", async function () {
+        try {
+          console.log("開始處理支付回調");
+
+          // 取得 URL 參數
+          const urlParams = new URLSearchParams(window.location.search);
+          const callbackData = {};
+
+          // 收集所有參數
+          for (const [key, value] of urlParams.entries()) {
+            callbackData[key] = value;
+          }
+
+          console.log("回調參數:", callbackData);
+
+          // 處理支付回調
+          if (typeof PaymentService !== "undefined" && PaymentService) {
+            const result = await PaymentService.handlePaymentCallback(
+              callbackData
+            );
+            console.log("支付處理結果:", result);
+
+            // 根據結果跳轉
+            if (result.success) {
+              // 支付成功，跳轉到成功頁面
+              window.location.href = `payment-success.html?order=${result.orderNumber}`;
+            } else {
+              // 支付失敗，跳轉到失敗頁面
+              window.location.href = `payment-failed.html?order=${
+                result.orderNumber
+              }&message=${encodeURIComponent(result.message)}`;
+            }
+          } else {
+            console.error("PaymentService 未初始化");
+            // 如果服務未初始化，直接跳轉到成功頁面（假設成功）
+            const orderNumber =
+              callbackData.MerchantTradeNo ||
+              callbackData.MerchantOrderNo ||
+              "UNKNOWN";
+            window.location.href = `payment-success.html?order=${orderNumber}`;
+          }
+        } catch (error) {
+          console.error("處理支付回調時發生錯誤:", error);
+
+          // 發生錯誤時，跳轉到失敗頁面
+          const orderNumber =
+            new URLSearchParams(window.location.search).get(
+              "MerchantTradeNo"
+            ) ||
+            new URLSearchParams(window.location.search).get(
+              "MerchantOrderNo"
+            ) ||
+            "UNKNOWN";
+          window.location.href = `payment-failed.html?order=${orderNumber}&message=${encodeURIComponent(
+            "處理支付時發生錯誤"
+          )}`;
+        }
+      });
+    </script>
+  </body>
+</html>

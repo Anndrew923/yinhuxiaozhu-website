@@ -186,25 +186,50 @@
     </div>
 
     <script>
+      // 檢查是否已經看過歡迎頁面
+      function hasSeenWelcome() {
+        return localStorage.getItem("hasSeenWelcome") === "true";
+      }
+
+      // 標記已經看過歡迎頁面
+      function markWelcomeAsSeen() {
+        localStorage.setItem("hasSeenWelcome", "true");
+      }
+
+      // 跳轉到首頁的函數
+      function goToHome() {
+        markWelcomeAsSeen(); // 標記已經看過歡迎頁面
+        window.location.href = "home.html";
+      }
+
+      // 頁面載入時檢查是否已經看過歡迎頁面
+      window.addEventListener('DOMContentLoaded', function() {
+        if (hasSeenWelcome()) {
+          // 如果已經看過歡迎頁面，直接跳轉到首頁
+          window.location.href = "home.html";
+          return;
+        }
+      });
+
       // 自動跳轉到首頁（2秒後）
       setTimeout(() => {
-        window.location.href = "home.html";
+        goToHome();
       }, 2000);
 
       // 點擊跳過按鈕立即跳轉
       document.querySelector(".skip-button").addEventListener("click", (e) => {
         e.preventDefault();
-        window.location.href = "home.html";
+        goToHome();
       });
 
       // 點擊logo也可以跳轉
       document.querySelector(".welcome-logo").addEventListener("click", () => {
-        window.location.href = "home.html";
+        goToHome();
       });
 
       // 添加鍵盤事件（按任意鍵跳轉）
       document.addEventListener("keydown", () => {
-        window.location.href = "home.html";
+        goToHome();
       });
     </script>
   </body>

@@ -1436,10 +1436,191 @@ textarea:focus {
   flex: 1;
 }
 
+/* 付款頁面按鈕樣式 */
+.payment-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 15px;
+  z-index: 1000;
+  align-items: center;
+}
+
+.payment-actions .btn-primary {
+  flex: 1;
+}
+
+/* 返回按鈕圖示樣式 */
+.back-btn-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  min-width: unset !important;
+}
+
+.back-btn-icon i {
+  font-size: 18px;
+}
+
 /* 付款頁面樣式 */
 .payment-main {
   padding: 20px;
   padding-bottom: 120px;
+}
+
+/* 支付回調頁面樣式 */
+.callback-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.callback-content {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+.callback-icon {
+  font-size: 48px;
+  color: #007bff;
+  margin-bottom: 20px;
+}
+
+.callback-content h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 24px;
+}
+
+.callback-content p {
+  color: #666;
+  font-size: 16px;
+}
+
+/* 支付失敗頁面樣式 */
+.failed-main {
+  padding: 20px;
+  padding-bottom: 120px;
+}
+
+.failed-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.failed-icon {
+  font-size: 64px;
+  color: #dc3545;
+  margin-bottom: 20px;
+}
+
+.failed-section h1 {
+  color: #dc3545;
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.failed-section h2 {
+  color: #333;
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.failed-section p {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* 解決方案樣式 */
+.solutions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.solution-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.solution-icon {
+  width: 40px;
+  height: 40px;
+  background: #007bff;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.solution-content h3 {
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.solution-content p {
+  color: #666;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* 失敗頁面按鈕 */
+.failed-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  gap: 15px;
+  z-index: 1000;
+}
+
+.failed-actions .btn-primary {
+  flex: 1;
+}
+
+/* 步驟指示器失敗狀態 */
+.step.failed .step-number {
+  background: #dc3545;
+  color: white;
+}
+
+.step.failed span {
+  color: #dc3545;
 }
 
 .payment-section {
@@ -2073,6 +2254,308 @@ textarea:focus {
   font-size: 64px;
   color: #ccc;
   margin-bottom: 20px;
+}
+
+/* 通知設定頁面樣式 */
+.notification-settings {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.settings-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+/* 通知管道設定 */
+.channel-settings,
+.type-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.channel-item,
+.type-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.channel-item:hover,
+.type-item:hover {
+  background: #e9ecef;
+}
+
+.channel-info,
+.type-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.channel-info i {
+  font-size: 24px;
+  color: #007bff;
+  width: 30px;
+  text-align: center;
+}
+
+.channel-info h3,
+.type-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.channel-info p,
+.type-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 開關樣式 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007bff;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #007bff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+/* 通知頻率設定 */
+.frequency-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.frequency-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.frequency-item:hover {
+  background: #e9ecef;
+}
+
+.frequency-item input[type="radio"] {
+  margin: 0;
+}
+
+.frequency-item label {
+  flex: 1;
+  cursor: pointer;
+  margin: 0;
+}
+
+.frequency-item h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.frequency-item p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 設定操作按鈕 */
+.settings-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.settings-actions .btn-primary,
+.settings-actions .btn-secondary {
+  padding: 12px 30px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-actions .btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.settings-actions .btn-primary:hover {
+  background: #0056b3;
+}
+
+.settings-actions .btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.settings-actions .btn-secondary:hover {
+  background: #545b62;
+}
+
+/* 通知測試區域 */
+.notification-test {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  margin-top: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.notification-test h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.notification-test p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.test-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-test {
+  padding: 12px 24px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-test:hover {
+  background: #218838;
+}
+
+/* 登入提示 */
+.login-prompt {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.login-prompt-content {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.login-prompt-content h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.login-prompt-content p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .settings-section {
+    padding: 20px;
+  }
+  
+  .channel-item,
+  .type-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .settings-actions {
+    flex-direction: column;
+  }
+  
+  .test-buttons {
+    flex-direction: column;
+  }
 }
 
 .empty-state h3 {

@@ -1,8 +1,10 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const nodemailer = require("nodemailer");
+const url = require("url");
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   // 添加CORS頭
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -16,6 +18,84 @@ const server = http.createServer((req, res) => {
     res.writeHead(200);
     res.end();
     return;
+  }
+
+  // 解析 URL
+  const parsedUrl = url.parse(req.url, true);
+  const pathname = parsedUrl.pathname;
+
+  // 處理 API 請求
+  if (pathname === "/api/send-email" && req.method === "POST") {
+    try {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk.toString();
+      });
+
+      req.on("end", async () => {
+        try {
+          const { to, subject, content, from } = JSON.parse(body);
+
+          // 讀取設定檔
+          const configPath = path.join(__dirname, "config", "notification-config.js");
+          let configContent = fs.readFileSync(configPath, "utf8");
+          
+          // 提取 Email 設定
+          const userMatch = configContent.match(/USER:\s*"([^"]+)"/);
+          const passwordMatch = configContent.match(/APP_PASSWORD:\s*"([^"]+)"/);
+          
+          if (!userMatch || !passwordMatch) {
+            throw new Error("無法讀取 Email 設定");
+          }
+
+          const emailUser = userMatch[1];
+          const emailPassword = passwordMatch[1];
+
+          // 建立 transporter
+          const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+              user: emailUser,
+              pass: emailPassword,
+            },
+          });
+
+          // 發送 Email
+          const mailOptions = {
+            from: from || emailUser,
+            to: to,
+            subject: subject,
+            html: content,
+          };
+
+          const info = await transporter.sendMail(mailOptions);
+          
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            success: true,
+            messageId: info.messageId,
+            message: "Email 發送成功"
+          }));
+
+        } catch (error) {
+          console.error("Email 發送錯誤:", error);
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            success: false,
+            error: error.message
+          }));
+        }
+      });
+      return;
+    } catch (error) {
+      console.error("API 處理錯誤:", error);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({
+        success: false,
+        error: "內部伺服器錯誤"
+      }));
+      return;
+    }
   }
 
   let filePath = "." + req.url;
@@ -97,6 +177,8 @@ const server = http.createServer((req, res) => {
     }
   });
 });
+
+// 伺服器啟動
 
 const PORT = 8000;
 server.listen(PORT, () => {

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支付失敗 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css?v=1.1" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header class="order-header">
+      <div class="header-top">
+        <div class="logo">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" />
+          <span class="brand-name">隱湖小竹</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="failed-main">
+      <!-- 結帳步驟指示器 -->
+      <div class="checkout-steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <span>配送資訊</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <span>確認訂單</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step failed">
+          <div class="step-number">3</div>
+          <span>完成付款</span>
+        </div>
+      </div>
+
+      <!-- 支付失敗訊息 -->
+      <div class="failed-section">
+        <div class="failed-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <h1>支付失敗</h1>
+        <p id="errorMessage">很抱歉，您的支付未能完成</p>
+      </div>
+
+      <!-- 訂單資訊 -->
+      <div class="failed-section">
+        <h2>訂單資訊</h2>
+        <div class="order-info">
+          <div class="info-row">
+            <span class="info-label">訂單編號</span>
+            <span class="info-value" id="orderNumber">-</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">失敗原因</span>
+            <span class="info-value" id="failureReason">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 建議解決方案 -->
+      <div class="failed-section">
+        <h2>建議解決方案</h2>
+        <div class="solutions">
+          <div class="solution-item">
+            <div class="solution-icon">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="solution-content">
+              <h3>檢查付款資訊</h3>
+              <p>確認信用卡號碼、有效期限和安全碼是否正確</p>
+            </div>
+          </div>
+          <div class="solution-item">
+            <div class="solution-icon">
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <div class="solution-content">
+              <h3>聯繫銀行</h3>
+              <p>確認卡片是否被銀行阻擋，或是否有交易限制</p>
+            </div>
+          </div>
+          <div class="solution-item">
+            <div class="solution-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div class="solution-content">
+              <h3>聯繫客服</h3>
+              <p>如果問題持續，請聯繫我們的客服人員</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部按鈕 -->
+    <div class="failed-actions">
+      <button class="btn-secondary" onclick="retryPayment()">
+        <i class="fas fa-redo"></i>
+        重新付款
+      </button>
+      <button class="btn-primary" onclick="goToOrder()">
+        <i class="fas fa-shopping-cart"></i>
+        返回訂餐
+      </button>
+    </div>
+
+    <script>
+      // 載入頁面資料
+      document.addEventListener("DOMContentLoaded", function () {
+        loadFailedData();
+      });
+
+      // 載入失敗資料
+      function loadFailedData() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get("order");
+        const message = urlParams.get("message");
+
+        // 顯示訂單編號
+        document.getElementById("orderNumber").textContent =
+          orderNumber || "未知";
+
+        // 顯示錯誤訊息
+        const errorMessage = document.getElementById("errorMessage");
+        const failureReason = document.getElementById("failureReason");
+
+        if (message) {
+          errorMessage.textContent = decodeURIComponent(message);
+          failureReason.textContent = decodeURIComponent(message);
+        } else {
+          errorMessage.textContent = "很抱歉，您的支付未能完成，請稍後再試";
+          failureReason.textContent = "支付處理失敗";
+        }
+      }
+
+      // 重新付款
+      function retryPayment() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get("order");
+
+        if (orderNumber) {
+          // 跳轉到付款頁面
+          window.location.href = `payment.html?retry=${orderNumber}`;
+        } else {
+          // 如果沒有訂單編號，返回訂餐頁面
+          window.location.href = "order.html";
+        }
+      }
+
+      // 返回訂餐
+      function goToOrder() {
+        window.location.href = "order.html";
+      }
+    </script>
+  </body>
+</html>
