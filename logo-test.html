@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Logo 測試 | 隱湖小竹</title>
+    <style>
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .test-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+      }
+
+      .test-section h2 {
+        color: #2d5a27;
+        margin-bottom: 15px;
+      }
+
+      .logo-test {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(45, 90, 39, 0.3);
+        border: 3px solid white;
+        overflow: hidden;
+        background: transparent;
+      }
+
+      .logo-test img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 50%;
+        background: #2d5a27;
+      }
+
+      .debug-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 14px;
+        margin-top: 15px;
+      }
+
+      .error {
+        color: #dc3545;
+        background: #f8d7da;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+
+      .success {
+        color: #155724;
+        background: #d4edda;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="test-container">
+      <h1>🔍 Logo 顯示測試</h1>
+
+      <div class="test-section">
+        <h2>📁 檔案檢查</h2>
+        <div id="fileCheck"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>🖼️ Logo 顯示測試</h2>
+        <div class="logo-test">
+          <img src="assets/logo.png" alt="隱湖小竹 Logo" id="testLogo" />
+        </div>
+        <div id="imageInfo"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>🔧 診斷資訊</h2>
+        <div id="diagnostics"></div>
+      </div>
+
+      <div class="test-section">
+        <h2>📱 響應式測試</h2>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap">
+          <div style="text-align: center">
+            <h3>桌面版 (120px)</h3>
+            <div class="logo-test" style="width: 120px; height: 120px">
+              <img src="assets/logo.png" alt="Logo" />
+            </div>
+          </div>
+          <div style="text-align: center">
+            <h3>平板版 (100px)</h3>
+            <div class="logo-test" style="width: 100px; height: 100px">
+              <img src="assets/logo.png" alt="Logo" />
+            </div>
+          </div>
+          <div style="text-align: center">
+            <h3>手機版 (80px)</h3>
+            <div class="logo-test" style="width: 80px; height: 80px">
+              <img src="assets/logo.png" alt="Logo" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const testLogo = document.getElementById("testLogo");
+        const fileCheck = document.getElementById("fileCheck");
+        const imageInfo = document.getElementById("imageInfo");
+        const diagnostics = document.getElementById("diagnostics");
+
+        // 檢查檔案是否存在
+        fetch("assets/logo.png")
+          .then((response) => {
+            if (response.ok) {
+              fileCheck.innerHTML =
+                '<div class="success">✅ 檔案存在且可訪問</div>';
+            } else {
+              fileCheck.innerHTML = '<div class="error">❌ 檔案無法訪問</div>';
+            }
+          })
+          .catch((error) => {
+            fileCheck.innerHTML =
+              '<div class="error">❌ 檔案載入失敗: ' + error.message + "</div>";
+          });
+
+        // 檢查圖片載入
+        testLogo.onload = function () {
+          imageInfo.innerHTML = `
+                    <div class="success">✅ 圖片載入成功</div>
+                    <div class="debug-info">
+                        圖片尺寸: ${this.naturalWidth} x ${
+            this.naturalHeight
+          } 像素<br>
+                        顯示尺寸: ${this.offsetWidth} x ${
+            this.offsetHeight
+          } 像素<br>
+                        檔案大小: ${(
+                          (this.naturalWidth * this.naturalHeight * 4) /
+                          1024
+                        ).toFixed(1)} KB (估算)
+                    </div>
+                `;
+        };
+
+        testLogo.onerror = function () {
+          imageInfo.innerHTML = '<div class="error">❌ 圖片載入失敗</div>';
+        };
+
+        // 診斷資訊
+        diagnostics.innerHTML = `
+                <div class="debug-info">
+                    <strong>當前設定：</strong><br>
+                    • 檔案路徑: assets/logo.png<br>
+                    • 容器尺寸: 120x120px<br>
+                    • 顯示模式: contain<br>
+                    • 背景色: #2d5a27<br>
+                    • 邊框: 3px solid white<br>
+                    • 圓角: 50%<br>
+                    <br>
+                    <strong>瀏覽器資訊：</strong><br>
+                    • User Agent: ${navigator.userAgent}<br>
+                    • 螢幕解析度: ${screen.width}x${screen.height}<br>
+                    • 視窗大小: ${window.innerWidth}x${window.innerHeight}
+                </div>
+            `;
+      });
+    </script>
+  </body>
+</html>

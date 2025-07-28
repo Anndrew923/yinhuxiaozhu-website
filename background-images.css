@@ -1,0 +1,108 @@
+/* AI 背景圖片設置 */
+
+/* 首頁背景圖片設置 */
+body.home-page {
+  background: url("assets/home-bg.jpg") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+}
+
+/* 首頁背景遮罩，確保內容可讀性 */
+body.home-page::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(45, 90, 39, 0.3); /* 半透明綠色遮罩 */
+  z-index: -1;
+}
+
+/* 首頁 hero 區域背景 */
+body.home-page .hero {
+  background: rgba(45, 90, 39, 0.8); /* 更深的遮罩確保文字清晰 */
+  backdrop-filter: blur(5px);
+  border-radius: 15px;
+  margin: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* 登入頁背景圖片設置 */
+body.login-page {
+  background: url("assets/login-bg.jpg") no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+}
+
+/* 登入頁背景遮罩 */
+body.login-page::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* 半透明黑色遮罩 */
+  z-index: -1;
+}
+
+/* 登入頁容器背景 */
+body.login-page .login-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  margin: 20px auto;
+  max-width: 450px;
+  padding: 40px 30px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  body.home-page .hero {
+    margin: 10px;
+    padding: 60px 20px;
+  }
+
+  body.login-page .login-container {
+    margin: 10px;
+    padding: 30px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  body.home-page .hero {
+    margin: 5px;
+    padding: 40px 15px;
+  }
+
+  body.login-page .login-container {
+    margin: 5px;
+    padding: 25px 15px;
+  }
+}
+
+/* 圖片載入動畫 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+body.home-page,
+body.login-page {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* 確保背景圖片在載入前有預設背景 */
+body.home-page {
+  background-color: #2d5a27;
+}
+
+body.login-page {
+  background-color: #f8f9fa;
+}
