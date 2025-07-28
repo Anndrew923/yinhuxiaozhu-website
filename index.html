@@ -17,17 +17,12 @@
       /* 首頁導覽列專用樣式 */
       header {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
         padding: 10px 20px;
         background: #2d5a27;
         color: white;
         min-height: 60px;
-      }
-
-      .logo img {
-        height: 40px;
-        width: auto;
       }
 
       nav ul {
@@ -39,7 +34,6 @@
         align-items: center;
         flex-wrap: wrap;
         justify-content: center;
-        flex: 1;
       }
 
       nav ul li a {
@@ -58,10 +52,6 @@
         header {
           padding: 8px 12px;
           min-height: 50px;
-        }
-
-        .logo img {
-          height: 32px;
         }
 
         nav ul {
@@ -88,6 +78,70 @@
       nav ul li a:hover {
         color: #4a7c59;
         background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Hero Logo 樣式 */
+      .hero-logo {
+        margin-bottom: 50px;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+      }
+
+      .hero-logo img {
+        max-width: 600px; /* 放大1.5倍：400px * 1.5 = 600px */
+        width: 100%;
+        height: auto;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        background: transparent; /* 透明背景，保持logo原色 */
+      }
+
+      /* Hero 文字顏色調整 */
+      .hero p {
+        color: #2d5a27; /* 深綠色文字 */
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+      }
+
+      /* 按鈕樣式調整 */
+      .hero .btn-primary {
+        background: #2d5a27;
+        color: white;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(45, 90, 39, 0.3);
+      }
+
+      .hero .btn-primary:hover {
+        background: #4a7c59;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(45, 90, 39, 0.4);
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 768px) {
+        .hero-logo img {
+          max-width: 450px; /* 放大1.5倍：300px * 1.5 = 450px */
+        }
+        .hero-logo {
+          min-height: 50vh;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .hero-logo img {
+          max-width: 375px; /* 放大1.5倍：250px * 1.5 = 375px */
+        }
+        .hero-logo {
+          min-height: 40vh;
+        }
       }
 
       /* === 浮動 NEWS 按鈕樣式 === */
@@ -310,10 +364,6 @@
   </head>
   <body class="home-page">
     <header>
-      <div class="logo">
-        <!-- 將 logo.png 放入 assets 資料夾即可顯示 -->
-        <img src="assets/logo.png" alt="隱湖小竹 Logo" />
-      </div>
       <nav>
         <ul>
           <li><a href="menu.html">菜單</a></li>
@@ -324,7 +374,13 @@
     </header>
 
     <section class="hero">
-      <h1>隱湖小竹<br />人文茶麵館</h1>
+      <div class="hero-logo">
+        <img
+          src="assets/home-logo.png"
+          alt="隱湖小竹 Logo"
+          onerror="this.style.display='none'; this.parentElement.innerHTML='<h1>隱湖小竹<br>人文茶麵館</h1>';"
+        />
+      </div>
       <p>自 2023 年以來，為您帶來最溫暖的麵食與茶飲。</p>
       <a href="order.html" class="btn-primary">立即訂餐</a>
     </section>

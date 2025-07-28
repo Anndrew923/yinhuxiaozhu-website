@@ -2,30 +2,14 @@
 
 /* 首頁背景圖片設置 */
 body.home-page {
-  background: url("assets/home-bg.jpg") no-repeat center center fixed;
-  background-size: cover;
+  background: #ffffff; /* 白色背景 */
   position: relative;
-}
-
-/* 首頁背景遮罩，確保內容可讀性 */
-body.home-page::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(45, 90, 39, 0.3); /* 半透明綠色遮罩 */
-  z-index: -1;
 }
 
 /* 首頁 hero 區域背景 */
 body.home-page .hero {
-  background: rgba(45, 90, 39, 0.8); /* 更深的遮罩確保文字清晰 */
-  backdrop-filter: blur(5px);
-  border-radius: 15px;
+  background: transparent; /* 透明背景 */
   margin: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* 登入頁背景圖片設置 */
@@ -100,7 +84,7 @@ body.login-page {
 
 /* 確保背景圖片在載入前有預設背景 */
 body.home-page {
-  background-color: #2d5a27;
+  background-color: #ffffff; /* 白色背景 */
 }
 
 body.login-page {
