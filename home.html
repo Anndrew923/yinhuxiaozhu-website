@@ -7,6 +7,8 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>隱湖小竹 | 人文茶麵館</title>
+    <!-- 載入 Cookie 同意通知 -->
+    <script src="js/cookie-consent.js"></script>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="background-images.css" />
     <link
@@ -366,9 +368,21 @@
     <header>
       <nav>
         <ul>
-          <li><a href="menu.html">菜單</a></li>
-          <li><a href="order.html">線上訂餐</a></li>
-          <li><a href="member.html">會員中心</a></li>
+          <li>
+            <a href="#" onclick="safeNavigate('menu.html'); return false;"
+              >菜單</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="safeNavigate('order.html'); return false;"
+              >線上訂餐</a
+            >
+          </li>
+          <li>
+            <a href="#" onclick="safeNavigate('member.html'); return false;"
+              >會員中心</a
+            >
+          </li>
         </ul>
       </nav>
     </header>
@@ -382,7 +396,12 @@
         />
       </div>
       <p>自 2023 年以來，為您帶來最溫暖的麵食與茶飲。</p>
-      <a href="order.html" class="btn-primary">立即訂餐</a>
+      <a
+        href="#"
+        onclick="safeNavigate('order.html'); return false;"
+        class="btn-primary"
+        >立即訂餐</a
+      >
     </section>
 
     <footer>
@@ -431,9 +450,83 @@
     />
 
     <script>
+      // 檢查 Cookie 同意狀態
+      function checkCookieConsent() {
+        return localStorage.getItem("yinhu_cookie_consent") === "true";
+      }
+
+      // 顯示 Cookie 同意提示
+      function showCookieConsentAlert() {
+        // 創建一個更美觀的提示框
+        const overlay = document.createElement("div");
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+        `;
+
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+          background: white;
+          padding: 30px;
+          border-radius: 10px;
+          max-width: 400px;
+          text-align: center;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+
+        modal.innerHTML = `
+          <h3 style="color: #2d5a27; margin-bottom: 15px;">🍪 Cookie 設定</h3>
+          <p style="color: #666; margin-bottom: 20px; line-height: 1.5;">
+            請先同意 Cookie 設定後才能使用此功能。
+          </p>
+          <button onclick="this.parentElement.parentElement.remove()" 
+                  style="background: #4a7c59; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            我知道了
+          </button>
+        `;
+
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        // 點擊外部關閉
+        overlay.addEventListener("click", function (e) {
+          if (e.target === overlay) {
+            overlay.remove();
+          }
+        });
+      }
+
+      // 安全的導覽函數
+      function safeNavigate(url) {
+        if (checkCookieConsent()) {
+          window.location.href = url;
+        } else {
+          showCookieConsentAlert();
+        }
+      }
+
+      // 安全的按鈕點擊函數
+      function safeButtonClick(action) {
+        if (checkCookieConsent()) {
+          action();
+        } else {
+          showCookieConsentAlert();
+        }
+      }
+
       function toggleNews() {
-        const modal = document.getElementById("newsModal");
-        modal.classList.toggle("open");
+        safeButtonClick(() => {
+          const modal = document.getElementById("newsModal");
+          modal.classList.toggle("open");
+        });
       }
 
       // 點擊彈窗外部關閉
@@ -444,6 +537,17 @@
             toggleNews();
           }
         });
+
+      // 頁面載入時檢查 Cookie 同意狀態
+      document.addEventListener("DOMContentLoaded", function () {
+        // cookie-consent.js 會自動處理 cookie 同意對話框的顯示
+        // 這裡只需要檢查是否已同意，如果沒有同意則記錄日誌
+        if (!checkCookieConsent()) {
+          console.log("等待用戶同意 Cookie 設定...");
+        } else {
+          console.log("用戶已同意 Cookie 設定");
+        }
+      });
     </script>
   </body>
 </html>

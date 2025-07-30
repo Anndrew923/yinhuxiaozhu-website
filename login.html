@@ -215,6 +215,13 @@
         opacity: 1;
       }
 
+      .social-icon {
+        font-size: 1.8rem;
+        font-weight: bold;
+        position: relative;
+        z-index: 1;
+      }
+
       .login-btn {
         width: 100%;
         padding: 18px;
@@ -276,6 +283,147 @@
         border-radius: 8px;
         border: 1px solid #c3e6cb;
       }
+
+      /* 隱私保護提醒樣式 */
+      .privacy-notice {
+        margin: 20px 0;
+        padding: 15px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .privacy-notice-content h4 {
+        color: #2d5a27;
+        margin: 0 0 12px 0;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .privacy-notice-content ul {
+        margin: 0 0 12px 0;
+        padding-left: 20px;
+        color: #495057;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+
+      .privacy-notice-content li {
+        margin-bottom: 6px;
+      }
+
+      .privacy-link {
+        margin: 0;
+        text-align: center;
+      }
+
+      .privacy-link a {
+        color: #4a7c59;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      .privacy-link a:hover {
+        text-decoration: underline;
+      }
+
+      /* Google 登入隱私承諾樣式 */
+      .google-privacy-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .google-privacy-modal.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .google-privacy-content {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 450px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+      }
+
+      .google-privacy-modal.show .google-privacy-content {
+        transform: translateY(0);
+      }
+
+      .google-privacy-content h3 {
+        color: #2d5a27;
+        margin: 0 0 20px 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .google-privacy-content .google-icon {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: #4285f4;
+      }
+
+      .google-privacy-content p {
+        color: #495057;
+        margin: 0 0 20px 0;
+        line-height: 1.6;
+        font-size: 0.95rem;
+      }
+
+      .google-privacy-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .google-privacy-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 100px;
+      }
+
+      .google-privacy-btn.primary {
+        background: #4285f4;
+        color: white;
+      }
+
+      .google-privacy-btn.primary:hover {
+        background: #3367d6;
+        transform: translateY(-2px);
+      }
+
+      .google-privacy-btn.secondary {
+        background: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+      }
+
+      .google-privacy-btn.secondary:hover {
+        background: #e9ecef;
+      }
     </style>
   </head>
   <body class="login-page">
@@ -287,6 +435,26 @@
         </div>
         <h1 class="login-title">會員登入</h1>
         <p class="login-subtitle" id="formSubtitle">請輸入您的電子郵件與密碼</p>
+
+        <!-- 隱私保護提醒 -->
+        <div class="privacy-notice" id="privacyNotice" style="display: none">
+          <div class="privacy-notice-content">
+            <h4>🔒 資料安全承諾</h4>
+            <ul>
+              <li>
+                您的個人資料使用 Google Firebase 安全儲存，符合國際安全標準
+              </li>
+              <li>所有資料傳輸都經過 HTTPS 加密保護</li>
+              <li>我們絕不會將您的資料出售或分享給第三方</li>
+              <li>您可以隨時在會員中心查看、修改或刪除您的資料</li>
+            </ul>
+            <p class="privacy-link">
+              <a href="privacy-policy.html" target="_blank"
+                >查看完整隱私權政策</a
+              >
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- 登入表單 -->
@@ -363,26 +531,10 @@
       <!-- 社群登入 -->
       <div class="social-login">
         <div class="social-btn google" id="googleLogin">
-          <span
-            style="
-              font-size: 1.8rem;
-              font-weight: bold;
-              position: relative;
-              z-index: 1;
-            "
-            >G</span
-          >
+          <span class="social-icon">G</span>
         </div>
         <div class="social-btn facebook" id="facebookLogin">
-          <span
-            style="
-              font-size: 1.5rem;
-              font-weight: bold;
-              position: relative;
-              z-index: 1;
-            "
-            >f</span
-          >
+          <span class="social-icon">f</span>
         </div>
       </div>
 
@@ -397,6 +549,72 @@
       <!-- 錯誤/成功訊息 -->
       <div id="errorMsg" class="error-message" style="display: none"></div>
       <div id="successMsg" class="success-message" style="display: none"></div>
+    </div>
+
+    <!-- Google 登入隱私承諾模態框 -->
+    <div id="googlePrivacyModal" class="google-privacy-modal">
+      <div class="google-privacy-content">
+        <div class="google-icon">🔒</div>
+        <h3>Google 登入隱私承諾</h3>
+        <p>
+          我們重視您的隱私安全。使用 Google
+          登入時，我們只會取得您的基本資料（姓名、電子郵件）， 並使用 Google
+          Firebase 安全儲存，符合國際安全標準。
+        </p>
+        <p>
+          <strong>我們承諾：</strong><br />
+          • 絕不會將您的資料出售或分享給第三方<br />
+          • 所有資料傳輸都經過 HTTPS 加密保護<br />
+          • 您可以隨時在會員中心管理您的資料
+        </p>
+        <div class="google-privacy-buttons">
+          <button
+            class="google-privacy-btn secondary"
+            onclick="hideGooglePrivacyNotice()"
+          >
+            取消
+          </button>
+          <button
+            class="google-privacy-btn primary"
+            onclick="proceedWithGoogleLogin()"
+          >
+            同意並繼續
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Facebook 登入隱私承諾模態框 -->
+    <div id="facebookPrivacyModal" class="google-privacy-modal">
+      <div class="google-privacy-content">
+        <div class="google-icon">🔒</div>
+        <h3>Facebook 登入隱私承諾</h3>
+        <p>
+          我們重視您的隱私安全。使用 Facebook
+          登入時，我們只會取得您的基本資料（姓名、電子郵件）， 並使用 Google
+          Firebase 安全儲存，符合國際安全標準。
+        </p>
+        <p>
+          <strong>我們承諾：</strong><br />
+          • 絕不會將您的資料出售或分享給第三方<br />
+          • 所有資料傳輸都經過 HTTPS 加密保護<br />
+          • 您可以隨時在會員中心管理您的資料
+        </p>
+        <div class="google-privacy-buttons">
+          <button
+            class="google-privacy-btn secondary"
+            onclick="hideFacebookPrivacyNotice()"
+          >
+            取消
+          </button>
+          <button
+            class="google-privacy-btn primary"
+            onclick="proceedWithFacebookLogin()"
+          >
+            同意並繼續
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Firebase -->
@@ -435,6 +653,8 @@
           mainActionBtn.textContent = "註冊";
           toggleText.textContent = "已經有帳號？";
           toggleLink.textContent = "立即登入";
+          // 顯示隱私保護提醒
+          document.getElementById("privacyNotice").style.display = "block";
         }
 
         toggleLink.addEventListener("click", (e) => {
@@ -451,6 +671,8 @@
             mainActionBtn.textContent = "登入";
             toggleText.textContent = "還沒有帳號？";
             toggleLink.textContent = "立即註冊";
+            // 隱藏隱私保護提醒
+            document.getElementById("privacyNotice").style.display = "none";
           } else {
             loginTitle.textContent = "會員註冊";
             formSubtitle.textContent = "請填寫以下資料以建立帳戶";
@@ -461,6 +683,8 @@
             mainActionBtn.textContent = "註冊";
             toggleText.textContent = "已經有帳號？";
             toggleLink.textContent = "立即登入";
+            // 顯示隱私保護提醒
+            document.getElementById("privacyNotice").style.display = "block";
           }
           errorMsg.style.display = "none";
           successMsg.style.display = "none";
@@ -537,16 +761,88 @@
           successMsg.style.display = "block";
         }
 
-        document
-          .getElementById("googleLogin")
-          .addEventListener("click", () =>
-            showError("Google 登入功能開發中...")
-          );
+        // Google 隱私承諾相關函數
+        function showGooglePrivacyNotice() {
+          const modal = document.getElementById("googlePrivacyModal");
+          modal.classList.add("show");
+
+          // 點擊外部關閉
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              hideGooglePrivacyNotice();
+            }
+          });
+        }
+
+        function hideGooglePrivacyNotice() {
+          const modal = document.getElementById("googlePrivacyModal");
+          modal.classList.remove("show");
+        }
+
+        async function proceedWithGoogleLogin() {
+          try {
+            hideGooglePrivacyNotice();
+            showSuccess("正在使用 Google 登入...");
+            await AuthService.signInWithGoogle();
+            showSuccess("Google 登入成功！正在跳轉...");
+            setTimeout(() => {
+              window.location.href = "member.html";
+            }, 1500);
+          } catch (err) {
+            console.error("Google 登入失敗:", err);
+            showError("Google 登入失敗：" + err.message);
+          }
+        }
+
+        // Facebook 隱私承諾相關函數
+        function showFacebookPrivacyNotice() {
+          const modal = document.getElementById("facebookPrivacyModal");
+          modal.classList.add("show");
+
+          // 點擊外部關閉
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              hideFacebookPrivacyNotice();
+            }
+          });
+        }
+
+        function hideFacebookPrivacyNotice() {
+          const modal = document.getElementById("facebookPrivacyModal");
+          modal.classList.remove("show");
+        }
+
+        async function proceedWithFacebookLogin() {
+          try {
+            hideFacebookPrivacyNotice();
+            showSuccess("正在使用 Facebook 登入...");
+            await AuthService.signInWithFacebook();
+            showSuccess("Facebook 登入成功！正在跳轉...");
+            setTimeout(() => {
+              window.location.href = "member.html";
+            }, 1500);
+          } catch (err) {
+            console.error("Facebook 登入失敗:", err);
+            showError("Facebook 登入失敗：" + err.message);
+          }
+        }
+
+        // 將函數暴露到全域作用域，讓 HTML 中的 onclick 可以調用
+        window.hideGooglePrivacyNotice = hideGooglePrivacyNotice;
+        window.proceedWithGoogleLogin = proceedWithGoogleLogin;
+        window.hideFacebookPrivacyNotice = hideFacebookPrivacyNotice;
+        window.proceedWithFacebookLogin = proceedWithFacebookLogin;
+
+        document.getElementById("googleLogin").addEventListener("click", () => {
+          // 顯示 Google 登入隱私承諾
+          showGooglePrivacyNotice();
+        });
         document
           .getElementById("facebookLogin")
-          .addEventListener("click", () =>
-            showError("Facebook 登入功能開發中...")
-          );
+          .addEventListener("click", () => {
+            // 顯示 Facebook 登入隱私承諾
+            showFacebookPrivacyNotice();
+          });
         // 電話號碼自動格式化
         const phoneInput = document.getElementById("registerPhone");
         phoneInput.addEventListener("input", (e) => {
@@ -556,10 +852,6 @@
           }
           e.target.value = value;
         });
-
-        document
-          .getElementById("lineLogin")
-          .addEventListener("click", () => showError("LINE 登入功能開發中..."));
       });
     </script>
   </body>

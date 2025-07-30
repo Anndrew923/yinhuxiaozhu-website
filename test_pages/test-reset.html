@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>測試重置 - 隱湖小竹</title>
+    <style>
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .status {
+        background: #e8f5e8;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        border-left: 4px solid #4a7c59;
+      }
+      .warning {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        border-left: 4px solid #ffc107;
+      }
+      .btn {
+        background: #4a7c59;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 14px;
+      }
+      .btn:hover {
+        background: #2c5530;
+      }
+      .btn-danger {
+        background: #dc3545;
+      }
+      .btn-danger:hover {
+        background: #c82333;
+      }
+      .info {
+        background: #d1ecf1;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        border-left: 4px solid #17a2b8;
+      }
+      pre {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 測試重置工具</h1>
+      <p>這個頁面用於測試和重置網站設定，方便開發和測試。</p>
+
+      <div class="info">
+        <h3>📋 當前狀態</h3>
+        <div id="current-status">載入中...</div>
+      </div>
+
+      <div class="warning">
+        <h3>⚠️ 注意事項</h3>
+        <ul>
+          <li>重置後會清除所有本地儲存的設定</li>
+          <li>需要重新同意 Cookie 設定</li>
+          <li>會重新顯示歡迎頁面</li>
+          <li>購物車內容會被清空</li>
+        </ul>
+      </div>
+
+      <div class="status">
+        <h3>🛠️ 操作選項</h3>
+        <button class="btn" onclick="checkStatus()">檢查狀態</button>
+        <button class="btn" onclick="resetAll()">重置所有設定</button>
+        <button class="btn" onclick="resetWelcome()">只重置歡迎頁面</button>
+        <button class="btn" onclick="resetCookie()">只重置 Cookie 設定</button>
+        <button class="btn btn-danger" onclick="clearAll()">
+          清除所有資料
+        </button>
+      </div>
+
+      <div class="info">
+        <h3>🔗 測試連結</h3>
+        <a href="index.html" class="btn">測試歡迎頁面</a>
+        <a href="home.html" class="btn">測試主頁面</a>
+        <a href="privacy-policy.html" class="btn">隱私權政策</a>
+        <a href="security-settings.html" class="btn">安全設定</a>
+      </div>
+
+      <div class="status">
+        <h3>📊 詳細資訊</h3>
+        <pre id="detailed-info">點擊「檢查狀態」查看詳細資訊</pre>
+      </div>
+    </div>
+
+    <script>
+      // 檢查當前狀態
+      function checkStatus() {
+        const welcomeSeen = localStorage.getItem("yinhu_welcome_seen");
+        const cookieConsent = localStorage.getItem("yinhu_cookie_consent");
+        const cookiePreferences = localStorage.getItem(
+          "yinhu_cookie_preferences"
+        );
+        const cart = localStorage.getItem("yinhuCart");
+        const userProfile = localStorage.getItem("yinhu_user_profile");
+
+        const statusHtml = `
+                <strong>歡迎頁面狀態：</strong> ${
+                  welcomeSeen === "true" ? "已看過 ✅" : "未看過 ❌"
+                }<br>
+                <strong>Cookie 同意狀態：</strong> ${
+                  cookieConsent === "true" ? "已同意 ✅" : "未同意 ❌"
+                }<br>
+                <strong>Cookie 偏好設定：</strong> ${
+                  cookiePreferences ? "已設定 ✅" : "未設定 ❌"
+                }<br>
+                <strong>購物車內容：</strong> ${
+                  cart ? "有內容 ✅" : "空 ❌"
+                }<br>
+                <strong>用戶資料：</strong> ${
+                  userProfile ? "已儲存 ✅" : "未儲存 ❌"
+                }
+            `;
+
+        document.getElementById("current-status").innerHTML = statusHtml;
+
+        const detailedInfo = {
+          welcomeSeen: welcomeSeen,
+          cookieConsent: cookieConsent,
+          cookiePreferences: cookiePreferences
+            ? JSON.parse(cookiePreferences)
+            : null,
+          cart: cart ? JSON.parse(cart) : null,
+          userProfile: userProfile ? JSON.parse(userProfile) : null,
+          allKeys: Object.keys(localStorage).filter((key) =>
+            key.startsWith("yinhu")
+          ),
+        };
+
+        document.getElementById("detailed-info").textContent = JSON.stringify(
+          detailedInfo,
+          null,
+          2
+        );
+      }
+
+      // 重置所有設定
+      function resetAll() {
+        if (confirm("確定要重置所有設定嗎？這會清除歡迎頁面和 Cookie 設定。")) {
+          localStorage.removeItem("yinhu_welcome_seen");
+          localStorage.removeItem("yinhu_cookie_consent");
+          localStorage.removeItem("yinhu_cookie_preferences");
+          alert("✅ 所有設定已重置！現在可以重新測試歡迎頁面和 Cookie 通知。");
+          checkStatus();
+        }
+      }
+
+      // 只重置歡迎頁面
+      function resetWelcome() {
+        if (confirm("確定要重置歡迎頁面設定嗎？")) {
+          localStorage.removeItem("yinhu_welcome_seen");
+          alert("✅ 歡迎頁面設定已重置！");
+          checkStatus();
+        }
+      }
+
+      // 只重置 Cookie 設定
+      function resetCookie() {
+        if (confirm("確定要重置 Cookie 設定嗎？")) {
+          localStorage.removeItem("yinhu_cookie_consent");
+          localStorage.removeItem("yinhu_cookie_preferences");
+          alert("✅ Cookie 設定已重置！");
+          checkStatus();
+        }
+      }
+
+      // 清除所有資料
+      function clearAll() {
+        if (
+          confirm(
+            "⚠️ 警告：這會清除所有本地儲存的資料，包括購物車、用戶資料等。確定要繼續嗎？"
+          )
+        ) {
+          if (confirm("最後確認：確定要清除所有資料嗎？")) {
+            localStorage.clear();
+            alert("✅ 所有資料已清除！");
+            checkStatus();
+          }
+        }
+      }
+
+      // 頁面載入時自動檢查狀態
+      window.addEventListener("DOMContentLoaded", function () {
+        checkStatus();
+      });
+    </script>
+  </body>
+</html>

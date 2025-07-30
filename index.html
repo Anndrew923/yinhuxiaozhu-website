@@ -114,11 +114,9 @@
       @keyframes fadeInText {
         from {
           opacity: 0;
-          transform: translateY(20px);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
         }
       }
 
@@ -173,7 +171,7 @@
     </style>
   </head>
   <body>
-    <a href="home.html" class="skip-button">跳過</a>
+    <a href="#" class="skip-button" onclick="skipWelcome()">跳過</a>
 
     <div class="welcome-container">
       <img src="assets/welcome-logo.png" alt="隱湖小竹" class="welcome-logo" />
@@ -186,48 +184,39 @@
     </div>
 
     <script>
-      // 檢查是否已經看過歡迎頁面
       function hasSeenWelcome() {
-        return localStorage.getItem("hasSeenWelcome") === "true";
+        return localStorage.getItem("yinhu_welcome_seen") === "true";
       }
 
-      // 標記已經看過歡迎頁面
       function markWelcomeAsSeen() {
-        localStorage.setItem("hasSeenWelcome", "true");
+        localStorage.setItem("yinhu_welcome_seen", "true");
       }
 
-      // 跳轉到首頁的函數
       function goToHome() {
-        markWelcomeAsSeen(); // 標記已經看過歡迎頁面
+        markWelcomeAsSeen();
         window.location.href = "home.html";
       }
 
-      // 頁面載入時檢查是否已經看過歡迎頁面
-      window.addEventListener('DOMContentLoaded', function() {
+      function skipWelcome() {
+        event.preventDefault();
+        goToHome();
+      }
+
+      window.addEventListener("DOMContentLoaded", function () {
         if (hasSeenWelcome()) {
-          // 如果已經看過歡迎頁面，直接跳轉到首頁
           window.location.href = "home.html";
           return;
         }
+
+        setTimeout(() => {
+          goToHome();
+        }, 3000);
       });
 
-      // 自動跳轉到首頁（2秒後）
-      setTimeout(() => {
-        goToHome();
-      }, 2000);
-
-      // 點擊跳過按鈕立即跳轉
-      document.querySelector(".skip-button").addEventListener("click", (e) => {
-        e.preventDefault();
-        goToHome();
-      });
-
-      // 點擊logo也可以跳轉
       document.querySelector(".welcome-logo").addEventListener("click", () => {
         goToHome();
       });
 
-      // 添加鍵盤事件（按任意鍵跳轉）
       document.addEventListener("keydown", () => {
         goToHome();
       });

@@ -1,20 +1,26 @@
 {
-  "name": "隱湖小竹",
+  "name": "yinhu-website",
   "version": "1.0.0",
   "description": "隱湖小竹網站",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "serve": "node server.js"
+    "dev": "npx http-server -p 8000 -c-1",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "website",
-    "static"
+    "restaurant",
+    "food",
+    "taiwan"
   ],
+  "author": "隱湖小竹",
+  "license": "MIT",
   "dependencies": {
-    "nodemailer": "^6.9.7"
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3"
   },
-  "author": "",
-  "license": "MIT"
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
 }

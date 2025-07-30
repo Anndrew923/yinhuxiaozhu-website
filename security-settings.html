@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>安全設定 - 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .security-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .security-section {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .security-section h2 {
+        color: #2c5530;
+        border-bottom: 2px solid #4a7c59;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .security-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .security-item:last-child {
+        border-bottom: none;
+      }
+
+      .security-info {
+        flex: 1;
+      }
+
+      .security-info h3 {
+        margin: 0 0 5px 0;
+        color: #4a7c59;
+      }
+
+      .security-info p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .security-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: #4a7c59;
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: #4a7c59;
+        color: white;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .btn:hover {
+        opacity: 0.8;
+      }
+
+      .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+      }
+
+      .status-active {
+        background: #28a745;
+      }
+
+      .status-inactive {
+        background: #dc3545;
+      }
+
+      .status-warning {
+        background: #ffc107;
+      }
+
+      .security-score {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #4a7c59, #2c5530);
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+
+      .security-score h1 {
+        margin: 0;
+        font-size: 48px;
+      }
+
+      .security-score p {
+        margin: 10px 0 0 0;
+        opacity: 0.9;
+      }
+
+      .backup-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+      }
+
+      .backup-info p {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="security-container">
+      <h1>🔒 安全設定</h1>
+
+      <!-- 安全評分 -->
+      <div class="security-score">
+        <h1 id="security-score">--</h1>
+        <p>網站安全評分</p>
+      </div>
+
+      <!-- 帳戶安全 -->
+      <div class="security-section">
+        <h2>帳戶安全</h2>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>密碼強度</h3>
+            <p>確保您的密碼足夠強壯</p>
+          </div>
+          <div class="security-control">
+            <span id="password-strength" class="status-indicator"></span>
+            <button class="btn btn-primary" onclick="changePassword()">
+              更改密碼
+            </button>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>兩步驟驗證</h3>
+            <p>增加額外的安全保護層</p>
+          </div>
+          <div class="security-control">
+            <label class="switch">
+              <input type="checkbox" id="two-factor-auth" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>登入嘗試限制</h3>
+            <p>防止暴力破解攻擊</p>
+          </div>
+          <div class="security-control">
+            <span id="login-attempts-status" class="status-indicator"></span>
+            <span id="login-attempts-info">檢查中...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 資料保護 -->
+      <div class="security-section">
+        <h2>資料保護</h2>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>資料加密</h3>
+            <p>確保敏感資料的安全儲存</p>
+          </div>
+          <div class="security-control">
+            <span id="encryption-status" class="status-indicator"></span>
+            <span id="encryption-info">檢查中...</span>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>自動備份</h3>
+            <p>定期備份您的資料</p>
+          </div>
+          <div class="security-control">
+            <label class="switch">
+              <input type="checkbox" id="auto-backup" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>手動備份</h3>
+            <p>立即建立資料備份</p>
+          </div>
+          <div class="security-control">
+            <button class="btn btn-primary" onclick="createBackup()">
+              建立備份
+            </button>
+            <button class="btn btn-secondary" onclick="restoreBackup()">
+              恢復備份
+            </button>
+          </div>
+        </div>
+
+        <div id="backup-info" class="backup-info" style="display: none">
+          <p id="backup-status">備份狀態</p>
+          <p id="backup-time">最後備份時間</p>
+        </div>
+      </div>
+
+      <!-- 會話管理 -->
+      <div class="security-section">
+        <h2>會話管理</h2>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>會話狀態</h3>
+            <p>檢查當前會話是否有效</p>
+          </div>
+          <div class="security-control">
+            <span id="session-status" class="status-indicator"></span>
+            <span id="session-info">檢查中...</span>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>自動登出</h3>
+            <p>閒置時自動登出</p>
+          </div>
+          <div class="security-control">
+            <label class="switch">
+              <input type="checkbox" id="auto-logout" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>登出所有裝置</h3>
+            <p>強制登出所有已登入的裝置</p>
+          </div>
+          <div class="security-control">
+            <button class="btn btn-danger" onclick="logoutAllDevices()">
+              登出所有裝置
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 隱私設定 -->
+      <div class="security-section">
+        <h2>隱私設定</h2>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>Cookie 設定</h3>
+            <p>管理 Cookie 使用偏好</p>
+          </div>
+          <div class="security-control">
+            <button class="btn btn-primary" onclick="openCookieSettings()">
+              管理 Cookie
+            </button>
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>資料收集</h3>
+            <p>控制資料收集和使用</p>
+          </div>
+          <div class="security-control">
+            <a
+              href="privacy-policy.html"
+              class="btn btn-secondary"
+              target="_blank"
+              >隱私權政策</a
+            >
+          </div>
+        </div>
+
+        <div class="security-item">
+          <div class="security-info">
+            <h3>刪除帳戶</h3>
+            <p>永久刪除您的帳戶和所有資料</p>
+          </div>
+          <div class="security-control">
+            <button class="btn btn-danger" onclick="deleteAccount()">
+              刪除帳戶
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 載入必要的 JavaScript -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/security.service.js"></script>
+    <script src="js/cookie-consent.js"></script>
+
+    <script>
+      // 頁面載入完成後初始化
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeSecuritySettings();
+      });
+
+      function initializeSecuritySettings() {
+        // 檢查安全評分
+        updateSecurityScore();
+
+        // 檢查各項安全狀態
+        updatePasswordStrength();
+        updateLoginAttempts();
+        updateEncryptionStatus();
+        updateSessionStatus();
+        updateBackupInfo();
+
+        // 載入設定
+        loadSettings();
+
+        // 綁定事件
+        bindEvents();
+      }
+
+      function updateSecurityScore() {
+        if (window.SecurityService) {
+          const securityCheck = SecurityService.performSecurityCheck();
+          document.getElementById("security-score").textContent =
+            securityCheck.percentage;
+
+          // 根據評分設定顏色
+          const scoreElement = document.getElementById("security-score");
+          if (securityCheck.percentage >= 80) {
+            scoreElement.style.color = "#28a745";
+          } else if (securityCheck.percentage >= 60) {
+            scoreElement.style.color = "#ffc107";
+          } else {
+            scoreElement.style.color = "#dc3545";
+          }
+        }
+      }
+
+      function updatePasswordStrength() {
+        // 這裡應該從實際的密碼檢查結果取得
+        const strengthIndicator = document.getElementById("password-strength");
+        strengthIndicator.className = "status-indicator status-active";
+      }
+
+      function updateLoginAttempts() {
+        if (window.SecurityService) {
+          const attempts = SecurityService.checkLoginAttempts();
+          const statusElement = document.getElementById(
+            "login-attempts-status"
+          );
+          const infoElement = document.getElementById("login-attempts-info");
+
+          if (attempts.isLocked) {
+            statusElement.className = "status-indicator status-warning";
+            infoElement.textContent = `已鎖定 (${Math.ceil(
+              attempts.remainingTime / 60000
+            )}分鐘後解鎖)`;
+          } else {
+            statusElement.className = "status-indicator status-active";
+            infoElement.textContent = `正常 (${attempts.count}/5次嘗試)`;
+          }
+        }
+      }
+
+      function updateEncryptionStatus() {
+        const statusElement = document.getElementById("encryption-status");
+        const infoElement = document.getElementById("encryption-info");
+
+        // 檢查是否使用 HTTPS
+        if (window.location.protocol === "https:") {
+          statusElement.className = "status-indicator status-active";
+          infoElement.textContent = "已啟用 (HTTPS)";
+        } else {
+          statusElement.className = "status-indicator status-warning";
+          infoElement.textContent = "建議使用 HTTPS";
+        }
+      }
+
+      function updateSessionStatus() {
+        if (window.SecurityService) {
+          const isValid = SecurityService.isSessionValid();
+          const statusElement = document.getElementById("session-status");
+          const infoElement = document.getElementById("session-info");
+
+          if (isValid) {
+            statusElement.className = "status-indicator status-active";
+            infoElement.textContent = "有效";
+          } else {
+            statusElement.className = "status-indicator status-inactive";
+            infoElement.textContent = "已過期";
+          }
+        }
+      }
+
+      function updateBackupInfo() {
+        if (window.SecurityService) {
+          const backupInfo = SecurityService.checkDataBackup();
+          const backupInfoDiv = document.getElementById("backup-info");
+          const statusElement = document.getElementById("backup-status");
+          const timeElement = document.getElementById("backup-time");
+
+          if (backupInfo.lastBackup) {
+            backupInfoDiv.style.display = "block";
+            statusElement.textContent = `備份狀態: ${
+              backupInfo.backupEnabled ? "已啟用" : "未啟用"
+            }`;
+            timeElement.textContent = `最後備份: ${new Date(
+              parseInt(backupInfo.lastBackup)
+            ).toLocaleString()}`;
+          }
+        }
+      }
+
+      function loadSettings() {
+        // 載入自動備份設定
+        const autoBackup = localStorage.getItem("yinhu_auto_backup") === "true";
+        document.getElementById("auto-backup").checked = autoBackup;
+
+        // 載入自動登出設定
+        const autoLogout =
+          localStorage.getItem("yinhu_auto_logout") !== "false";
+        document.getElementById("auto-logout").checked = autoLogout;
+
+        // 載入兩步驟驗證設定
+        const twoFactor = localStorage.getItem("yinhu_two_factor") === "true";
+        document.getElementById("two-factor-auth").checked = twoFactor;
+      }
+
+      function bindEvents() {
+        // 自動備份設定
+        document
+          .getElementById("auto-backup")
+          .addEventListener("change", function (e) {
+            localStorage.setItem("yinhu_auto_backup", e.target.checked);
+            if (e.target.checked) {
+              SecurityService.createDataBackup();
+            }
+          });
+
+        // 自動登出設定
+        document
+          .getElementById("auto-logout")
+          .addEventListener("change", function (e) {
+            localStorage.setItem("yinhu_auto_logout", e.target.checked);
+          });
+
+        // 兩步驟驗證設定
+        document
+          .getElementById("two-factor-auth")
+          .addEventListener("change", function (e) {
+            localStorage.setItem("yinhu_two_factor", e.target.checked);
+            if (e.target.checked) {
+              alert("兩步驟驗證功能需要額外設定，請聯繫客服。");
+            }
+          });
+      }
+
+      function changePassword() {
+        const newPassword = prompt("請輸入新密碼:");
+        if (newPassword) {
+          if (window.SecurityService) {
+            const validation = SecurityService.validatePassword(newPassword);
+            if (validation.isValid) {
+              alert("密碼強度良好！請在登入頁面更新您的密碼。");
+            } else {
+              alert("密碼不符合要求:\n" + validation.errors.join("\n"));
+            }
+          }
+        }
+      }
+
+      function createBackup() {
+        if (window.SecurityService) {
+          const result = SecurityService.createDataBackup();
+          if (result.success) {
+            alert("資料備份建立成功！");
+            updateBackupInfo();
+          } else {
+            alert("資料備份失敗: " + result.error);
+          }
+        }
+      }
+
+      function restoreBackup() {
+        if (confirm("確定要恢復備份資料嗎？這將會覆蓋當前的資料。")) {
+          if (window.SecurityService) {
+            const result = SecurityService.restoreDataBackup();
+            if (result.success) {
+              alert("資料恢復成功！");
+              location.reload();
+            } else {
+              alert("資料恢復失敗: " + result.error);
+            }
+          }
+        }
+      }
+
+      function logoutAllDevices() {
+        if (confirm("確定要登出所有裝置嗎？")) {
+          // 清除所有本地儲存的資料
+          localStorage.clear();
+          sessionStorage.clear();
+          alert("已登出所有裝置，請重新登入。");
+          window.location.href = "login.html";
+        }
+      }
+
+      function openCookieSettings() {
+        if (window.CookieConsent) {
+          CookieConsent.showCookieSettings();
+        } else {
+          alert("Cookie 設定功能暫時無法使用。");
+        }
+      }
+
+      function deleteAccount() {
+        if (
+          confirm(
+            "警告：此操作將永久刪除您的帳戶和所有資料，無法復原。確定要繼續嗎？"
+          )
+        ) {
+          if (confirm("最後確認：您確定要永久刪除帳戶嗎？")) {
+            alert(
+              "帳戶刪除功能需要聯繫客服處理。請發送郵件至 support@yinhu.com"
+            );
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

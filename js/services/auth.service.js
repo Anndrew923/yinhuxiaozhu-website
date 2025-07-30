@@ -78,6 +78,85 @@ const AuthService = (() => {
     return auth.onAuthStateChanged(callback);
   }
 
+  // Google 登入
+  async function signInWithGoogle() {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      // 設定語言為繁體中文
+      provider.setCustomParameters({
+        hl: "zh-TW",
+      });
+
+      const result = await auth.signInWithPopup(provider);
+
+      // 檢查是否為新用戶
+      if (result.additionalUserInfo.isNewUser) {
+        // 新用戶，建立用戶資料
+        const userData = {
+          uid: result.user.uid,
+          name: result.user.displayName || "Google 用戶",
+          email: result.user.email,
+          phone: result.user.phoneNumber || "",
+          points: 0,
+          createdAt: new Date().toISOString(),
+          provider: "google",
+        };
+
+        try {
+          await db.collection("user").doc(result.user.uid).set(userData);
+          console.log("Google 用戶資料建立成功");
+        } catch (error) {
+          console.error("Google 用戶資料建立失敗:", error);
+        }
+      }
+
+      return result.user;
+    } catch (error) {
+      console.error("Google 登入失敗:", error);
+      throw error;
+    }
+  }
+
+  // Facebook 登入
+  async function signInWithFacebook() {
+    try {
+      const provider = new firebase.auth.FacebookAuthProvider();
+      // 設定語言為繁體中文
+      provider.setCustomParameters({
+        display: "popup",
+        locale: "zh_TW",
+      });
+
+      const result = await auth.signInWithPopup(provider);
+
+      // 檢查是否為新用戶
+      if (result.additionalUserInfo.isNewUser) {
+        // 新用戶，建立用戶資料
+        const userData = {
+          uid: result.user.uid,
+          name: result.user.displayName || "Facebook 用戶",
+          email: result.user.email,
+          phone: result.user.phoneNumber || "",
+          points: 0,
+          createdAt: new Date().toISOString(),
+          provider: "facebook",
+        };
+
+        try {
+          await db.collection("user").doc(result.user.uid).set(userData);
+          console.log("Facebook 用戶資料建立成功");
+        } catch (error) {
+          console.error("Facebook 用戶資料建立失敗:", error);
+        }
+      }
+
+      return result.user;
+    } catch (error) {
+      console.error("Facebook 登入失敗:", error);
+      throw error;
+    }
+  }
+
   // 檢查是否應該顯示註冊邀請
   function shouldShowSignupPrompt() {
     // 檢查是否已登入
@@ -277,6 +356,8 @@ const AuthService = (() => {
     signIn,
     signOut,
     onAuthStateChanged,
+    signInWithGoogle,
+    signInWithFacebook,
     shouldShowSignupPrompt,
     calculatePotentialPoints,
     showSignupPrompt,

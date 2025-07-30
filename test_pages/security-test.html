@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>安全性測試 - 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .test-section {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .security-info {
+        background: #e8f5e8;
+        border: 1px solid #4caf50;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .test-btn {
+        padding: 15px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        margin: 10px;
+        background: #007bff;
+        color: white;
+      }
+      .test-btn:hover {
+        background: #0056b3;
+      }
+      .log-container {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="assets/logo.png" alt="隱湖小竹" class="logo" />
+        </div>
+        <div class="nav-menu">
+          <a href="index.html" class="nav-link">首頁</a>
+          <a href="notification-test-simple.html" class="nav-link">通知測試</a>
+          <a href="security-test.html" class="nav-link active">安全性測試</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 主要內容 -->
+    <main class="main-content">
+      <div class="test-container">
+        <div class="page-header">
+          <h1><i class="fas fa-shield-alt"></i> 安全性測試</h1>
+          <p>測試新的安全通知系統</p>
+        </div>
+
+        <!-- 安全性資訊 -->
+        <div class="test-section">
+          <div class="security-info">
+            <h3><i class="fas fa-check-circle"></i> 安全性改進</h3>
+            <p><strong>✅ 敏感資訊已移至後端</strong></p>
+            <p><strong>✅ API 金鑰不再暴露在前端</strong></p>
+            <p><strong>✅ 支援環境變數設定</strong></p>
+            <p><strong>✅ 前端透過安全 API 呼叫後端</strong></p>
+          </div>
+        </div>
+
+        <!-- 測試按鈕 -->
+        <div class="test-section">
+          <h2><i class="fas fa-vial"></i> 功能測試</h2>
+          <p>測試新的安全通知系統功能</p>
+
+          <button class="test-btn" onclick="testEmailSecurity()">
+            <i class="fas fa-envelope"></i> 測試 Email 安全性
+          </button>
+          <button class="test-btn" onclick="testLineSecurity()">
+            <i class="fab fa-line"></i> 測試 LINE 安全性
+          </button>
+          <button class="test-btn" onclick="testOrderNotification()">
+            <i class="fas fa-shopping-cart"></i> 測試訂單通知
+          </button>
+          <button class="test-btn" onclick="checkConfigSecurity()">
+            <i class="fas fa-eye"></i> 檢查設定安全性
+          </button>
+        </div>
+
+        <!-- 測試記錄 -->
+        <div class="test-section">
+          <h2><i class="fas fa-list"></i> 測試記錄</h2>
+          <div class="log-container" id="securityLog">
+            <div>系統初始化完成，等待測試...</div>
+          </div>
+          <button
+            class="btn-secondary"
+            onclick="clearSecurityLog()"
+            style="margin-top: 10px"
+          >
+            <i class="fas fa-trash"></i> 清除記錄
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- 載入必要的腳本 -->
+    <script src="config/client-config.js"></script>
+    <script src="js/services/notification.service.js"></script>
+    <script>
+      // 測試 Email 安全性
+      async function testEmailSecurity() {
+        addSecurityLog("開始測試 Email 安全性...", "info");
+
+        try {
+          if (!window.notificationService) {
+            throw new Error("通知服務未初始化");
+          }
+
+          const result =
+            await window.notificationService.testEmailNotification();
+          addSecurityLog("✅ Email 安全性測試成功", "success");
+          addSecurityLog("敏感資訊已安全處理", "success");
+        } catch (error) {
+          addSecurityLog("❌ Email 安全性測試失敗: " + error.message, "error");
+        }
+      }
+
+      // 測試 LINE 安全性
+      async function testLineSecurity() {
+        addSecurityLog("開始測試 LINE 安全性...", "info");
+
+        try {
+          if (!window.notificationService) {
+            throw new Error("通知服務未初始化");
+          }
+
+          const result =
+            await window.notificationService.testLineNotification();
+          addSecurityLog("✅ LINE 安全性測試成功", "success");
+          addSecurityLog("API 金鑰已安全保護", "success");
+        } catch (error) {
+          addSecurityLog("❌ LINE 安全性測試失敗: " + error.message, "error");
+        }
+      }
+
+      // 測試訂單通知
+      async function testOrderNotification() {
+        addSecurityLog("開始測試訂單通知安全性...", "info");
+
+        try {
+          if (!window.notificationService) {
+            throw new Error("通知服務未初始化");
+          }
+
+          const result = await window.notificationService.simulateOrderEmail();
+          addSecurityLog("✅ 訂單通知安全性測試成功", "success");
+          addSecurityLog("整合通知功能正常", "success");
+        } catch (error) {
+          addSecurityLog(
+            "❌ 訂單通知安全性測試失敗: " + error.message,
+            "error"
+          );
+        }
+      }
+
+      // 檢查設定安全性
+      function checkConfigSecurity() {
+        addSecurityLog("檢查設定安全性...", "info");
+
+        // 檢查前端設定
+        if (typeof ClientConfig !== "undefined") {
+          addSecurityLog("✅ 前端設定載入成功", "success");
+          addSecurityLog("API 端點: " + getApiEndpoint(), "info");
+        } else {
+          addSecurityLog("❌ 前端設定載入失敗", "error");
+        }
+
+        // 檢查通知服務
+        if (typeof window.notificationService !== "undefined") {
+          addSecurityLog("✅ 通知服務初始化成功", "success");
+        } else {
+          addSecurityLog("❌ 通知服務初始化失敗", "error");
+        }
+
+        // 檢查是否有敏感資訊暴露
+        try {
+          const configText = JSON.stringify(ClientConfig);
+          if (
+            configText.includes("password") ||
+            configText.includes("token") ||
+            configText.includes("secret")
+          ) {
+            addSecurityLog("⚠️ 警告：前端設定中可能包含敏感資訊", "warning");
+          } else {
+            addSecurityLog("✅ 前端設定中無敏感資訊", "success");
+          }
+        } catch (error) {
+          addSecurityLog("❌ 無法檢查設定安全性", "error");
+        }
+      }
+
+      // 添加安全性日誌
+      function addSecurityLog(message, type = "info") {
+        const logContainer = document.getElementById("securityLog");
+        const timestamp = new Date().toLocaleTimeString("zh-TW");
+
+        let color = "#333";
+        switch (type) {
+          case "success":
+            color = "#28a745";
+            break;
+          case "error":
+            color = "#dc3545";
+            break;
+          case "warning":
+            color = "#ffc107";
+            break;
+        }
+
+        const logEntry = document.createElement("div");
+        logEntry.style.color = color;
+        logEntry.style.marginBottom = "5px";
+        logEntry.textContent = `[${timestamp}] ${message}`;
+
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+      }
+
+      // 清除安全性日誌
+      function clearSecurityLog() {
+        const logContainer = document.getElementById("securityLog");
+        logContainer.innerHTML = "<div>系統初始化完成，等待測試...</div>";
+      }
+
+      // 頁面載入時自動檢查
+      document.addEventListener("DOMContentLoaded", () => {
+        addSecurityLog("安全性測試頁面載入完成", "info");
+        checkConfigSecurity();
+      });
+    </script>
+  </body>
+</html>

@@ -1,520 +1,237 @@
 // js/services/notification.service.js
-// Notification Service：多管道通知系統（支援後期擴展）
-const NotificationService = (() => {
-  const db = window.firebaseDB;
-  const auth = window.firebaseAuth;
+// 前端通知服務 - 透過 API 呼叫後端
 
-  // 檢查 Firebase 是否正確初始化
-  if (!db) {
-    console.error("Firebase Firestore 未初始化");
-    return null;
+class NotificationService {
+  constructor() {
+    this.apiEndpoint = window.getApiEndpoint
+      ? window.getApiEndpoint()
+      : "http://localhost:8000";
   }
 
-  // 通知管道配置
-  const NOTIFICATION_CHANNELS = {
-    email: {
-      name: "Email",
-      enabled: true,
-      priority: 1,
-      cost: 0.001, // 每封成本估算
-      maxRetries: 3,
-    },
-    line: {
-      name: "LINE Bot",
-      enabled: true,
-      priority: 2,
-      cost: 0,
-      maxRetries: 2,
-    },
-    telegram: {
-      name: "Telegram Bot",
-      enabled: true,
-      priority: 3,
-      cost: 0,
-      maxRetries: 2,
-    },
-    sms: {
-      name: "SMS",
-      enabled: false, // 後期啟用
-      priority: 4,
-      cost: 0.5,
-      maxRetries: 1,
-    },
-    push: {
-      name: "Push Notification",
-      enabled: false, // 後期啟用
-      priority: 5,
-      cost: 0,
-      maxRetries: 2,
-    },
-  };
-
-  // 通知類型定義
-  const NOTIFICATION_TYPES = {
-    NEW_ORDER: "new_order",
-    PAYMENT_SUCCESS: "payment_success",
-    PAYMENT_FAILED: "payment_failed",
-    ORDER_SHIPPED: "order_shipped",
-    ORDER_DELIVERED: "order_delivered",
-    ORDER_CANCELLED: "order_cancelled",
-    LOW_STOCK: "low_stock",
-    PROMOTION: "promotion",
-  };
-
-  // 建立通知記錄
-  async function createNotification(type, orderData, channels = ["email"]) {
+  // 發送 Email 通知
+  async sendEmail(to, subject, content, from = null) {
     try {
-      console.log("建立通知記錄:", {
-        type,
-        orderId: orderData.orderId,
-        channels,
+      const response = await fetch(`${this.apiEndpoint}/api/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to,
+          subject,
+          content,
+          from,
+        }),
       });
 
-      const notification = {
-        type: type,
-        orderId: orderData.orderId,
-        userId: orderData.uid || null,
-        channels: channels,
-        data: orderData,
-        status: "pending",
-        retryCount: 0,
-        createdAt: new Date().toISOString(),
-        sentAt: null,
-        failedAt: null,
-        errorMessage: null,
-      };
+      const result = await response.json();
 
-      const docRef = await db.collection("notifications").add(notification);
-      console.log("通知記錄建立成功:", docRef.id);
+      if (!result.success) {
+        throw new Error(result.error || "Email 發送失敗");
+      }
 
-      // 立即發送通知
-      await sendNotification(docRef.id, notification);
-
-      return docRef.id;
+      return result;
     } catch (error) {
-      console.error("建立通知記錄失敗:", error);
+      console.error("Email 通知錯誤:", error);
       throw error;
     }
   }
 
-  // 發送通知
-  async function sendNotification(notificationId, notification) {
+  // 發送 LINE 通知
+  async sendLineNotification(message, userId = null) {
     try {
-      console.log("開始發送通知:", notificationId);
-
-      const results = {};
-      const userPrefs = notification.userId
-        ? await getUserNotificationPreferences(notification.userId)
-        : getDefaultPreferences();
-
-      // 根據用戶偏好過濾管道
-      const enabledChannels = notification.channels.filter(
-        (channel) =>
-          NOTIFICATION_CHANNELS[channel]?.enabled && userPrefs[channel]?.enabled
-      );
-
-      // 並行發送到多個管道
-      const sendPromises = enabledChannels.map(async (channel) => {
-        try {
-          const result = await sendToChannel(channel, notification);
-          results[channel] = { success: true, result };
-          return { channel, success: true };
-        } catch (error) {
-          console.error(`${channel} 通知發送失敗:`, error);
-          results[channel] = { success: false, error: error.message };
-          return { channel, success: false, error: error.message };
+      const response = await fetch(
+        `${this.apiEndpoint}/api/send-line-notification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message,
+            userId,
+          }),
         }
-      });
-
-      const channelResults = await Promise.allSettled(sendPromises);
-
-      // 更新通知狀態
-      const allSuccess = channelResults.every(
-        (result) => result.status === "fulfilled" && result.value.success
       );
 
-      await updateNotificationStatus(notificationId, {
-        status: allSuccess ? "sent" : "partial_failed",
-        sentAt: new Date().toISOString(),
-        results: results,
-      });
+      const result = await response.json();
 
-      console.log("通知發送完成:", results);
-      return results;
-    } catch (error) {
-      console.error("發送通知失敗:", error);
-      await updateNotificationStatus(notificationId, {
-        status: "failed",
-        failedAt: new Date().toISOString(),
-        errorMessage: error.message,
-      });
-      throw error;
-    }
-  }
-
-  // 發送到特定管道
-  async function sendToChannel(channel, notification) {
-    switch (channel) {
-      case "email":
-        return await sendEmailNotification(notification);
-      case "line":
-        return await sendLineBotNotification(notification);
-      case "telegram":
-        return await sendTelegramNotification(notification);
-      case "sms":
-        return await sendSMSNotification(notification);
-      case "push":
-        return await sendPushNotification(notification);
-      default:
-        throw new Error(`不支援的通知管道: ${channel}`);
-    }
-  }
-
-  // Email 通知
-  async function sendEmailNotification(notification) {
-    try {
-      console.log("發送 Email 通知:", notification.orderId);
-
-      // 使用 Firebase Functions 發送 Email
-      if (typeof firebase !== "undefined" && firebase.functions) {
-        const sendEmail = firebase.functions().httpsCallable("sendOrderEmail");
-        const result = await sendEmail({
-          type: notification.type,
-          orderData: notification.data,
-          template: getEmailTemplate(notification.type),
-        });
-        return result.data;
-      } else {
-        // 備用方案：直接發送
-        return await sendEmailDirect(notification);
-      }
-    } catch (error) {
-      console.error("Email 通知發送失敗:", error);
-      throw error;
-    }
-  }
-
-  // LINE Bot 通知
-  async function sendLineBotNotification(notification) {
-    try {
-      console.log("發送 LINE Bot 通知:", notification.orderId);
-
-      const message = formatLineMessage(notification);
-
-      // 使用 LINE Bot API
-      const response = await fetch("/api/line-bot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: message,
-          userId: getLineBotUserId(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`LINE Bot 通知發送失敗: ${response.status}`);
+      if (!result.success) {
+        throw new Error(result.error || "LINE 通知發送失敗");
       }
 
-      return await response.json();
+      return result;
     } catch (error) {
-      console.error("LINE Bot 通知發送失敗:", error);
+      console.error("LINE 通知錯誤:", error);
       throw error;
     }
   }
 
-  // Telegram 通知
-  async function sendTelegramNotification(notification) {
+  // 發送訂單通知（整合 Email 和 LINE）
+  async sendOrderNotification(
+    orderData,
+    notificationTypes = ["email", "line"]
+  ) {
     try {
-      console.log("發送 Telegram 通知:", notification.orderId);
+      const response = await fetch(
+        `${this.apiEndpoint}/api/send-order-notification`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            orderData,
+            notificationTypes,
+          }),
+        }
+      );
 
-      const message = formatTelegramMessage(notification);
+      const result = await response.json();
 
-      // 使用 Telegram Bot API
-      const response = await fetch("/api/telegram-bot", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: message,
-          chatId: getTelegramChatId(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Telegram 通知發送失敗: ${response.status}`);
+      if (!result.success) {
+        throw new Error(result.error || "訂單通知發送失敗");
       }
 
-      return await response.json();
+      return result;
     } catch (error) {
-      console.error("Telegram 通知發送失敗:", error);
+      console.error("訂單通知錯誤:", error);
       throw error;
     }
   }
 
-  // SMS 通知（後期實作）
-  async function sendSMSNotification(notification) {
-    // 後期實作，使用 Twilio 或其他 SMS 服務
-    console.log("SMS 通知功能待實作");
-    throw new Error("SMS 通知功能尚未啟用");
-  }
-
-  // Push 通知（後期實作）
-  async function sendPushNotification(notification) {
-    // 後期實作，使用 Web Push API
-    console.log("Push 通知功能待實作");
-    throw new Error("Push 通知功能尚未啟用");
-  }
-
-  // 獲取用戶通知偏好
-  async function getUserNotificationPreferences(userId) {
-    try {
-      const doc = await db
-        .collection("userNotificationPreferences")
-        .doc(userId)
-        .get();
-      if (doc.exists) {
-        return doc.data();
-      } else {
-        // 建立預設偏好
-        const defaultPrefs = getDefaultPreferences();
-        await db
-          .collection("userNotificationPreferences")
-          .doc(userId)
-          .set(defaultPrefs);
-        return defaultPrefs;
-      }
-    } catch (error) {
-      console.error("獲取用戶通知偏好失敗:", error);
-      return getDefaultPreferences();
-    }
-  }
-
-  // 更新用戶通知偏好
-  async function updateUserNotificationPreferences(userId, preferences) {
-    try {
-      await db
-        .collection("userNotificationPreferences")
-        .doc(userId)
-        .update({
-          ...preferences,
-          updatedAt: new Date().toISOString(),
-        });
-      console.log("用戶通知偏好更新成功");
-      return true;
-    } catch (error) {
-      console.error("更新用戶通知偏好失敗:", error);
-      throw error;
-    }
-  }
-
-  // 獲取預設通知偏好
-  function getDefaultPreferences() {
-    return {
-      email: { enabled: true, frequency: "immediate" },
-      line: { enabled: true, frequency: "immediate" },
-      sms: { enabled: false, frequency: "urgent_only" },
-      push: { enabled: false, frequency: "immediate" },
-      createdAt: new Date().toISOString(),
+  // 測試 Email 通知
+  async testEmailNotification() {
+    const testData = {
+      to: "admin@yinhu.com",
+      subject: "測試 Email 通知",
+      content: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333;">🧪 測試 Email 通知</h2>
+          <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>測試時間：</strong>${new Date().toLocaleString(
+              "zh-TW"
+            )}</p>
+            <p><strong>測試狀態：</strong>✅ 成功</p>
+          </div>
+          <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px;">
+            <p style="margin: 0; color: #2e7d32;">Email 通知功能運作正常！</p>
+          </div>
+        </div>
+      `,
     };
+
+    return await this.sendEmail(
+      testData.to,
+      testData.subject,
+      testData.content
+    );
   }
 
-  // 更新通知狀態
-  async function updateNotificationStatus(notificationId, updateData) {
-    try {
-      await db
-        .collection("notifications")
-        .doc(notificationId)
-        .update({
-          ...updateData,
-          updatedAt: new Date().toISOString(),
-        });
-    } catch (error) {
-      console.error("更新通知狀態失敗:", error);
-      throw error;
-    }
+  // 測試 LINE 通知
+  async testLineNotification() {
+    const testMessage = `🧪 測試 LINE 通知
+
+⏰ 測試時間：${new Date().toLocaleString("zh-TW")}
+✅ 測試狀態：成功
+
+LINE 通知功能運作正常！`;
+
+    return await this.sendLineNotification(testMessage);
   }
 
-  // 格式化 LINE 訊息
-  function formatLineMessage(notification) {
-    const orderData = notification.data;
-
-    switch (notification.type) {
-      case NOTIFICATION_TYPES.NEW_ORDER:
-        return `🛒 新訂單通知\n訂單編號：${orderData.orderId}\n金額：NT$ ${
-          orderData.finalTotal
-        }\n客戶：${orderData.customer.name}\n時間：${new Date().toLocaleString(
-          "zh-TW"
-        )}`;
-
-      case NOTIFICATION_TYPES.PAYMENT_SUCCESS:
-        return `✅ 付款成功\n訂單編號：${orderData.orderId}\n金額：NT$ ${
-          orderData.finalTotal
-        }\n時間：${new Date().toLocaleString("zh-TW")}`;
-
-      case NOTIFICATION_TYPES.ORDER_SHIPPED:
-        return `🚚 商品已出貨\n訂單編號：${orderData.orderId}\n預計送達：1-2 個工作天`;
-
-      default:
-        return `📢 訂單狀態更新\n訂單編號：${orderData.orderId}\n狀態：${notification.type}`;
-    }
-  }
-
-  // 格式化 Telegram 訊息
-  function formatTelegramMessage(notification) {
-    const orderData = notification.data;
-
-    switch (notification.type) {
-      case NOTIFICATION_TYPES.NEW_ORDER:
-        return `🛒 *新訂單通知*\n\n📋 訂單編號：\`${
-          orderData.orderId
-        }\`\n💰 金額：NT$ ${orderData.finalTotal}\n👤 客戶：${
-          orderData.customer.name
-        }\n📞 電話：${
-          orderData.customer.phone
-        }\n📅 時間：${new Date().toLocaleString("zh-TW")}`;
-
-      case NOTIFICATION_TYPES.PAYMENT_SUCCESS:
-        return `✅ *付款成功*\n\n📋 訂單編號：\`${
-          orderData.orderId
-        }\`\n💰 金額：NT$ ${
-          orderData.finalTotal
-        }\n📅 時間：${new Date().toLocaleString("zh-TW")}`;
-
-      case NOTIFICATION_TYPES.ORDER_SHIPPED:
-        return `🚚 *商品已出貨*\n\n📋 訂單編號：\`${orderData.orderId}\`\n📦 預計送達：1-2 個工作天`;
-
-      default:
-        return `📢 *訂單狀態更新*\n\n📋 訂單編號：\`${orderData.orderId}\`\n📊 狀態：${notification.type}`;
-    }
-  }
-
-  // 獲取 Email 模板
-  function getEmailTemplate(type) {
-    const templates = {
-      [NOTIFICATION_TYPES.NEW_ORDER]: "new_order_email",
-      [NOTIFICATION_TYPES.PAYMENT_SUCCESS]: "payment_success_email",
-      [NOTIFICATION_TYPES.ORDER_SHIPPED]: "order_shipped_email",
+  // 模擬訂單 Email
+  async simulateOrderEmail() {
+    const mockOrderData = {
+      orderId: "TEST-" + Date.now(),
+      finalTotal: 1500,
+      customer: {
+        name: "測試客戶",
+        email: "test@example.com",
+      },
+      items: [
+        {
+          name: "測試商品 A",
+          quantity: 2,
+          price: 500,
+        },
+        {
+          name: "測試商品 B",
+          quantity: 1,
+          price: 500,
+        },
+      ],
     };
-    return templates[type] || "default_email";
+
+    return await this.sendOrderNotification(mockOrderData, ["email"]);
   }
 
-  // 直接發送 Email（備用方案）
-  async function sendEmailDirect(notification) {
-    // 使用 EmailJS 或其他前端 Email 服務
-    console.log("使用備用 Email 發送方案");
-    return { success: true, method: "direct" };
+  // 模擬貨到付款 Email
+  async simulateCashOnDeliveryEmail() {
+    const mockOrderData = {
+      orderId: "COD-" + Date.now(),
+      finalTotal: 2000,
+      paymentMethod: "cash_on_delivery",
+      customer: {
+        name: "貨到付款測試客戶",
+        email: "cod@example.com",
+        phone: "0912345678",
+        address: "台北市測試區測試路123號",
+      },
+      items: [
+        {
+          name: "貨到付款商品 A",
+          quantity: 1,
+          price: 1200,
+        },
+        {
+          name: "貨到付款商品 B",
+          quantity: 2,
+          price: 400,
+        },
+      ],
+    };
+
+    return await this.sendOrderNotification(mockOrderData, ["email", "line"]);
   }
 
-  // 獲取 LINE Bot 用戶 ID
-  function getLineBotUserId() {
-    // 從設定檔獲取
-    if (
-      typeof NotificationConfig !== "undefined" &&
-      NotificationConfig.LINE_BOT.ADMIN_USER_ID
-    ) {
-      return NotificationConfig.LINE_BOT.ADMIN_USER_ID;
+  // 記錄通知結果
+  logNotification(type, result, error = null) {
+    const timestamp = new Date().toLocaleString("zh-TW");
+    const logEntry = {
+      timestamp,
+      type,
+      success: !error,
+      result: error ? error.message : result,
+    };
+
+    console.log(`[${timestamp}] ${type} 通知:`, logEntry);
+
+    // 如果有測試記錄容器，則顯示結果
+    const testLog = document.getElementById("testLog");
+    if (testLog) {
+      const logElement = document.createElement("div");
+      logElement.className = `log-entry ${error ? "log-error" : "log-success"}`;
+
+      const statusIndicator = document.createElement("span");
+      statusIndicator.className = `status-indicator ${
+        error ? "status-error" : "status-success"
+      }`;
+
+      logElement.innerHTML = `
+        ${statusIndicator.outerHTML}
+        <strong>${type}</strong> - ${timestamp}
+        <br>
+        ${error ? `❌ ${error.message}` : `✅ ${result.message || "成功"}`}
+      `;
+
+      testLog.appendChild(logElement);
+      testLog.scrollTop = testLog.scrollHeight;
     }
-    // 備用方案
-    return "your_line_user_id";
+
+    return logEntry;
   }
+}
 
-  // 獲取 Telegram 聊天室 ID
-  function getTelegramChatId() {
-    // 從設定檔獲取
-    if (
-      typeof NotificationConfig !== "undefined" &&
-      NotificationConfig.TELEGRAM_BOT.CHAT_ID
-    ) {
-      return NotificationConfig.TELEGRAM_BOT.CHAT_ID;
-    }
-    // 備用方案
-    return "your_chat_id";
-  }
-
-  // 重試失敗的通知
-  async function retryFailedNotifications() {
-    try {
-      const snapshot = await db
-        .collection("notifications")
-        .where("status", "in", ["failed", "partial_failed"])
-        .where("retryCount", "<", 3)
-        .get();
-
-      const retryPromises = snapshot.docs.map(async (doc) => {
-        const notification = { id: doc.id, ...doc.data() };
-        const newRetryCount = notification.retryCount + 1;
-
-        await updateNotificationStatus(doc.id, {
-          retryCount: newRetryCount,
-          status: "pending",
-        });
-
-        return sendNotification(doc.id, notification);
-      });
-
-      await Promise.allSettled(retryPromises);
-      console.log(`重試了 ${snapshot.docs.length} 個失敗的通知`);
-    } catch (error) {
-      console.error("重試失敗通知時發生錯誤:", error);
-    }
-  }
-
-  // 獲取通知統計
-  async function getNotificationStats(days = 30) {
-    try {
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - days);
-
-      const snapshot = await db
-        .collection("notifications")
-        .where("createdAt", ">=", startDate.toISOString())
-        .get();
-
-      const notifications = snapshot.docs.map((doc) => doc.data());
-
-      const stats = {
-        total: notifications.length,
-        sent: notifications.filter((n) => n.status === "sent").length,
-        failed: notifications.filter((n) => n.status === "failed").length,
-        partialFailed: notifications.filter(
-          (n) => n.status === "partial_failed"
-        ).length,
-        byType: {},
-        byChannel: {},
-      };
-
-      // 按類型統計
-      notifications.forEach((n) => {
-        stats.byType[n.type] = (stats.byType[n.type] || 0) + 1;
-      });
-
-      // 按管道統計
-      notifications.forEach((n) => {
-        n.channels.forEach((channel) => {
-          stats.byChannel[channel] = (stats.byChannel[channel] || 0) + 1;
-        });
-      });
-
-      return stats;
-    } catch (error) {
-      console.error("獲取通知統計失敗:", error);
-      return null;
-    }
-  }
-
-  return {
-    createNotification,
-    sendNotification,
-    getUserNotificationPreferences,
-    updateUserNotificationPreferences,
-    retryFailedNotifications,
-    getNotificationStats,
-    NOTIFICATION_TYPES,
-    NOTIFICATION_CHANNELS,
-  };
-})();
-
-window.NotificationService = NotificationService;
+// 建立全域實例
+window.notificationService = new NotificationService();
