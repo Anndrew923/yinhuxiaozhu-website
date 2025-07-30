@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>雙欄目錄菜單風格 | 隱湖小竹</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      .dual-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .dual-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 50px;
+      }
+
+      .dual-layout {
+        display: grid;
+        grid-template-columns: 2fr 3fr;
+        gap: 40px;
+        align-items: start;
+      }
+
+      /* 左側目錄 */
+      .menu-index {
+        position: sticky;
+        top: 20px;
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .index-title {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 25px;
+        text-align: center;
+      }
+
+      .category-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .category-nav li {
+        margin-bottom: 15px;
+      }
+
+      .category-link {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        text-decoration: none;
+        color: #666;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .category-link:hover,
+      .category-link.active {
+        background: var(--primary-color);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .category-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+        width: 20px;
+      }
+
+      .item-count {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+      }
+
+      /* 右側內容 */
+      .menu-content {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .content-section {
+        margin-bottom: 50px;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid var(--primary-color);
+      }
+
+      .section-icon {
+        font-size: 2rem;
+        margin-right: 15px;
+        color: var(--primary-color);
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin: 0;
+      }
+
+      .menu-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .menu-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+      }
+
+      .menu-item:hover {
+        background: rgba(29, 64, 51, 0.02);
+        padding-left: 15px;
+        border-radius: 8px;
+      }
+
+      .item-info {
+        flex: 1;
+      }
+
+      .item-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .item-desc {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.4;
+      }
+
+      .item-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-left: 20px;
+      }
+
+      .item-badges {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .badge {
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .badge-hot {
+        background: #ff6b6b;
+      }
+      .badge-new {
+        background: #54a0ff;
+      }
+      .badge-veg {
+        background: #4caf50;
+      }
+
+      /* 響應式 */
+      @media (max-width: 768px) {
+        .dual-layout {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+
+        .menu-index {
+          position: static;
+          order: 2;
+        }
+
+        .dual-title {
+          font-size: 2rem;
+        }
+        .menu-content {
+          padding: 25px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dual-container {
+          padding: 20px 15px;
+        }
+        .dual-title {
+          font-size: 1.8rem;
+        }
+        .menu-content {
+          padding: 20px;
+        }
+        .section-title {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dual-container">
+      <h1 class="dual-title">📋 雙欄目錄菜單風格</h1>
+      <p style="text-align: center; color: #666; margin-bottom: 40px">
+        左側目錄導航，右側詳細內容，類似傳統餐廳菜單設計
+      </p>
+
+      <div class="dual-layout">
+        <!-- 左側目錄 -->
+        <div class="menu-index">
+          <h3 class="index-title">菜單目錄</h3>
+          <ul class="category-nav">
+            <li>
+              <a href="#drinks" class="category-link active">
+                <i class="fas fa-coffee category-icon"></i>
+                <span>茶飲系列</span>
+                <span class="item-count">8</span>
+              </a>
+            </li>
+            <li>
+              <a href="#milk-tea" class="category-link">
+                <i class="fas fa-mug-hot category-icon"></i>
+                <span>鮮奶茶</span>
+                <span class="item-count">6</span>
+              </a>
+            </li>
+            <li>
+              <a href="#honey" class="category-link">
+                <i class="fas fa-heart category-icon"></i>
+                <span>蜂蜜系列</span>
+                <span class="item-count">4</span>
+              </a>
+            </li>
+            <li>
+              <a href="#noodles" class="category-link">
+                <i class="fas fa-utensils category-icon"></i>
+                <span>麵食主食</span>
+                <span class="item-count">7</span>
+              </a>
+            </li>
+            <li>
+              <a href="#soup" class="category-link">
+                <i class="fas fa-bowl-food category-icon"></i>
+                <span>湯品小菜</span>
+                <span class="item-count">5</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- 右側內容 -->
+        <div class="menu-content">
+          <!-- 茶飲系列 -->
+          <div class="content-section" id="drinks">
+            <div class="section-header">
+              <i class="fas fa-leaf section-icon"></i>
+              <h2 class="section-title">茶飲系列</h2>
+            </div>
+            <ul class="menu-list">
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">四季春茶</div>
+                  <div class="item-desc">清香回甘，口感溫潤</div>
+                  <div class="item-badges">
+                    <span class="badge badge-hot">招牌</span>
+                  </div>
+                </div>
+                <div class="item-price">NT$ 45</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">阿薩姆紅茶</div>
+                  <div class="item-desc">濃郁茶香，回味甘甜</div>
+                </div>
+                <div class="item-price">NT$ 40</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">茉香綠茶</div>
+                  <div class="item-desc">清淡花香，口感清爽</div>
+                </div>
+                <div class="item-price">NT$ 40</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">桂花蜜烏龍</div>
+                  <div class="item-desc">季節限定，香氣獨特</div>
+                  <div class="item-badges">
+                    <span class="badge badge-new">季節</span>
+                  </div>
+                </div>
+                <div class="item-price">NT$ 45</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 鮮奶茶 -->
+          <div class="content-section" id="milk-tea">
+            <div class="section-header">
+              <i class="fas fa-mug-hot section-icon"></i>
+              <h2 class="section-title">鮮奶茶系列</h2>
+            </div>
+            <ul class="menu-list">
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">紅茶鮮奶</div>
+                  <div class="item-desc">濃郁奶香與茶香完美融合</div>
+                  <div class="item-badges">
+                    <span class="badge badge-hot">熱門</span>
+                  </div>
+                </div>
+                <div class="item-price">NT$ 65</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">金萱鮮奶茶</div>
+                  <div class="item-desc">台灣特色茶葉，香氣獨特</div>
+                </div>
+                <div class="item-price">NT$ 65</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">青茶鮮奶</div>
+                  <div class="item-desc">清香茶韻，奶香順滑</div>
+                </div>
+                <div class="item-price">NT$ 65</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- 麵食 -->
+          <div class="content-section" id="noodles">
+            <div class="section-header">
+              <i class="fas fa-bowl-food section-icon"></i>
+              <h2 class="section-title">麵食主食</h2>
+            </div>
+            <ul class="menu-list">
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">陽春麵</div>
+                  <div class="item-desc">經典家常味，簡單卻美味</div>
+                </div>
+                <div class="item-price">NT$ 55</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">餛飩麵</div>
+                  <div class="item-desc">手工餛飩，皮薄餡多</div>
+                  <div class="item-badges">
+                    <span class="badge badge-hot">招牌</span>
+                  </div>
+                </div>
+                <div class="item-price">NT$ 70</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">榨菜肉絲麵</div>
+                  <div class="item-desc">酸脆榨菜配嫩滑肉絲</div>
+                </div>
+                <div class="item-price">NT$ 75</div>
+              </li>
+              <li class="menu-item">
+                <div class="item-info">
+                  <div class="item-name">素食陽春麵</div>
+                  <div class="item-desc">清淡健康，素食首選</div>
+                  <div class="item-badges">
+                    <span class="badge badge-veg">素食</span>
+                  </div>
+                </div>
+                <div class="item-price">NT$ 55</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding: 40px; background: #f8f9fa">
+      <a
+        href="../menu.html"
+        style="
+          background: var(--primary-color);
+          color: white;
+          padding: 12px 30px;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+        "
+        >回到主菜單</a
+      >
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const categoryLinks = document.querySelectorAll(".category-link");
+
+        categoryLinks.forEach((link) => {
+          link.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // 移除所有活動狀態
+            categoryLinks.forEach((l) => l.classList.remove("active"));
+            // 添加當前活動狀態
+            this.classList.add("active");
+
+            // 平滑滾動
+            const targetId = this.getAttribute("href");
+            const targetSection = document.querySelector(targetId);
+            if (targetSection) {
+              targetSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }
+          });
+        });
+
+        // 滾動時自動切換活動狀態
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const id = entry.target.getAttribute("id");
+                categoryLinks.forEach((link) => {
+                  link.classList.remove("active");
+                  if (link.getAttribute("href") === "#" + id) {
+                    link.classList.add("active");
+                  }
+                });
+              }
+            });
+          },
+          { threshold: 0.5 }
+        );
+
+        document.querySelectorAll(".content-section").forEach((section) => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>

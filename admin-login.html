@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>管理員登入 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      .admin-login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+      }
+
+      .admin-login-box {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .admin-login-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .admin-login-header .logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 15px;
+        background: #f8f9fa;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .admin-login-header .logo i {
+        font-size: 32px;
+        color: #667eea;
+      }
+
+      .admin-login-header h1 {
+        margin: 0 0 10px;
+        color: #333;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      .admin-login-header p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .admin-login-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+
+      .admin-login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      .admin-login-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .error-message {
+        background: #fee;
+        color: #c53030;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        border-left: 4px solid #c53030;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        color: #666;
+        margin-bottom: 20px;
+      }
+
+      .loading i {
+        font-size: 20px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .back-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+      }
+
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 480px) {
+        .admin-login-box {
+          padding: 30px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-login-container">
+      <div class="admin-login-box">
+        <div class="admin-login-header">
+          <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h1>管理員登入</h1>
+          <p>隱湖小竹後台管理系統</p>
+        </div>
+
+        <form id="adminLoginForm">
+          <div
+            id="errorMessage"
+            class="error-message"
+            style="display: none"
+          ></div>
+
+          <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>登入中...</p>
+          </div>
+
+          <div class="form-group">
+            <label for="email">電子郵件</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              placeholder="請輸入管理員電子郵件"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">密碼</label>
+            <input
+              type="password"
+              id="password"
+              class="form-input"
+              placeholder="請輸入密碼"
+              required
+            />
+          </div>
+
+          <button type="submit" id="loginBtn" class="admin-login-btn">
+            登入管理系統
+          </button>
+        </form>
+
+        <div class="back-link">
+          <a href="index.html"><i class="fas fa-arrow-left"></i> 返回官網</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("adminLoginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginBtn = document.getElementById("loginBtn");
+        const errorMessage = document.getElementById("errorMessage");
+        const loading = document.getElementById("loading");
+
+        // 檢查是否已經登入
+        firebase.auth().onAuthStateChanged(async (user) => {
+          if (user) {
+            // 檢查是否為管理員
+            const adminCheck = await AuthService.checkAdminRole(user.uid);
+            if (adminCheck.isAdmin) {
+              window.location.href = "admin-dashboard.html";
+            }
+          }
+        });
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = emailInput.value.trim();
+          const password = passwordInput.value;
+
+          if (!email || !password) {
+            showError("請填寫所有欄位");
+            return;
+          }
+
+          try {
+            showLoading(true);
+            hideError();
+
+            const result = await AuthService.adminSignIn(email, password);
+
+            // 登入成功，儲存管理員資料到 localStorage
+            localStorage.setItem("adminData", JSON.stringify(result.adminData));
+
+            // 跳轉到管理後台
+            window.location.href = "admin-dashboard.html";
+          } catch (error) {
+            console.error("登入失敗:", error);
+            showError(error.message || "登入失敗，請檢查帳號密碼");
+          } finally {
+            showLoading(false);
+          }
+        });
+
+        function showError(message) {
+          errorMessage.textContent = message;
+          errorMessage.style.display = "block";
+        }
+
+        function hideError() {
+          errorMessage.style.display = "none";
+        }
+
+        function showLoading(show) {
+          loading.style.display = show ? "block" : "none";
+          loginBtn.disabled = show;
+
+          if (show) {
+            loginBtn.textContent = "登入中...";
+          } else {
+            loginBtn.textContent = "登入管理系統";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

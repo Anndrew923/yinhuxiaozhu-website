@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>初始化商品分類 | 隱湖小竹</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 600px;
+        width: 100%;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        color: #2c3e50;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        color: #666;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .categories-preview {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+
+      .categories-preview h3 {
+        color: #2c3e50;
+        font-size: 18px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .category-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .category-item {
+        background: white;
+        border: 2px solid #e1e8ed;
+        border-radius: 8px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .category-item:hover {
+        border-color: #3498db;
+        transform: translateY(-2px);
+      }
+
+      .category-icon {
+        font-size: 24px;
+      }
+
+      .category-info h4 {
+        color: #2c3e50;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .category-info p {
+        color: #666;
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary {
+        background: #f8f9fa;
+        color: #666;
+        border: 2px solid #e1e8ed;
+      }
+
+      .btn-secondary:hover {
+        background: #e9ecef;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+      }
+
+      .status {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        display: none;
+      }
+
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .status.info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .loading i {
+        animation: spin 1s linear infinite;
+        font-size: 24px;
+        color: #3498db;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .back-link a {
+        color: #3498db;
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .category-list {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>初始化商品分類</h1>
+        <p>為隱湖小竹設置商品分類系統，讓商品管理更加有條理</p>
+      </div>
+
+      <div class="categories-preview">
+        <h3>
+          <i class="fas fa-list"></i>
+          即將創建的分類
+        </h3>
+        <div class="category-list">
+          <div class="category-item">
+            <div class="category-icon">❄️</div>
+            <div class="category-info">
+              <h4>冷凍商品</h4>
+              <p>需要冷凍保存的商品</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">📦</div>
+            <div class="category-info">
+              <h4>常溫商品</h4>
+              <p>常溫保存的商品</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">🥫</div>
+            <div class="category-info">
+              <h4>醬料系列</h4>
+              <p>各種調味醬料</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">🎁</div>
+            <div class="category-info">
+              <h4>禮盒系列</h4>
+              <p>精選禮盒組合</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">🌸</div>
+            <div class="category-info">
+              <h4>季節限定</h4>
+              <p>季節性商品</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">🆕</div>
+            <div class="category-info">
+              <h4>新品上市</h4>
+              <p>最新推出的商品</p>
+            </div>
+          </div>
+          <div class="category-item">
+            <div class="category-icon">🏷️</div>
+            <div class="category-info">
+              <h4>特價商品</h4>
+              <p>限時優惠商品</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="initializeCategories()">
+          <i class="fas fa-magic"></i>
+          初始化分類
+        </button>
+        <button class="btn btn-secondary" onclick="displayCategories()">
+          <i class="fas fa-eye"></i>
+          查看現有分類
+        </button>
+        <button class="btn btn-danger" onclick="clearCategories()">
+          <i class="fas fa-trash"></i>
+          清除所有分類
+        </button>
+      </div>
+
+      <div class="loading" id="loading">
+        <i class="fas fa-spinner"></i>
+        <p>處理中，請稍候...</p>
+      </div>
+
+      <div class="status" id="status"></div>
+
+      <div class="back-link">
+        <a href="admin-products.html">
+          <i class="fas fa-arrow-left"></i>
+          返回商品管理
+        </a>
+      </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/init-categories.js"></script>
+
+    <script>
+      function showStatus(message, type = "info") {
+        const status = document.getElementById("status");
+        status.textContent = message;
+        status.className = `status ${type}`;
+        status.style.display = "block";
+      }
+
+      function showLoading(show = true) {
+        const loading = document.getElementById("loading");
+        loading.style.display = show ? "block" : "none";
+      }
+
+      async function initializeCategories() {
+        if (!confirm("確定要初始化商品分類嗎？")) {
+          return;
+        }
+
+        showLoading(true);
+        showStatus("正在初始化商品分類...", "info");
+
+        try {
+          await CategoryInitializer.initialize();
+          showStatus(
+            "✅ 商品分類初始化成功！現在可以返回商品管理頁面新增商品了。",
+            "success"
+          );
+        } catch (error) {
+          showStatus("❌ 初始化失敗: " + error.message, "error");
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      async function displayCategories() {
+        showLoading(true);
+        showStatus("正在獲取分類列表...", "info");
+
+        try {
+          await CategoryInitializer.display();
+          showStatus("📋 分類列表已顯示在瀏覽器 Console 中", "info");
+        } catch (error) {
+          showStatus("❌ 獲取分類列表失敗: " + error.message, "error");
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      async function clearCategories() {
+        if (!confirm("⚠️ 確定要清除所有商品分類嗎？此操作無法恢復！")) {
+          return;
+        }
+
+        if (!confirm("⚠️ 再次確認：此操作將刪除所有商品分類，確定要繼續嗎？")) {
+          return;
+        }
+
+        showLoading(true);
+        showStatus("正在清除所有分類...", "info");
+
+        try {
+          await CategoryInitializer.clear();
+          showStatus("✅ 所有分類已清除", "success");
+        } catch (error) {
+          showStatus("❌ 清除分類失敗: " + error.message, "error");
+        } finally {
+          showLoading(false);
+        }
+      }
+
+      // 頁面載入時檢查 Firebase 連接
+      document.addEventListener("DOMContentLoaded", function () {
+        if (typeof firebase === "undefined") {
+          showStatus("❌ Firebase 未初始化，請檢查網路連接", "error");
+        } else {
+          showStatus("✅ 系統已準備就緒，可以開始初始化分類", "success");
+        }
+      });
+    </script>
+  </body>
+</html>

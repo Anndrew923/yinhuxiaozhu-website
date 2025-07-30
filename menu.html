@@ -15,10 +15,206 @@
     />
   </head>
   <body>
-    <main class="container" style="padding-bottom: 80px">
-      <h1>菜單</h1>
-      <p>此頁面將展示完整菜單（圖片、分類、價格）。</p>
-    </main>
+    <!-- Hero Banner -->
+    <header class="menu-hero">
+      <div class="menu-hero-content">
+        <img
+          src="assets/welcome-logo.png"
+          class="menu-hero-logo"
+          alt="隱湖小竹"
+        />
+        <h1 class="menu-hero-title">人氣飲品 &amp; 招牌麵食</h1>
+        <p class="menu-hero-sub">人文茶麵館 SINCE 2023</p>
+      </div>
+    </header>
+
+    <!-- Sticky Tabs -->
+    <nav class="menu-tabs" id="menuTabs">
+      <a href="#drinks" class="menu-tab active">飲料</a>
+      <a href="#noodles" class="menu-tab">麵食</a>
+    </nav>
+
+    <!-- Drinks Section -->
+    <section id="drinks" class="menu-section">
+      <h2 class="menu-section-title">飲料 Drinks</h2>
+      <div class="menu-product-grid">
+        <!-- 茶類 -->
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop"
+              alt="四季春茶"
+            />
+            <figcaption class="menu-badge menu-badge-hot">招牌</figcaption>
+          </figure>
+          <h3 class="menu-product-name">四季春茶</h3>
+          <span class="menu-product-price">NT$ 45</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
+              alt="阿薩姆紅茶"
+            />
+          </figure>
+          <h3 class="menu-product-name">阿薩姆紅茶</h3>
+          <span class="menu-product-price">NT$ 40</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&h=300&fit=crop"
+              alt="茉香綠茶"
+            />
+          </figure>
+          <h3 class="menu-product-name">茉香綠茶</h3>
+          <span class="menu-product-price">NT$ 40</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop"
+              alt="桂花蜜烏龍"
+            />
+            <figcaption class="menu-badge menu-badge-new">季節</figcaption>
+          </figure>
+          <h3 class="menu-product-name">桂花蜜烏龍</h3>
+          <span class="menu-product-price">NT$ 45</span>
+        </article>
+
+        <!-- 鮮奶茶 -->
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=400&h=300&fit=crop"
+              alt="紅茶鮮奶"
+            />
+            <figcaption class="menu-badge menu-badge-hot">熱門</figcaption>
+          </figure>
+          <h3 class="menu-product-name">紅茶鮮奶</h3>
+          <span class="menu-product-price">NT$ 65</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1602088113235-229873d0c650?w=400&h=300&fit=crop"
+              alt="金萱鮮奶茶"
+            />
+          </figure>
+          <h3 class="menu-product-name">金萱鮮奶茶</h3>
+          <span class="menu-product-price">NT$ 65</span>
+        </article>
+
+        <!-- 蜂蜜系列 -->
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+              alt="蜂蜜紅茶"
+            />
+          </figure>
+          <h3 class="menu-product-name">蜂蜜紅茶</h3>
+          <span class="menu-product-price">NT$ 55</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=300&fit=crop"
+              alt="蜂蜜檸檬"
+            />
+            <figcaption class="menu-badge menu-badge-seasonal">維C</figcaption>
+          </figure>
+          <h3 class="menu-product-name">蜂蜜檸檬</h3>
+          <span class="menu-product-price">NT$ 60</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- Noodles Section -->
+    <section id="noodles" class="menu-section">
+      <h2 class="menu-section-title">麵食 Noodles</h2>
+      <div class="menu-product-grid">
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=400&h=300&fit=crop"
+              alt="陽春麵"
+            />
+            <figcaption class="menu-badge menu-badge-classic">經典</figcaption>
+          </figure>
+          <h3 class="menu-product-name">陽春麵</h3>
+          <span class="menu-product-price">NT$ 55</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&h=300&fit=crop"
+              alt="餛飩麵"
+            />
+          </figure>
+          <h3 class="menu-product-name">餛飩麵</h3>
+          <span class="menu-product-price">NT$ 70</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1578928288-b8da59b1ba5c?w=400&h=300&fit=crop"
+              alt="榨菜肉絲麵"
+            />
+          </figure>
+          <h3 class="menu-product-name">榨菜肉絲麵</h3>
+          <span class="menu-product-price">NT$ 75</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=400&h=300&fit=crop"
+              alt="鮮蝦餛飩麵"
+            />
+            <figcaption class="menu-badge menu-badge-hot">招牌</figcaption>
+          </figure>
+          <h3 class="menu-product-name">鮮蝦餛飩麵</h3>
+          <span class="menu-product-price">NT$ 80</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&h=300&fit=crop"
+              alt="招牌炸醬麵"
+            />
+            <figcaption class="menu-badge menu-badge-new">新品</figcaption>
+          </figure>
+          <h3 class="menu-product-name">招牌炸醬麵</h3>
+          <span class="menu-product-price">NT$ 85</span>
+        </article>
+
+        <article class="menu-product-card">
+          <figure class="menu-product-img">
+            <img
+              src="https://images.unsplash.com/photo-1588566564232-a97fcbc3ea54?w=400&h=300&fit=crop"
+              alt="素食陽春麵"
+            />
+            <figcaption class="menu-badge menu-badge-veg">素食</figcaption>
+          </figure>
+          <h3 class="menu-product-name">素食陽春麵</h3>
+          <span class="menu-product-price">NT$ 55</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- 回到頂端 -->
+    <footer class="menu-footer">
+      <p>© 2023 隱湖小竹 人文茶麵館</p>
+    </footer>
 
     <!-- 底部導覽列 -->
     <div class="bottom-nav">
@@ -39,5 +235,7 @@
         <span>會員</span>
       </div>
     </div>
+
+    <script src="menu-frame.js"></script>
   </body>
 </html>

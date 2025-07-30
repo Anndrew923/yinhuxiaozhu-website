@@ -23,12 +23,10 @@ try {
 window.firebaseAuth = firebase.auth();
 window.firebaseDB = firebase.firestore();
 
-// 解決 WebChannel 連線問題和 host 衝突
-window.firebaseDB.settings({
-  experimentalForceLongPolling: true,
-  useFetchStreams: false,
-  // 移除可能造成衝突的 host 設定
-});
+// Firestore 設定（暫時移除以避免警告）
+// window.firebaseDB.settings({
+//   experimentalForceLongPolling: true,
+// });
 
 // 本地測試專用設定
 if (

@@ -351,6 +351,120 @@ const AuthService = (() => {
   window.closeSignupModal = closeSignupModal;
   window.goToSignup = goToSignup;
 
+  // 檢查用戶是否為管理員
+  async function checkAdminRole(uid) {
+    try {
+      const adminDoc = await db.collection("admins").doc(uid).get();
+      if (adminDoc.exists) {
+        const adminData = adminDoc.data();
+        return {
+          isAdmin: true,
+          role: adminData.role,
+          permissions: adminData.permissions,
+          adminData: adminData,
+        };
+      }
+      return { isAdmin: false };
+    } catch (error) {
+      console.error("檢查管理員權限失敗:", error);
+      return { isAdmin: false };
+    }
+  }
+
+  // 管理員登入
+  async function adminSignIn(email, password) {
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // 檢查是否為管理員
+      const adminCheck = await checkAdminRole(user.uid);
+      if (!adminCheck.isAdmin) {
+        await signOut();
+        throw new Error("您沒有管理員權限");
+      }
+
+      return {
+        user: user,
+        adminData: adminCheck.adminData,
+      };
+    } catch (error) {
+      console.error("管理員登入失敗:", error);
+      throw error;
+    }
+  }
+
+  // 創建管理員帳號（僅限超級管理員）
+  async function createAdmin(adminData, currentUserUid) {
+    try {
+      // 檢查當前用戶是否為超級管理員
+      const currentAdminCheck = await checkAdminRole(currentUserUid);
+      if (
+        !currentAdminCheck.isAdmin ||
+        currentAdminCheck.adminData.role !== "super_admin"
+      ) {
+        throw new Error("只有超級管理員可以創建管理員帳號");
+      }
+
+      // 創建管理員資料
+      const newAdminData = {
+        email: adminData.email,
+        name: adminData.name,
+        role: adminData.role, // super_admin, order_manager, product_manager, finance_manager, customer_service
+        permissions: getPermissionsByRole(adminData.role),
+        createdAt: new Date().toISOString(),
+        createdBy: currentUserUid,
+        isActive: true,
+      };
+
+      // 注意：實際密碼創建需要 Firebase Admin SDK 或邀請機制
+      // 這裡先儲存管理員資料，密碼需要另外處理
+      await db.collection("admins").doc(adminData.uid).set(newAdminData);
+
+      return newAdminData;
+    } catch (error) {
+      console.error("創建管理員失敗:", error);
+      throw error;
+    }
+  }
+
+  // 根據角色獲取權限
+  function getPermissionsByRole(role) {
+    const permissions = {
+      super_admin: ["all"],
+      order_manager: [
+        "orders.view",
+        "orders.edit",
+        "orders.status",
+        "customers.view",
+      ],
+      product_manager: [
+        "products.view",
+        "products.edit",
+        "products.create",
+        "products.delete",
+        "inventory.manage",
+      ],
+      finance_manager: [
+        "orders.view",
+        "reports.view",
+        "refunds.manage",
+        "coupons.manage",
+      ],
+      customer_service: ["orders.view", "customers.view", "customers.edit"],
+    };
+    return permissions[role] || [];
+  }
+
+  // 檢查權限
+  function hasPermission(userPermissions, requiredPermission) {
+    if (userPermissions.includes("all")) return true;
+    return userPermissions.includes(requiredPermission);
+  }
+
   return {
     signUp,
     signIn,
@@ -363,6 +477,12 @@ const AuthService = (() => {
     showSignupPrompt,
     closeSignupModal,
     goToSignup,
+    // 新增管理員相關功能
+    checkAdminRole,
+    adminSignIn,
+    createAdmin,
+    getPermissionsByRole,
+    hasPermission,
   };
 })();
 

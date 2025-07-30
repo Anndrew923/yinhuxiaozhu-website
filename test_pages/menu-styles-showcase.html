@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>菜單風格展示 | 隱湖小竹</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      .showcase-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      .showcase-title {
+        text-align: center;
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, var(--primary-color), #2d5a4a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .showcase-subtitle {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #666;
+        margin-bottom: 60px;
+        line-height: 1.6;
+      }
+
+      .styles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 40px;
+        margin-bottom: 60px;
+      }
+
+      .style-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s ease;
+        position: relative;
+      }
+
+      .style-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      }
+
+      .style-preview {
+        height: 250px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .preview-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        color: var(--primary-color);
+        opacity: 0.3;
+      }
+
+      .style-info {
+        padding: 30px;
+      }
+
+      .style-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      .style-emoji {
+        margin-right: 10px;
+        font-size: 1.8rem;
+      }
+
+      .style-desc {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+
+      .style-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 25px 0;
+      }
+
+      .style-features li {
+        padding: 5px 0;
+        color: #555;
+        position: relative;
+        padding-left: 20px;
+      }
+
+      .style-features li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #4caf50;
+        font-weight: bold;
+      }
+
+      .style-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        text-align: center;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .style-button:hover {
+        background: #2d5a4a;
+        transform: translateY(-2px);
+      }
+
+      .current-style {
+        border: 3px solid var(--primary-color);
+        position: relative;
+      }
+
+      .current-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--primary-color);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        z-index: 10;
+      }
+
+      .comparison-section {
+        background: #f8f9fa;
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 60px;
+      }
+
+      .comparison-title {
+        text-align: center;
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 30px;
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .comparison-table th {
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+      }
+
+      .comparison-table tr:hover {
+        background: #f8f9fa;
+      }
+
+      /* 響應式 */
+      @media (max-width: 768px) {
+        .showcase-title {
+          font-size: 2.5rem;
+        }
+        .styles-grid {
+          grid-template-columns: 1fr;
+          gap: 30px;
+        }
+        .style-info {
+          padding: 25px;
+        }
+        .comparison-section {
+          padding: 30px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .showcase-container {
+          padding: 20px 15px;
+        }
+        .showcase-title {
+          font-size: 2rem;
+        }
+        .comparison-section {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="showcase-container">
+      <h1 class="showcase-title">🎨 菜單風格展示</h1>
+      <p class="showcase-subtitle">
+        為隱湖小竹設計的四種不同菜單展示風格<br />
+        每種風格都有其獨特的視覺效果和使用場景，選擇最適合你品牌形象的設計
+      </p>
+
+      <div class="styles-grid">
+        <!-- 現有風格 -->
+        <div class="style-card current-style">
+          <div class="current-badge">目前使用</div>
+          <div class="style-preview">
+            <i class="fas fa-th preview-icon"></i>
+          </div>
+          <div class="style-info">
+            <h3 class="style-name">
+              <span class="style-emoji">🎯</span>
+              卡片網格風格
+            </h3>
+            <p class="style-desc">
+              現代化的卡片式設計，每個商品都有獨立的展示區域，適合突出產品圖片和細節。
+            </p>
+            <ul class="style-features">
+              <li>響應式網格布局</li>
+              <li>懸停動畫效果</li>
+              <li>彩色標籤系統</li>
+              <li>分類標籤導航</li>
+            </ul>
+            <a href="../menu.html" class="style-button">查看當前菜單</a>
+          </div>
+        </div>
+
+        <!-- 瀑布流風格 -->
+        <div class="style-card">
+          <div class="style-preview">
+            <i class="fas fa-water preview-icon"></i>
+          </div>
+          <div class="style-info">
+            <h3 class="style-name">
+              <span class="style-emoji">🌊</span>
+              瀑布流風格
+            </h3>
+            <p class="style-desc">
+              類似Pinterest的不規則高度布局，適合展示不同尺寸的美食照片，營造自然流動感。
+            </p>
+            <ul class="style-features">
+              <li>不規則卡片高度</li>
+              <li>自然流動布局</li>
+              <li>適合不同圖片比例</li>
+              <li>視覺層次豐富</li>
+            </ul>
+            <a href="menu-waterfall.html" class="style-button">體驗瀑布流</a>
+          </div>
+        </div>
+
+        <!-- 幻燈片風格 -->
+        <div class="style-card">
+          <div class="style-preview">
+            <i class="fas fa-images preview-icon"></i>
+          </div>
+          <div class="style-info">
+            <h3 class="style-name">
+              <span class="style-emoji">🎠</span>
+              幻燈片風格
+            </h3>
+            <p class="style-desc">
+              輪播展示設計，可左右滑動瀏覽商品，適合突出重點推薦商品，增加互動性。
+            </p>
+            <ul class="style-features">
+              <li>左右滑動瀏覽</li>
+              <li>自動輪播功能</li>
+              <li>導航點指示器</li>
+              <li>分類輪播展示</li>
+            </ul>
+            <a href="menu-slider.html" class="style-button">體驗幻燈片</a>
+          </div>
+        </div>
+
+        <!-- 雙欄目錄風格 -->
+        <div class="style-card">
+          <div class="style-preview">
+            <i class="fas fa-columns preview-icon"></i>
+          </div>
+          <div class="style-info">
+            <h3 class="style-name">
+              <span class="style-emoji">📋</span>
+              雙欄目錄風格
+            </h3>
+            <p class="style-desc">
+              傳統餐廳菜單設計，左側目錄導航，右側詳細內容，適合品項眾多的餐廳。
+            </p>
+            <ul class="style-features">
+              <li>左側固定導航</li>
+              <li>清晰分類結構</li>
+              <li>傳統餐廳風格</li>
+              <li>易於快速查找</li>
+            </ul>
+            <a href="menu-dual-column.html" class="style-button"
+              >體驗雙欄布局</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- 風格比較表 -->
+      <div class="comparison-section">
+        <h2 class="comparison-title">📊 風格特色比較</h2>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>風格名稱</th>
+              <th>視覺效果</th>
+              <th>適用場景</th>
+              <th>互動性</th>
+              <th>維護難度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>卡片網格</strong></td>
+              <td>現代簡潔</td>
+              <td>通用，適合各種餐廳</td>
+              <td>中等</td>
+              <td>簡單</td>
+            </tr>
+            <tr>
+              <td><strong>瀑布流</strong></td>
+              <td>創意獨特</td>
+              <td>文青咖啡廳、甜點店</td>
+              <td>低</td>
+              <td>簡單</td>
+            </tr>
+            <tr>
+              <td><strong>幻燈片</strong></td>
+              <td>動態豐富</td>
+              <td>主打推薦商品</td>
+              <td>高</td>
+              <td>中等</td>
+            </tr>
+            <tr>
+              <td><strong>雙欄目錄</strong></td>
+              <td>專業正統</td>
+              <td>傳統餐廳、品項多</td>
+              <td>中等</td>
+              <td>簡單</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        padding: 40px;
+        background: var(--primary-color);
+        color: white;
+      "
+    >
+      <h3 style="margin-bottom: 20px">選擇你喜歡的風格</h3>
+      <p style="margin-bottom: 25px; opacity: 0.9">
+        每種風格都可以輕鬆套用到你的菜單上，只需要替換圖片和文字內容
+      </p>
+      <a
+        href="../menu.html"
+        style="
+          background: white;
+          color: var(--primary-color);
+          padding: 12px 30px;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+          margin-right: 15px;
+        "
+        >回到主菜單</a
+      >
+      <a
+        href="../index.html"
+        style="
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          padding: 12px 30px;
+          text-decoration: none;
+          border-radius: 25px;
+          font-weight: 600;
+        "
+        >回到首頁</a
+      >
+    </div>
+  </body>
+</html>

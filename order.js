@@ -1,12 +1,17 @@
 // 購物車資料結構
 let cart = [];
 let cartTotal = 0;
+let products = []; // 新增：商品數據陣列
+let currentCategory = "all"; // 新增：當前選中的分類
 
 // 初始化頁面
 document.addEventListener("DOMContentLoaded", function () {
   // 從 localStorage 載入購物車資料
   loadCartFromStorage();
   updateCartDisplay();
+
+  // 載入商品數據
+  loadProducts();
 
   // 綁定分類選單點擊事件
   bindCategoryEvents();
@@ -17,6 +22,207 @@ document.addEventListener("DOMContentLoaded", function () {
   // 設置滾動隱藏功能
   setupScrollHide();
 });
+
+// 新增：從 Firebase 載入商品數據
+async function loadProducts() {
+  try {
+    console.log("開始載入商品數據...");
+
+    // 顯示載入狀態
+    showLoadingState();
+
+    // 從 Firestore 獲取商品數據
+    const db = firebase.firestore();
+    const snapshot = await db
+      .collection("products")
+      .where("status", "==", "active") // 只載入上架的商品
+      .orderBy("createdAt", "desc") // 按建立時間排序
+      .get();
+
+    products = [];
+    snapshot.forEach((doc) => {
+      products.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    console.log(`成功載入 ${products.length} 個商品`);
+
+    // 載入分類數據
+    await loadCategories();
+
+    // 渲染商品列表
+    renderProducts();
+  } catch (error) {
+    console.error("載入商品失敗:", error);
+    showErrorState("載入商品失敗，請重新整理頁面");
+  }
+}
+
+// 新增：從 Firebase 載入分類數據
+async function loadCategories() {
+  try {
+    console.log("開始載入分類數據...");
+
+    const db = firebase.firestore();
+    const snapshot = await db
+      .collection("productCategories")
+      .orderBy("order", "asc")
+      .get();
+
+    const categories = [];
+    snapshot.forEach((doc) => {
+      categories.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    console.log(`成功載入 ${categories.length} 個分類`);
+
+    // 更新分類選單
+    renderCategories(categories);
+  } catch (error) {
+    console.error("載入分類失敗:", error);
+    // 如果載入分類失敗，使用預設分類
+    renderDefaultCategories();
+  }
+}
+
+// 新增：渲染分類選單
+function renderCategories(categories) {
+  const categoryMenu = document.getElementById("categoryMenu");
+
+  // 創建分類 HTML
+  const categoriesHTML = categories
+    .map(
+      (category) => `
+    <div class="category-item" data-category="${category.id}">
+      ${category.icon} ${category.name}
+    </div>
+  `
+    )
+    .join("");
+
+  // 添加「全部」選項
+  const allCategoriesHTML = `
+    <div class="category-item active" data-category="all">全部</div>
+    ${categoriesHTML}
+  `;
+
+  categoryMenu.innerHTML = allCategoriesHTML;
+
+  // 重新綁定分類事件
+  bindCategoryEvents();
+}
+
+// 新增：渲染預設分類（當 Firebase 載入失敗時使用）
+function renderDefaultCategories() {
+  const categoryMenu = document.getElementById("categoryMenu");
+  categoryMenu.innerHTML = `
+    <div class="category-item active" data-category="all">全部</div>
+    <div class="category-item" data-category="frozen-foods">❄️ 冷凍</div>
+    <div class="category-item" data-category="room-temperature">📦 常溫</div>
+    <div class="category-item" data-category="sauces">🥫 醬料</div>
+    <div class="category-item" data-category="gift-sets">🎁 禮盒</div>
+    <div class="category-item" data-category="seasonal">🌸 季節限定</div>
+    <div class="category-item" data-category="new-products">🆕 新品</div>
+    <div class="category-item" data-category="promotions">🏷️ 特價</div>
+  `;
+
+  // 重新綁定分類事件
+  bindCategoryEvents();
+}
+
+// 新增：顯示載入狀態
+function showLoadingState() {
+  const productsGrid = document.querySelector(".products-grid");
+  productsGrid.innerHTML = `
+    <div class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>載入商品中...</p>
+    </div>
+  `;
+}
+
+// 新增：顯示錯誤狀態
+function showErrorState(message) {
+  const productsGrid = document.querySelector(".products-grid");
+  productsGrid.innerHTML = `
+    <div class="error-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>${message}</p>
+      <button onclick="loadProducts()" class="retry-btn">重新載入</button>
+    </div>
+  `;
+}
+
+// 新增：渲染商品列表
+function renderProducts(filteredProducts = null) {
+  const productsGrid = document.querySelector(".products-grid");
+  const productsToRender = filteredProducts || products;
+
+  if (productsToRender.length === 0) {
+    productsGrid.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <p>暫無商品</p>
+      </div>
+    `;
+    return;
+  }
+
+  const productsHTML = productsToRender
+    .map((product) => {
+      const categoryName = getCategoryName(product.category);
+      return `
+      <div class="product-card" onclick="goToProduct('${product.id}')">
+        <div class="product-image">
+          ${
+            product.image
+              ? `<img src="${product.image}" alt="${product.name}" onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'><i class=\\'fas fa-image\\'></i></div>'">`
+              : `<div class="placeholder-image">
+              <i class="fas fa-image"></i>
+            </div>`
+          }
+          <div class="product-labels">
+            ${categoryName ? `<span class="label">${categoryName}</span>` : ""}
+            ${
+              product.stock <= 0
+                ? '<span class="label-warning">缺貨</span>'
+                : ""
+            }
+          </div>
+        </div>
+        <div class="product-info">
+          <h4 class="product-name">${product.name}</h4>
+          <p class="product-desc">${product.description || ""}</p>
+          <div class="product-price">
+            <span class="price">NT$ ${product.price.toLocaleString()}</span>
+            ${
+              product.originalPrice && product.originalPrice > product.price
+                ? `<span class="original-price">NT$ ${product.originalPrice.toLocaleString()}</span>`
+                : ""
+            }
+            <button 
+              class="add-to-cart" 
+              onclick="event.stopPropagation(); addToCart('${product.name}', ${
+        product.price
+      })"
+              ${product.stock <= 0 ? "disabled" : ""}
+            >
+              <i class="fas fa-shopping-cart"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+
+  productsGrid.innerHTML = productsHTML;
+}
 
 // 載入購物車資料
 function loadCartFromStorage() {
@@ -98,220 +304,210 @@ function updateCartDisplay() {
   const cartTotalElement = document.getElementById("cartTotal");
 
   if (cart.length === 0) {
-    cartItems.innerHTML =
-      '<p style="text-align: center; color: #999; padding: 20px;">購物車是空的</p>';
+    cartItems.innerHTML = '<div class="empty-cart">購物車是空的</div>';
   } else {
     cartItems.innerHTML = cart
       .map(
         (item) => `
-            <div class="cart-item">
-                <div class="cart-item-info">
-                    <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-price">NT$ ${item.price}</div>
-                </div>
-                <div class="cart-item-quantity">
-                    <button class="quantity-btn" onclick="updateQuantity('${
-                      item.name
-                    }', ${item.quantity - 1})">-</button>
-                    <span>${item.quantity}</span>
-                    <button class="quantity-btn" onclick="updateQuantity('${
-                      item.name
-                    }', ${item.quantity + 1})">+</button>
-                </div>
-            </div>
-        `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <h4>${item.name}</h4>
+            <p>NT$ ${item.price.toLocaleString()}</p>
+          </div>
+          <div class="cart-item-controls">
+            <button onclick="updateQuantity('${item.name}', ${
+          item.quantity - 1
+        })">-</button>
+            <span>${item.quantity}</span>
+            <button onclick="updateQuantity('${item.name}', ${
+          item.quantity + 1
+        })">+</button>
+            <button class="remove-btn" onclick="removeFromCart('${item.name}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `
       )
       .join("");
   }
 
-  cartTotalElement.textContent = `NT$ ${cartTotal}`;
+  cartTotalElement.textContent = `NT$ ${cartTotal.toLocaleString()}`;
 }
 
 // 切換購物車側邊欄
 function toggleCart() {
   const cartSidebar = document.getElementById("cartSidebar");
-  cartSidebar.classList.toggle("open");
+  cartSidebar.classList.toggle("show");
 }
 
 // 顯示添加成功提示
 function showAddToCartNotification(productName) {
-  // 建立提示元素
+  // 創建提示元素
   const notification = document.createElement("div");
-  notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-    `;
-  notification.textContent = `已添加 ${productName} 到購物車`;
+  notification.className = "add-to-cart-notification";
+  notification.innerHTML = `
+    <i class="fas fa-check-circle"></i>
+    <span>${productName} 已加入購物車</span>
+  `;
 
-  // 添加動畫樣式
-  const style = document.createElement("style");
-  style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-  document.head.appendChild(style);
-
+  // 添加到頁面
   document.body.appendChild(notification);
 
-  // 3秒後自動移除
+  // 顯示動畫
   setTimeout(() => {
-    notification.style.animation = "slideOut 0.3s ease-in";
+    notification.classList.add("show");
+  }, 100);
+
+  // 自動隱藏
+  setTimeout(() => {
+    notification.classList.remove("show");
     setTimeout(() => {
       document.body.removeChild(notification);
     }, 300);
-  }, 3000);
+  }, 2000);
 }
 
-// 綁定分類選單事件
+// 綁定分類選單點擊事件
 function bindCategoryEvents() {
   const categoryItems = document.querySelectorAll(".category-item");
   categoryItems.forEach((item) => {
     item.addEventListener("click", function () {
-      // 移除其他項目的 active 狀態
-      categoryItems.forEach((cat) => cat.classList.remove("active"));
-      // 添加當前項目的 active 狀態
+      // 移除所有 active 類別
+      categoryItems.forEach((i) => i.classList.remove("active"));
+      // 添加 active 類別到當前項目
       this.classList.add("active");
 
-      // 這裡可以添加篩選商品的邏輯
-      filterProductsByCategory(this.textContent);
+      // 獲取分類 ID
+      const categoryId = this.getAttribute("data-category");
+      currentCategory = categoryId;
+
+      // 篩選商品
+      filterProductsByCategory(categoryId);
     });
   });
 }
 
-// 綁定搜尋事件
+// 綁定搜尋功能
 function bindSearchEvents() {
   const searchInput = document.querySelector(".search-bar input");
+  let searchTimeout;
+
   searchInput.addEventListener("input", function () {
-    const searchTerm = this.value.toLowerCase();
-    filterProductsBySearch(searchTerm);
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const searchTerm = this.value.trim();
+      filterProductsBySearch(searchTerm);
+    }, 300);
   });
 }
 
 // 根據分類篩選商品
-function filterProductsByCategory(category) {
-  const productCards = document.querySelectorAll(".product-card");
+function filterProductsByCategory(categoryId) {
+  let filteredProducts = products;
 
-  productCards.forEach((card) => {
-    const labels = card.querySelectorAll(".label");
-    let shouldShow = false;
-
-    labels.forEach((label) => {
-      if (label.textContent === category) {
-        shouldShow = true;
-      }
+  if (categoryId !== "all") {
+    // 根據分類 ID 篩選
+    filteredProducts = products.filter((product) => {
+      return product.category === categoryId;
     });
+  }
 
-    if (category === "特價" || category === "新品") {
-      // 這裡可以添加特價和新品的邏輯
-      shouldShow = true;
-    }
-
-    card.style.display = shouldShow ? "block" : "none";
-  });
+  renderProducts(filteredProducts);
 }
 
-// 根據搜尋關鍵字篩選商品
+// 根據搜尋詞篩選商品
 function filterProductsBySearch(searchTerm) {
-  const productCards = document.querySelectorAll(".product-card");
+  if (!searchTerm) {
+    // 如果搜尋詞為空，根據當前分類顯示
+    filterProductsByCategory(currentCategory);
+    return;
+  }
 
-  productCards.forEach((card) => {
-    const productName = card
-      .querySelector(".product-name")
-      .textContent.toLowerCase();
-    const productDesc = card
-      .querySelector(".product-desc")
-      .textContent.toLowerCase();
+  // 先根據當前分類篩選
+  let filteredProducts = products;
+  if (currentCategory !== "all") {
+    filteredProducts = products.filter((product) => {
+      return product.category === currentCategory;
+    });
+  }
 
-    if (productName.includes(searchTerm) || productDesc.includes(searchTerm)) {
-      card.style.display = "block";
-    } else {
-      card.style.display = "none";
-    }
-  });
+  // 再根據搜尋詞篩選
+  filteredProducts = filteredProducts.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description &&
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  renderProducts(filteredProducts);
+}
+
+// 新增：獲取分類名稱
+function getCategoryName(categoryId) {
+  const categoryMap = {
+    "frozen-foods": "冷凍",
+    "room-temperature": "常溫",
+    sauces: "醬料",
+    "gift-sets": "禮盒",
+    seasonal: "季節限定",
+    "new-products": "新品",
+    promotions: "特價",
+  };
+  return categoryMap[categoryId] || categoryId;
 }
 
 // 結帳功能
 function checkout() {
   if (cart.length === 0) {
-    alert("購物車是空的，請先添加商品");
+    alert("購物車是空的");
     return;
   }
 
-  // 檢查是否應該顯示註冊邀請
-  if (
-    typeof AuthService !== "undefined" &&
-    AuthService &&
-    AuthService.shouldShowSignupPrompt()
-  ) {
-    AuthService.showSignupPrompt();
-    return;
-  }
-
-  // 跳轉到結帳頁面
-  window.location.href = "checkout.html";
+  // 這裡可以跳轉到結帳頁面
+  console.log("跳轉到結帳頁面");
+  // window.location.href = "checkout.html";
 }
 
-// 跳轉到商品詳情頁
+// 跳轉到商品詳情頁面
 function goToProduct(productId) {
-  window.location.href = `product.html?id=${productId}`;
+  console.log("跳轉到商品詳情頁面:", productId);
+  // window.location.href = `product.html?id=${productId}`;
 }
 
-// 導航功能
+// 跳轉到首頁
 function goToHome() {
   window.location.href = "index.html";
 }
 
+// 跳轉到特色頁面
 function goToFeatured() {
-  // 可以跳轉到精選頁面或顯示精選商品
-  alert("精選功能開發中...");
+  console.log("跳轉到特色頁面");
+  // window.location.href = "featured.html";
 }
 
+// 跳轉到會員頁面
 function goToMember() {
   window.location.href = "member.html";
 }
 
-// 滾動隱藏功能
-let lastScrollTop = 0;
-let scrollThreshold = 100; // 滾動多少像素後開始隱藏
-
+// 設置滾動隱藏功能
 function setupScrollHide() {
+  let lastScrollTop = 0;
+  const header = document.getElementById("orderHeader");
+
   window.addEventListener("scroll", function () {
-    const currentScrollTop =
-      window.pageYOffset || document.documentElement.scrollTop;
-    const header = document.getElementById("orderHeader");
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-    if (!header) return;
-
-    // 如果滾動距離超過閾值
-    if (currentScrollTop > scrollThreshold) {
-      // 向下滾動時隱藏 header
-      if (currentScrollTop > lastScrollTop) {
-        header.classList.add("header-hidden");
-      }
-      // 向上滾動時顯示 header
-      else {
-        header.classList.remove("header-hidden");
-      }
+    if (scrollTop > lastScrollTop && scrollTop > 100) {
+      // 向下滾動
+      header.style.transform = "translateY(-100%)";
     } else {
-      // 在頂部時總是顯示 header
-      header.classList.remove("header-hidden");
+      // 向上滾動
+      header.style.transform = "translateY(0)";
     }
 
-    lastScrollTop = currentScrollTop;
+    lastScrollTop = scrollTop;
   });
 }
 
@@ -321,10 +517,10 @@ document.addEventListener("click", function (event) {
   const cartFab = document.querySelector(".cart-fab");
 
   if (
-    cartSidebar.classList.contains("open") &&
+    cartSidebar.classList.contains("show") &&
     !cartSidebar.contains(event.target) &&
     !cartFab.contains(event.target)
   ) {
-    cartSidebar.classList.remove("open");
+    cartSidebar.classList.remove("show");
   }
 });
