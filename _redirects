@@ -1,0 +1,24 @@
+# Netlify 重定向規則
+
+# 管理員頁面重定向
+/admin /admin-dashboard.html
+/admin/login /admin-login.html
+/admin/products /admin-products.html
+/admin/orders /admin-orders.html
+
+# 用戶頁面重定向
+/login /login.html
+/member /member.html
+/order /order.html
+/checkout /checkout.html
+/payment /payment.html
+
+# 其他頁面重定向
+/home /home.html
+/menu /menu.html
+/about /about.html
+/news /news.html
+/privacy /privacy-policy.html
+
+# 404 處理
+/* /index.html 404 
