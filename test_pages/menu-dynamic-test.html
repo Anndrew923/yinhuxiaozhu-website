@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>動態菜單測試 | 隱湖小竹</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* 全局樣式 */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Noto Sans TC", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #a8e6cf 0%,
+          #88d8a3 30%,
+          #7fcdcd 70%,
+          #6faa6f 100%
+        );
+        min-height: 100vh;
+        color: #333;
+      }
+
+      /* 容器樣式 */
+      .menu-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* 頁面標題 */
+      .page-header {
+        text-align: center;
+        margin-bottom: 50px;
+        color: white;
+      }
+
+      .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .page-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        font-weight: 300;
+      }
+
+      /* 管理員提示 */
+      .admin-hint {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        color: white;
+        backdrop-filter: blur(10px);
+      }
+
+      .admin-hint h3 {
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+      }
+
+      .admin-hint p {
+        opacity: 0.9;
+        line-height: 1.5;
+      }
+
+      /* 熱門商品區塊 */
+      .featured-section {
+        margin-bottom: 60px;
+      }
+
+      .featured-header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: white;
+      }
+
+      .featured-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      .featured-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      /* 分類幻燈片區塊 */
+      .category-slider-section {
+        margin-bottom: 50px;
+      }
+
+      .category-slider-header {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .category-slider-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      /* 幻燈片容器 */
+      .slider-container {
+        position: relative;
+        margin-bottom: 25px;
+      }
+
+      .slider-track {
+        display: flex;
+        gap: 25px;
+        transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        padding: 10px 0;
+      }
+
+      /* 商品卡片 */
+      .product-card {
+        flex: 0 0 320px;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .product-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 商品圖片 */
+      .product-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .product-card:hover .product-image {
+        transform: scale(1.05);
+      }
+
+      /* 商品標籤 */
+      .product-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: white;
+        z-index: 2;
+      }
+
+      .badge-hot {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      }
+
+      .badge-new {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      }
+
+      .badge-veg {
+        background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+      }
+
+      .badge-seasonal {
+        background: linear-gradient(45deg, #ffd93d, #ff6b6b);
+      }
+
+      .badge-classic {
+        background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      }
+
+      /* 商品內容 */
+      .product-content {
+        padding: 20px;
+      }
+
+      .product-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2d3436;
+      }
+
+      .product-description {
+        font-size: 0.9rem;
+        color: #636e72;
+        margin-bottom: 15px;
+        line-height: 1.4;
+      }
+
+      .product-price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #667eea;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .price-amount {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+      }
+
+      .currency {
+        font-size: 0.9rem;
+        color: #636e72;
+      }
+
+      /* 導航按鈕 */
+      .slider-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        color: #667eea;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+      }
+
+      .slider-nav:hover {
+        background: white;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .slider-prev {
+        left: -25px;
+      }
+
+      .slider-next {
+        right: -25px;
+      }
+
+      /* 圓點指示器 */
+      .slider-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 20px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .dot.active {
+        background: white;
+        transform: scale(1.2);
+      }
+
+      /* 完整菜單區塊 */
+      .full-menu-section {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 25px;
+        padding: 40px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+      }
+
+      .full-menu-header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .full-menu-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 10px;
+      }
+
+      .full-menu-subtitle {
+        font-size: 1.1rem;
+        color: #636e72;
+      }
+
+      /* 分類標籤 */
+      .category-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 40px;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .category-tab {
+        background: rgba(168, 230, 207, 0.2);
+        color: #2d3436;
+        border: 2px solid rgba(168, 230, 207, 0.3);
+        padding: 12px 25px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .category-tab:hover {
+        background: rgba(168, 230, 207, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .category-tab.active {
+        background: #a8e6cf;
+        color: #2d3436;
+        border-color: #a8e6cf;
+        box-shadow: 0 4px 15px rgba(168, 230, 207, 0.3);
+      }
+
+      /* 完整菜單按鈕區塊 */
+      .menu-action-container {
+        text-align: center;
+        padding: 40px 0;
+      }
+
+      .full-menu-btn {
+        background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%);
+        color: #2d3436;
+        border: none;
+        border-radius: 20px;
+        padding: 25px 40px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(168, 230, 207, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        min-width: 250px;
+        margin: 0 auto;
+      }
+
+      .full-menu-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 35px rgba(168, 230, 207, 0.4);
+        background: linear-gradient(135deg, #7fcdcd 0%, #a8e6cf 100%);
+      }
+
+      .full-menu-btn i {
+        font-size: 2rem;
+        margin-bottom: 5px;
+      }
+
+      .full-menu-btn small {
+        font-size: 0.9rem;
+        opacity: 0.8;
+        font-weight: 400;
+      }
+
+      /* 完整菜單彈窗 */
+      .menu-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        display: none;
+      }
+
+      .menu-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+      }
+
+      .menu-modal-content {
+        position: relative;
+        background: white;
+        border-radius: 20px;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8) translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .menu-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        background: #a8e6cf;
+        color: #2d3436;
+      }
+
+      .menu-modal-header h3 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #2d3436;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+
+      .menu-modal-body {
+        padding: 20px;
+        text-align: center;
+      }
+
+      .full-menu-image {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .full-menu-image:hover {
+        transform: scale(1.02);
+      }
+
+      .full-menu-image.zoomed {
+        transform: scale(1.5);
+        cursor: zoom-out;
+      }
+
+      .menu-modal-hint {
+        margin-top: 15px;
+        color: #636e72;
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+
+      /* 載入動畫 */
+      .loading {
+        text-align: center;
+        color: white;
+        font-size: 1.2rem;
+        padding: 40px;
+      }
+
+      .loading-spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* 響應式設計 */
+      @media (max-width: 1024px) {
+        .full-menu-btn {
+          min-width: 200px;
+          padding: 20px 30px;
+          font-size: 1.1rem;
+        }
+
+        .menu-modal-content {
+          max-width: 95vw;
+          max-height: 95vh;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .category-tabs {
+          flex-wrap: wrap;
+        }
+
+        .category-tab {
+          padding: 10px 20px;
+          font-size: 0.9rem;
+        }
+
+        .product-card {
+          flex: 0 0 280px;
+        }
+
+        .slider-nav {
+          width: 40px;
+          height: 40px;
+          font-size: 1rem;
+        }
+
+        .slider-prev {
+          left: -20px;
+        }
+
+        .slider-next {
+          right: -20px;
+        }
+
+        .full-menu-section {
+          padding: 20px;
+        }
+
+        .full-menu-title {
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .menu-container {
+          padding: 10px;
+        }
+
+        .page-title {
+          font-size: 1.8rem;
+        }
+
+        .product-card {
+          flex: 0 0 250px;
+        }
+
+        .product-content {
+          padding: 15px;
+        }
+
+        .product-name {
+          font-size: 1.1rem;
+        }
+
+        .menu-item {
+          padding: 15px;
+        }
+
+        .menu-item-name {
+          font-size: 1.1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="menu-container">
+      <!-- 頁面標題 -->
+      <header class="page-header">
+        <h1 class="page-title">🍜 隱湖小竹菜單</h1>
+        <p class="page-subtitle">人文茶麵館 - 精選美味，用心呈現</p>
+      </header>
+
+      <!-- 管理員提示 -->
+      <div class="admin-hint">
+        <h3>📋 管理員測試說明</h3>
+        <p>
+          這是動態菜單的測試頁面，展示從 Firebase
+          載入的菜單資料。實際部署後，所有內容都將從管理員後台統一管理。
+        </p>
+      </div>
+
+      <!-- 熱門商品區塊 -->
+      <section class="featured-section">
+        <div class="featured-header">
+          <h2 class="featured-title">🔥 熱門推薦</h2>
+          <p class="featured-subtitle">精選最受歡迎的招牌商品</p>
+        </div>
+
+        <!-- 麵食幻燈片 -->
+        <div class="category-slider-section">
+          <div class="category-slider-header">
+            <h3 class="category-slider-title">🍜 招牌麵食</h3>
+          </div>
+          <div class="slider-container">
+            <div class="slider-track" id="noodlesTrack">
+              <!-- 動態載入的麵食商品 -->
+            </div>
+            <button
+              class="slider-nav slider-prev"
+              onclick="slideLeft('noodles')"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button
+              class="slider-nav slider-next"
+              onclick="slideRight('noodles')"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="slider-dots" id="noodlesDots"></div>
+        </div>
+
+        <!-- 飲品幻燈片 -->
+        <div class="category-slider-section">
+          <div class="category-slider-header">
+            <h3 class="category-slider-title">🧋 精選飲品</h3>
+          </div>
+          <div class="slider-container">
+            <div class="slider-track" id="drinksTrack">
+              <!-- 動態載入的飲品商品 -->
+            </div>
+            <button
+              class="slider-nav slider-prev"
+              onclick="slideLeft('drinks')"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button
+              class="slider-nav slider-next"
+              onclick="slideRight('drinks')"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="slider-dots" id="drinksDots"></div>
+        </div>
+      </section>
+
+      <!-- 完整菜單區塊 -->
+      <section class="full-menu-section">
+        <div class="full-menu-header">
+          <h2 class="full-menu-title">📋 完整菜單</h2>
+          <p class="full-menu-subtitle">查看我們的完整菜單資訊</p>
+        </div>
+
+        <!-- 完整菜單按鈕 -->
+        <div class="menu-action-container">
+          <button class="full-menu-btn" onclick="showFullMenu()">
+            <i class="fas fa-file-image"></i>
+            <span>查看完整菜單</span>
+            <small>點擊查看高清菜單圖</small>
+          </button>
+        </div>
+      </section>
+
+      <!-- 完整菜單彈窗 -->
+      <div class="menu-modal" id="menuModal">
+        <div class="menu-modal-overlay" onclick="closeFullMenu()"></div>
+        <div class="menu-modal-content">
+          <div class="menu-modal-header">
+            <h3>隱湖小竹 完整菜單</h3>
+            <button class="close-btn" onclick="closeFullMenu()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="menu-modal-body">
+            <img
+              src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200&fit=crop"
+              alt="隱湖小竹完整菜單"
+              class="full-menu-image"
+              onclick="toggleImageZoom(this)"
+            />
+            <p class="menu-modal-hint">點擊圖片可放大查看</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 測試資料 -->
+    <script>
+      // 模擬 Firebase 資料
+      const mockMenuData = {
+        noodles: [
+          {
+            id: "noodle1",
+            name: "鮮蝦餛飩麵",
+            description: "新鮮蝦肉，Q彈美味",
+            price: 80,
+            imageUrl:
+              "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
+            badge: "hot",
+            badgeText: "招牌",
+            category: "noodles",
+          },
+          {
+            id: "noodle2",
+            name: "招牌炸醬麵",
+            description: "特製炸醬，香濃可口",
+            price: 85,
+            imageUrl:
+              "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=320&h=220&fit=crop",
+            badge: "new",
+            badgeText: "新品",
+            category: "noodles",
+          },
+          {
+            id: "noodle3",
+            name: "陽春麵",
+            description: "經典口味，湯頭清甜",
+            price: 55,
+            imageUrl:
+              "https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=320&h=220&fit=crop",
+            badge: "classic",
+            badgeText: "經典",
+            category: "noodles",
+          },
+          {
+            id: "noodle4",
+            name: "餛飩麵",
+            description: "手工餛飩，湯鮮味美",
+            price: 70,
+            imageUrl:
+              "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=320&h=220&fit=crop",
+            category: "noodles",
+          },
+          {
+            id: "noodle5",
+            name: "榨菜肉絲麵",
+            description: "榨菜香脆，肉絲嫩滑",
+            price: 75,
+            imageUrl:
+              "https://images.unsplash.com/photo-1578928288-b8da59b1ba5c?w=320&h=220&fit=crop",
+            category: "noodles",
+          },
+          {
+            id: "noodle6",
+            name: "素食陽春麵",
+            description: "純素配方，健康美味",
+            price: 55,
+            imageUrl:
+              "https://images.unsplash.com/photo-1588566564232-a97fcbc3ea54?w=320&h=220&fit=crop",
+            badge: "veg",
+            badgeText: "素食",
+            category: "noodles",
+          },
+        ],
+        drinks: [
+          {
+            id: "drink1",
+            name: "四季春茶",
+            description: "清香回甘，是我們的招牌茶飲",
+            price: 45,
+            imageUrl:
+              "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=320&h=220&fit=crop",
+            badge: "hot",
+            badgeText: "招牌",
+            category: "drinks",
+          },
+          {
+            id: "drink2",
+            name: "紅茶鮮奶",
+            description: "濃郁奶香與茶香完美融合",
+            price: 65,
+            imageUrl:
+              "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=320&h=220&fit=crop",
+            badge: "hot",
+            badgeText: "熱門",
+            category: "drinks",
+          },
+          {
+            id: "drink3",
+            name: "茉香綠茶",
+            description: "清新茉莉花香，回甘持久",
+            price: 40,
+            imageUrl:
+              "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=320&h=220&fit=crop",
+            category: "drinks",
+          },
+          {
+            id: "drink4",
+            name: "桂花蜜烏龍",
+            description: "季節限定，桂花香氣濃郁",
+            price: 45,
+            imageUrl:
+              "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=320&h=220&fit=crop",
+            badge: "seasonal",
+            badgeText: "季節",
+            category: "drinks",
+          },
+          {
+            id: "drink5",
+            name: "金萱鮮奶茶",
+            description: "金萱茶香與鮮奶的絕妙搭配",
+            price: 65,
+            imageUrl:
+              "https://images.unsplash.com/photo-1602088113235-229873d0c650?w=320&h=220&fit=crop",
+            category: "drinks",
+          },
+          {
+            id: "drink6",
+            name: "蜂蜜檸檬",
+            description: "維生素C豐富，清爽解膩",
+            price: 60,
+            imageUrl:
+              "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=320&h=220&fit=crop",
+            badge: "seasonal",
+            badgeText: "維C",
+            category: "drinks",
+          },
+        ],
+        all: [
+          {
+            id: "drink1",
+            name: "四季春茶",
+            description: "清香回甘，是我們的招牌茶飲",
+            price: 45,
+            badge: "hot",
+            badgeText: "招牌",
+            category: "drinks",
+          },
+          {
+            id: "drink2",
+            name: "紅茶鮮奶",
+            description: "濃郁奶香與茶香完美融合",
+            price: 65,
+            badge: "hot",
+            badgeText: "熱門",
+            category: "drinks",
+          },
+          {
+            id: "drink3",
+            name: "茉香綠茶",
+            description: "清新茉莉花香，回甘持久",
+            price: 40,
+            category: "drinks",
+          },
+          {
+            id: "drink4",
+            name: "桂花蜜烏龍",
+            description: "季節限定，桂花香氣濃郁",
+            price: 45,
+            badge: "seasonal",
+            badgeText: "季節",
+            category: "drinks",
+          },
+          {
+            id: "drink5",
+            name: "金萱鮮奶茶",
+            description: "金萱茶香與鮮奶的絕妙搭配",
+            price: 65,
+            category: "drinks",
+          },
+          {
+            id: "drink6",
+            name: "蜂蜜檸檬",
+            description: "維生素C豐富，清爽解膩",
+            price: 60,
+            badge: "seasonal",
+            badgeText: "維C",
+            category: "drinks",
+          },
+          {
+            id: "noodle1",
+            name: "陽春麵",
+            description: "經典口味，湯頭清甜",
+            price: 55,
+            badge: "classic",
+            badgeText: "經典",
+            category: "noodles",
+          },
+          {
+            id: "noodle2",
+            name: "餛飩麵",
+            description: "手工餛飩，湯鮮味美",
+            price: 70,
+            category: "noodles",
+          },
+          {
+            id: "noodle3",
+            name: "榨菜肉絲麵",
+            description: "榨菜香脆，肉絲嫩滑",
+            price: 75,
+            category: "noodles",
+          },
+          {
+            id: "noodle4",
+            name: "鮮蝦餛飩麵",
+            description: "新鮮蝦肉，Q彈美味",
+            price: 80,
+            badge: "hot",
+            badgeText: "招牌",
+            category: "noodles",
+          },
+          {
+            id: "noodle5",
+            name: "招牌炸醬麵",
+            description: "特製炸醬，香濃可口",
+            price: 85,
+            badge: "new",
+            badgeText: "新品",
+            category: "noodles",
+          },
+          {
+            id: "noodle6",
+            name: "素食陽春麵",
+            description: "純素配方，健康美味",
+            price: 55,
+            badge: "veg",
+            badgeText: "素食",
+            category: "noodles",
+          },
+        ],
+      };
+
+      // 幻燈片狀態
+      let sliderPositions = { noodles: 0, drinks: 0 };
+
+      // 初始化頁面
+      document.addEventListener("DOMContentLoaded", function () {
+        loadCategoryData();
+        initSliders();
+      });
+
+      // 載入分類商品資料
+      function loadCategoryData() {
+        // 載入麵食
+        const noodlesTrack = document.getElementById("noodlesTrack");
+        noodlesTrack.innerHTML = mockMenuData.noodles
+          .map((product) => createProductCard(product))
+          .join("");
+
+        // 載入飲品
+        const drinksTrack = document.getElementById("drinksTrack");
+        drinksTrack.innerHTML = mockMenuData.drinks
+          .map((product) => createProductCard(product))
+          .join("");
+      }
+
+      // 建立商品卡片（幻燈片用）
+      function createProductCard(product) {
+        const badgeHtml = product.badge
+          ? `<div class="product-badge badge-${product.badge}">${product.badgeText}</div>`
+          : "";
+
+        return `
+          <div class="product-card">
+            ${badgeHtml}
+            <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+            <div class="product-content">
+              <h3 class="product-name">${product.name}</h3>
+              <p class="product-description">${product.description}</p>
+              <div class="product-price">
+                <div class="price-amount">
+                  <span class="currency">NT$</span>
+                  <span>${product.price}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 顯示完整菜單彈窗
+      function showFullMenu() {
+        const modal = document.getElementById("menuModal");
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden"; // 防止背景滾動
+      }
+
+      // 關閉完整菜單彈窗
+      function closeFullMenu() {
+        const modal = document.getElementById("menuModal");
+        modal.classList.remove("active");
+        document.body.style.overflow = "auto"; // 恢復滾動
+
+        // 重置圖片縮放
+        const image = document.querySelector(".full-menu-image");
+        image.classList.remove("zoomed");
+      }
+
+      // 切換圖片縮放
+      function toggleImageZoom(image) {
+        image.classList.toggle("zoomed");
+      }
+
+      // ESC 鍵關閉彈窗
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeFullMenu();
+        }
+      });
+
+      // 初始化幻燈片
+      function initSliders() {
+        createDots("noodles", mockMenuData.noodles.length);
+        createDots("drinks", mockMenuData.drinks.length);
+        updateDots("noodles");
+        updateDots("drinks");
+      }
+
+      // 建立圓點指示器
+      function createDots(category, count) {
+        const dotsContainer = document.getElementById(category + "Dots");
+        dotsContainer.innerHTML = "";
+
+        for (let i = 0; i < count; i++) {
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          dot.onclick = () => slideTo(category, i);
+          dotsContainer.appendChild(dot);
+        }
+      }
+
+      // 更新圓點狀態
+      function updateDots(category) {
+        const dots = document.querySelectorAll(`#${category}Dots .dot`);
+        dots.forEach((dot, index) => {
+          dot.classList.toggle("active", index === sliderPositions[category]);
+        });
+      }
+
+      // 向左滑動
+      function slideLeft(category) {
+        const itemsCount = mockMenuData[category].length;
+        sliderPositions[category] =
+          (sliderPositions[category] - 1 + itemsCount) % itemsCount;
+        updateSlider(category);
+      }
+
+      // 向右滑動
+      function slideRight(category) {
+        const itemsCount = mockMenuData[category].length;
+        sliderPositions[category] =
+          (sliderPositions[category] + 1) % itemsCount;
+        updateSlider(category);
+      }
+
+      // 滑動到指定位置
+      function slideTo(category, index) {
+        sliderPositions[category] = index;
+        updateSlider(category);
+      }
+
+      // 更新幻燈片位置
+      function updateSlider(category) {
+        const track = document.getElementById(category + "Track");
+        const translateX = -sliderPositions[category] * 345; // 320px item width + 25px gap
+        track.style.transform = `translateX(${translateX}px)`;
+        updateDots(category);
+      }
+
+      // 自動輪播
+      function autoSlide() {
+        slideRight("noodles");
+        setTimeout(() => slideRight("drinks"), 2000); // 錯開時間
+      }
+
+      // 啟動自動輪播
+      setInterval(autoSlide, 6000);
+    </script>
+  </body>
+</html>

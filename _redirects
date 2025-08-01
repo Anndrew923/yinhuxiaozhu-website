@@ -5,6 +5,7 @@
 /admin/login /admin-login.html
 /admin/products /admin-products.html
 /admin/orders /admin-orders.html
+/admin/menu /admin-menu.html
 
 # 用戶頁面重定向
 /login /login.html

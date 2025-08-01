@@ -236,6 +236,47 @@
       </div>
     </div>
 
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/menu.service.js"></script>
+
+    <script>
+      // 頁面載入完成後初始化
+      document.addEventListener("DOMContentLoaded", async function () {
+        try {
+          await loadDynamicMenu();
+        } catch (error) {
+          console.error("載入動態菜單失敗:", error);
+          // 如果動態載入失敗，保持靜態內容
+        }
+      });
+
+      // 載入動態菜單
+      async function loadDynamicMenu() {
+        try {
+          // 載入幻燈片商品（如果頁面有幻燈片功能）
+          const [noodles, drinks] = await Promise.all([
+            MenuService.getFeaturedProducts("noodles"),
+            MenuService.getFeaturedProducts("drinks"),
+          ]);
+
+          // 如果有資料，可以在這裡更新頁面內容
+          console.log("載入的麵食商品:", noodles);
+          console.log("載入的飲品商品:", drinks);
+
+          // TODO: 更新頁面 DOM 元素
+          // updateMenuContent(noodles, drinks);
+        } catch (error) {
+          console.error("載入菜單資料失敗:", error);
+        }
+      }
+    </script>
     <script src="menu-frame.js"></script>
   </body>
 </html>
