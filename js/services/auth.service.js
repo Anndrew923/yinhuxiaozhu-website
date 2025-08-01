@@ -1,22 +1,44 @@
 // js/services/auth.service.js
 // Auth Service：註冊、登入、登出
 const AuthService = (() => {
-  const auth = window.firebaseAuth;
-  const db = window.firebaseDB;
-
-  // 檢查 Firebase 是否正確初始化
-  if (!auth) {
-    console.error("Firebase Auth 未初始化");
-    return null;
+  // 等待 Firebase 初始化完成
+  function waitForFirebase() {
+    return new Promise((resolve) => {
+      const checkFirebase = () => {
+        if (window.firebaseAuth && window.firebaseDB) {
+          resolve();
+        } else {
+          setTimeout(checkFirebase, 100);
+        }
+      };
+      checkFirebase();
+    });
   }
 
-  if (!db) {
-    console.error("Firebase Firestore 未初始化");
-    return null;
+  let auth, db;
+
+  // 初始化 Firebase 實例
+  async function initFirebase() {
+    await waitForFirebase();
+    auth = window.firebaseAuth;
+    db = window.firebaseDB;
+    
+    if (!auth) {
+      console.error("Firebase Auth 未初始化");
+      return false;
+    }
+
+    if (!db) {
+      console.error("Firebase Firestore 未初始化");
+      return false;
+    }
+    
+    return true;
   }
 
   async function signUp(email, password, name, phone) {
     try {
+      await initFirebase();
       console.log("開始註冊:", email, name, phone);
 
       // 建立帳號
@@ -66,21 +88,25 @@ const AuthService = (() => {
     }
   }
 
-  function signIn(email, password) {
+  async function signIn(email, password) {
+    await initFirebase();
     return auth.signInWithEmailAndPassword(email, password);
   }
 
-  function signOut() {
+  async function signOut() {
+    await initFirebase();
     return auth.signOut();
   }
 
-  function onAuthStateChanged(callback) {
+  async function onAuthStateChanged(callback) {
+    await initFirebase();
     return auth.onAuthStateChanged(callback);
   }
 
   // Google 登入
   async function signInWithGoogle() {
     try {
+      await initFirebase();
       const provider = new firebase.auth.GoogleAuthProvider();
       // 設定語言為繁體中文
       provider.setCustomParameters({
@@ -120,6 +146,7 @@ const AuthService = (() => {
   // Facebook 登入
   async function signInWithFacebook() {
     try {
+      await initFirebase();
       const provider = new firebase.auth.FacebookAuthProvider();
       // 設定語言為繁體中文
       provider.setCustomParameters({
@@ -354,6 +381,7 @@ const AuthService = (() => {
   // 檢查用戶是否為管理員
   async function checkAdminRole(uid) {
     try {
+      await initFirebase();
       const adminDoc = await db.collection("admins").doc(uid).get();
       if (adminDoc.exists) {
         const adminData = adminDoc.data();
@@ -374,6 +402,7 @@ const AuthService = (() => {
   // 管理員登入
   async function adminSignIn(email, password) {
     try {
+      await initFirebase();
       const userCredential = await auth.signInWithEmailAndPassword(
         email,
         password
@@ -400,6 +429,7 @@ const AuthService = (() => {
   // 創建管理員帳號（僅限超級管理員）
   async function createAdmin(adminData, currentUserUid) {
     try {
+      await initFirebase();
       // 檢查當前用戶是否為超級管理員
       const currentAdminCheck = await checkAdminRole(currentUserUid);
       if (
