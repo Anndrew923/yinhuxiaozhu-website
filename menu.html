@@ -426,13 +426,7 @@
     <!-- Hero Banner -->
     <header class="menu-hero">
       <div class="menu-hero-content">
-        <img
-          src="assets/welcome-logo.png"
-          class="menu-hero-logo"
-          alt="隱湖小竹"
-        />
         <h1 class="menu-hero-title">人氣飲品 &amp; 招牌麵食</h1>
-        <p class="menu-hero-sub">人文茶麵館 SINCE 2023</p>
       </div>
     </header>
 
@@ -452,10 +446,7 @@
           <div class="slider-track" id="noodlesTrack">
             <!-- 動態載入的麵食商品 -->
           </div>
-          <button
-            class="slider-nav slider-prev"
-            onclick="slideLeft('noodles')"
-          >
+          <button class="slider-nav slider-prev" onclick="slideLeft('noodles')">
             <i class="fas fa-chevron-left"></i>
           </button>
           <button
@@ -477,16 +468,10 @@
           <div class="slider-track" id="drinksTrack">
             <!-- 動態載入的飲品商品 -->
           </div>
-          <button
-            class="slider-nav slider-prev"
-            onclick="slideLeft('drinks')"
-          >
+          <button class="slider-nav slider-prev" onclick="slideLeft('drinks')">
             <i class="fas fa-chevron-left"></i>
           </button>
-          <button
-            class="slider-nav slider-next"
-            onclick="slideRight('drinks')"
-          >
+          <button class="slider-nav slider-next" onclick="slideRight('drinks')">
             <i class="fas fa-chevron-right"></i>
           </button>
         </div>
@@ -613,7 +598,8 @@
             name: "鮮蝦餛飩麵",
             description: "新鮮蝦肉，Q彈美味",
             price: 80,
-            imageUrl: "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
+            imageUrl:
+              "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
             badge: "hot",
             badgeText: "招牌",
           },
@@ -622,7 +608,8 @@
             name: "招牌炸醬麵",
             description: "特製炸醬，香濃可口",
             price: 85,
-            imageUrl: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=320&h=220&fit=crop",
+            imageUrl:
+              "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=320&h=220&fit=crop",
             badge: "new",
             badgeText: "新品",
           },
@@ -631,10 +618,11 @@
             name: "陽春麵",
             description: "經典口味，湯頭清甜",
             price: 55,
-            imageUrl: "https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=320&h=220&fit=crop",
+            imageUrl:
+              "https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=320&h=220&fit=crop",
             badge: "classic",
             badgeText: "經典",
-          }
+          },
         ];
 
         const staticDrinks = [
@@ -643,7 +631,8 @@
             name: "四季春茶",
             description: "清香回甘，是我們的招牌茶飲",
             price: 45,
-            imageUrl: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=320&h=220&fit=crop",
+            imageUrl:
+              "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=320&h=220&fit=crop",
             badge: "hot",
             badgeText: "招牌",
           },
@@ -652,7 +641,8 @@
             name: "紅茶鮮奶",
             description: "濃郁奶香與茶香完美融合",
             price: 65,
-            imageUrl: "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=320&h=220&fit=crop",
+            imageUrl:
+              "https://images.unsplash.com/photo-1525385133512-2f3bdd039054?w=320&h=220&fit=crop",
             badge: "hot",
             badgeText: "熱門",
           },
@@ -661,8 +651,9 @@
             name: "茉香綠茶",
             description: "清新茉莉花香，回甘持久",
             price: 40,
-            imageUrl: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=320&h=220&fit=crop",
-          }
+            imageUrl:
+              "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=320&h=220&fit=crop",
+          },
         ];
 
         updateSliderContent("noodles", staticNoodles);
@@ -674,13 +665,16 @@
         const track = document.getElementById(category + "Track");
         if (!track) return;
 
-        track.innerHTML = products.map(product => createProductCard(product)).join("");
+        track.innerHTML = products
+          .map((product) => createProductCard(product))
+          .join("");
       }
 
       // 建立商品卡片
       function createProductCard(product) {
-        const badgeHtml = product.badge ? 
-          `<div class="product-badge badge-${product.badge}">${product.badgeText}</div>` : '';
+        const badgeHtml = product.badge
+          ? `<div class="product-badge badge-${product.badge}">${product.badgeText}</div>`
+          : "";
 
         return `
           <div class="product-card">
@@ -736,9 +730,15 @@
         const track = document.getElementById(category + "Track");
         if (!track) return;
 
-        const maxPosition = Math.max(0, Math.floor((track.children.length - 1) / 2));
-        sliderPositions[category] = Math.max(0, (sliderPositions[category] || 0) - 1);
-        
+        const maxPosition = Math.max(
+          0,
+          Math.floor((track.children.length - 1) / 2)
+        );
+        sliderPositions[category] = Math.max(
+          0,
+          (sliderPositions[category] || 0) - 1
+        );
+
         const translateX = -sliderPositions[category] * 345; // 320px item width + 25px gap
         track.style.transform = `translateX(${translateX}px)`;
         updateDots(category);
@@ -748,9 +748,15 @@
         const track = document.getElementById(category + "Track");
         if (!track) return;
 
-        const maxPosition = Math.max(0, Math.floor((track.children.length - 1) / 2));
-        sliderPositions[category] = Math.min(maxPosition, (sliderPositions[category] || 0) + 1);
-        
+        const maxPosition = Math.max(
+          0,
+          Math.floor((track.children.length - 1) / 2)
+        );
+        sliderPositions[category] = Math.min(
+          maxPosition,
+          (sliderPositions[category] || 0) + 1
+        );
+
         const translateX = -sliderPositions[category] * 345; // 320px item width + 25px gap
         track.style.transform = `translateX(${translateX}px)`;
         updateDots(category);
@@ -796,7 +802,7 @@
       }
 
       // ESC 鍵關閉彈窗
-      document.addEventListener("keydown", function(event) {
+      document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
           closeFullMenu();
         }
