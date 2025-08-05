@@ -79,6 +79,8 @@
         border: 1px solid transparent;
         /* 防止內容溢出 */
         contain: layout style paint;
+        /* 確保箭頭按鈕可以正常顯示 */
+        z-index: 1;
       }
 
       .slider-track {
@@ -114,7 +116,8 @@
         font-size: 18px;
         color: #2c3e50;
         transition: all 0.3s ease;
-        z-index: 10;
+        z-index: 100; /* 提高 z-index 確保按鈕在最上層 */
+        pointer-events: auto; /* 確保按鈕可以點擊 */
       }
 
       .slider-nav:hover {
@@ -578,7 +581,7 @@
         <div class="category-slider-header">
           <h3 class="category-slider-title">🍜 招牌麵食</h3>
         </div>
-        <div class="slider-container">
+        <div class="slider-container" id="noodlesContainer">
           <div class="slider-track" id="noodlesTrack">
             <!-- 動態載入的麵食商品 -->
           </div>
@@ -604,7 +607,7 @@
         <div class="category-slider-header">
           <h3 class="category-slider-title">🧋 精選飲品</h3>
         </div>
-        <div class="slider-container">
+        <div class="slider-container" id="drinksContainer">
           <div class="slider-track" id="drinksTrack">
             <!-- 動態載入的飲品商品 -->
           </div>
@@ -1045,12 +1048,15 @@
         sliderPositions.noodles = 0;
         sliderPositions.drinks = 0;
         
+        // 啟用終極方案：CSS Scroll Snap
+        enableScrollSnap();
+        
         // 初始化滑動位置
         if (noodlesTrack) {
-          noodlesTrack.style.transform = 'translate3d(0, 0, 0)';
+          createSliderObserver("noodles");
         }
         if (drinksTrack) {
-          drinksTrack.style.transform = 'translate3d(0, 0, 0)';
+          createSliderObserver("drinks");
         }
         
         updateDots("noodles");
@@ -1192,27 +1198,47 @@
         return true;
       }
 
-      // 預計算位置表（避免累積誤差）
+      // 終極方案：CSS Scroll Snap + 智能定位
       const positionCache = {};
       
-      // 獲取精確位置
-      function getPrecisePosition(category, position) {
-        const cacheKey = `${category}_${position}`;
-        if (positionCache[cacheKey]) {
-          return positionCache[cacheKey];
-        }
-        
+      // 啟用 CSS Scroll Snap
+      function enableScrollSnap() {
+        const categories = ['noodles', 'drinks'];
+        categories.forEach(category => {
+          const container = document.querySelector(`#${category}Container`);
+          const track = document.getElementById(category + "Track");
+          
+          if (container && track) {
+            // 設置容器為 scroll snap
+            container.style.scrollSnapType = 'x mandatory';
+            container.style.overflowX = 'auto';
+            container.style.overflowY = 'hidden';
+            container.style.scrollBehavior = 'smooth';
+            
+            // 設置每個滑動項目為 snap 點
+            Array.from(track.children).forEach(slide => {
+              slide.style.scrollSnapAlign = 'start';
+              slide.style.flexShrink = '0';
+              slide.style.width = '100%';
+            });
+          }
+        });
+      }
+      
+      // 使用 scrollIntoView 進行精確定位
+      function scrollToSlide(category, position) {
         const track = document.getElementById(category + "Track");
         const container = track.parentElement;
-        const containerRect = container.getBoundingClientRect();
-        const containerWidth = containerRect.width;
+        const slides = track.children;
         
-        // 使用子像素精度計算
-        const preciseTranslateX = -(position * containerWidth);
-        
-        // 快取結果
-        positionCache[cacheKey] = preciseTranslateX;
-        return preciseTranslateX;
+        if (slides[position]) {
+          // 使用 scrollIntoView 進行精確對齊
+          slides[position].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'start'
+          });
+        }
       }
       
       // 清除位置快取（當視窗大小改變時）
@@ -1220,50 +1246,46 @@
         Object.keys(positionCache).forEach(key => delete positionCache[key]);
       }
 
-      // 統一的滑動執行函數
+      // 使用 Intersection Observer 進行精確檢測
+      const observers = {};
+      
+      // 創建 Intersection Observer
+      function createSliderObserver(category) {
+        const track = document.getElementById(category + "Track");
+        const slides = track.children;
+        
+        observers[category] = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const slideIndex = Array.from(slides).indexOf(entry.target);
+              if (slideIndex !== -1 && slideIndex !== sliderPositions[category]) {
+                console.log(`${category} 檢測到位置變化: ${slideIndex}`);
+                sliderPositions[category] = slideIndex;
+                updateDots(category);
+              }
+            }
+          });
+        }, {
+          root: track.parentElement,
+          threshold: 0.5, // 當滑動項目超過 50% 可見時觸發
+          rootMargin: '0px'
+        });
+        
+        // 觀察所有滑動項目
+        Array.from(slides).forEach(slide => {
+          observers[category].observe(slide);
+        });
+      }
+
+      // 終極滑動函數：使用 scrollIntoView + CSS Scroll Snap
       function performSlide(category, track) {
-        const container = track.parentElement;
-        
-        // 獲取容器的實際寬度（包含padding和border）
-        const containerRect = container.getBoundingClientRect();
-        const containerWidth = containerRect.width;
-        
-        // 使用預計算的精確位置
-        const preciseTranslateX = getPrecisePosition(category, sliderPositions[category]);
-        
-        // 獲取當前位置
-        const currentTransform = track.style.transform;
-        const currentTranslateX = extractTranslateX(currentTransform);
-        
-        // 計算滑動距離
-        const slideDistancePx = Math.abs(currentTranslateX - preciseTranslateX);
-        
-        // 根據滑動距離調整動畫時間
-        if (slideDistancePx < 10) {
-          // 微小調整，無動畫
-          track.style.transition = 'none';
-          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
-          track.offsetHeight;
-          track.style.transition = ''; // 恢復預設轉換
-        } else if (slideDistancePx < 100) {
-          // 短距離滑動，快速動畫
-          track.style.transition = 'transform 0.3s ease-out';
-          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
-        } else {
-          // 長距離滑動，正常動畫
-          track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
-        }
+        // 直接使用 scrollIntoView 進行精確定位
+        scrollToSlide(category, sliderPositions[category]);
         
         updateDots(category);
         
         // 調試信息
-        console.log(`${category} 滑動到位置 ${sliderPositions[category]}, 容器寬度: ${containerWidth}, 精確位置: ${preciseTranslateX}px, 動畫距離: ${slideDistancePx}px`);
-        
-        // 驗證滑動是否正確（延遲更長時間以確保轉換完成）
-        setTimeout(() => {
-          validateTransformPosition(track, preciseTranslateX, category);
-        }, 150);
+        console.log(`${category} 滑動到位置 ${sliderPositions[category]}`);
       }
       
       // 提取當前 translateX 值
