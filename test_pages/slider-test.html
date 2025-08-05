@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幻燈片測試</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .test-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        /* 幻燈片容器 */
+        .slider-container {
+            position: relative;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+            border: 2px solid #e74c3c;
+            contain: layout style paint;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            width: 100%;
+            box-sizing: border-box;
+            flex-wrap: nowrap;
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .slider-nav:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slider-prev {
+            left: 10px;
+        }
+
+        .slider-next {
+            right: 10px;
+        }
+
+        /* 測試卡片 */
+        .test-card {
+            width: 100%;
+            min-width: 100%;
+            max-width: 100%;
+            flex-shrink: 0;
+            flex-grow: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .test-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 圓點指示器 */
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(231, 76, 60, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: rgba(231, 76, 60, 0.9);
+            transform: scale(1.2);
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .debug-info h3 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+
+        .debug-info p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="test-title">🎠 幻燈片精確滑動測試</h1>
+        
+        <div class="slider-container">
+            <div class="slider-track" id="testTrack">
+                <div class="test-card">1</div>
+                <div class="test-card">2</div>
+                <div class="test-card">3</div>
+                <div class="test-card">4</div>
+                <div class="test-card">5</div>
+                <div class="test-card">6</div>
+            </div>
+            <button class="slider-nav slider-prev" onclick="slideLeft()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="slider-nav slider-next" onclick="slideRight()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <div class="slider-dots" id="testDots"></div>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="resetSlider()">重置</button>
+            <button class="control-btn" onclick="goToSlide(0)">第1張</button>
+            <button class="control-btn" onclick="goToSlide(2)">第3張</button>
+            <button class="control-btn" onclick="goToSlide(5)">第6張</button>
+        </div>
+        
+        <div class="debug-info">
+            <h3>🔍 調試信息</h3>
+            <p id="debugInfo">載入中...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentPosition = 0;
+        const totalSlides = 6;
+        
+        // 初始化
+        function init() {
+            createDots();
+            updateDots();
+            updateDebugInfo();
+            
+            // 監聽視窗大小改變
+            window.addEventListener('resize', debounce(() => {
+                console.log("視窗大小改變，重新計算滑動位置");
+                performSlide();
+            }, 250));
+        }
+        
+        // 創建圓點
+        function createDots() {
+            const dotsContainer = document.getElementById("testDots");
+            dotsContainer.innerHTML = "";
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement("div");
+                dot.className = "dot";
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+        
+        // 更新圓點狀態
+        function updateDots() {
+            const dots = document.querySelectorAll("#testDots .dot");
+            dots.forEach((dot, index) => {
+                dot.classList.toggle("active", index === currentPosition);
+            });
+        }
+        
+        // 滑動到左邊
+        function slideLeft() {
+            if (currentPosition <= 0) {
+                currentPosition = totalSlides - 1;
+            } else {
+                currentPosition--;
+            }
+            performSlide();
+        }
+        
+        // 滑動到右邊
+        function slideRight() {
+            if (currentPosition >= totalSlides - 1) {
+                currentPosition = 0;
+            } else {
+                currentPosition++;
+            }
+            performSlide();
+        }
+        
+        // 執行滑動
+        function performSlide() {
+            const track = document.getElementById("testTrack");
+            const container = track.parentElement;
+            
+            // 獲取容器的實際寬度
+            const containerRect = container.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            
+            // 計算滑動距離
+            const slideDistance = containerWidth;
+            const translateX = -currentPosition * slideDistance;
+            const roundedTranslateX = Math.round(translateX);
+            
+            // 設置transform
+            track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+            
+            // 強制重新計算佈局
+            track.offsetHeight;
+            
+            updateDots();
+            updateDebugInfo();
+            
+            // 驗證滑動
+            setTimeout(() => {
+                const currentTransform = track.style.transform;
+                const expectedTransform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+                if (currentTransform !== expectedTransform) {
+                    console.warn(`滑動位置不匹配，預期: ${expectedTransform}, 實際: ${currentTransform}`);
+                    track.style.transform = expectedTransform;
+                }
+            }, 50);
+        }
+        
+        // 跳轉到指定位置
+        function goToSlide(position) {
+            currentPosition = position;
+            performSlide();
+        }
+        
+        // 重置滑動器
+        function resetSlider() {
+            currentPosition = 0;
+            performSlide();
+        }
+        
+        // 更新調試信息
+        function updateDebugInfo() {
+            const track = document.getElementById("testTrack");
+            const container = track.parentElement;
+            const containerRect = container.getBoundingClientRect();
+            
+            const debugInfo = document.getElementById("debugInfo");
+            debugInfo.innerHTML = `
+                當前位置: ${currentPosition + 1} / ${totalSlides}<br>
+                容器寬度: ${containerRect.width}px<br>
+                滑動距離: ${-currentPosition * containerRect.width}px<br>
+                Transform: ${track.style.transform}<br>
+                視窗寬度: ${window.innerWidth}px
+            `;
+        }
+        
+        // 防抖函數
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+        
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html> 

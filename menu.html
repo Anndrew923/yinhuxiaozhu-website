@@ -73,12 +73,29 @@
         max-width: 400px;
         margin-left: auto;
         margin-right: auto;
+        /* 確保容器有明確的寬度 */
+        box-sizing: border-box;
+        /* 確保容器有明確的邊界 */
+        border: 1px solid transparent;
+        /* 防止內容溢出 */
+        contain: layout style paint;
       }
 
       .slider-track {
         display: flex;
         transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         width: 100%;
+        /* 確保滑動軌道有明確的寬度 */
+        box-sizing: border-box;
+        /* 防止子元素撐開容器 */
+        flex-wrap: nowrap;
+        /* 確保初始位置正確 */
+        transform: translate3d(0, 0, 0);
+        /* 啟用硬體加速 */
+        will-change: transform;
+        /* 防止文字模糊 */
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
       }
 
       .slider-nav {
@@ -117,13 +134,20 @@
       .product-card {
         width: 100%;
         min-width: 100%;
+        max-width: 100%;
         flex-shrink: 0;
+        flex-grow: 0;
         background: white;
         border-radius: 20px;
         overflow: hidden;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         transition: all 0.3s ease;
         position: relative;
+        /* 確保卡片不會超出容器 */
+        box-sizing: border-box;
+        /* 防止內容撐開卡片 */
+        display: flex;
+        flex-direction: column;
       }
 
       .product-card:hover {
@@ -1016,6 +1040,19 @@
         // 建立圓點指示器
         createDots("noodles", noodlesCount);
         createDots("drinks", drinksCount);
+        
+        // 確保初始位置正確
+        sliderPositions.noodles = 0;
+        sliderPositions.drinks = 0;
+        
+        // 初始化滑動位置
+        if (noodlesTrack) {
+          noodlesTrack.style.transform = 'translate3d(0, 0, 0)';
+        }
+        if (drinksTrack) {
+          drinksTrack.style.transform = 'translate3d(0, 0, 0)';
+        }
+        
         updateDots("noodles");
         updateDots("drinks");
 
@@ -1023,6 +1060,31 @@
         setInterval(autoSlide, 6000);
         
         console.log("幻燈片初始化完成");
+        
+        // 監聽視窗大小改變，重新計算滑動位置
+        window.addEventListener('resize', debounce(() => {
+          console.log("視窗大小改變，重新計算滑動位置");
+          const categories = ['noodles', 'drinks'];
+          categories.forEach(category => {
+            const track = document.getElementById(category + "Track");
+            if (track && sliderPositions[category] !== undefined) {
+              performSlide(category, track);
+            }
+          });
+        }, 250));
+      }
+      
+      // 防抖函數
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
       }
 
       // 建立圓點指示器
@@ -1078,18 +1140,39 @@
       // 統一的滑動執行函數
       function performSlide(category, track) {
         const container = track.parentElement;
-        const cardWidth = container.offsetWidth;
-        const slideDistance = cardWidth;
+        
+        // 獲取容器的實際寬度（包含padding和border）
+        const containerRect = container.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        
+        // 計算滑動距離：每次滑動一個容器的寬度
+        const slideDistance = containerWidth;
         const translateX = -sliderPositions[category] * slideDistance;
         
         // 使用更精確的計算，確保對齊
         const roundedTranslateX = Math.round(translateX);
-        track.style.transform = `translateX(${roundedTranslateX}px)`;
+        
+        // 設置transform，使用3D加速
+        track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
         
         // 強制瀏覽器重新計算佈局
         track.offsetHeight;
         
         updateDots(category);
+        
+        // 調試信息
+        console.log(`${category} 滑動到位置 ${sliderPositions[category]}, 容器寬度: ${containerWidth}, 滑動距離: ${roundedTranslateX}px`);
+        
+        // 驗證滑動是否正確
+        setTimeout(() => {
+          const currentTransform = track.style.transform;
+          const expectedTransform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+          if (currentTransform !== expectedTransform) {
+            console.warn(`${category} 滑動位置不匹配，預期: ${expectedTransform}, 實際: ${currentTransform}`);
+            // 強制修正
+            track.style.transform = expectedTransform;
+          }
+        }, 50);
       }
 
       function slideRight(category) {

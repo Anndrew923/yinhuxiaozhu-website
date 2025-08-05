@@ -3028,9 +3028,7 @@ input:checked + .slider:before {
 .payment-actions,
 .failed-actions,
 .settings-actions,
-.action-buttons,
-.cookie-banner-buttons,
-.cookie-modal-footer {
+.action-buttons {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3045,9 +3043,7 @@ input:checked + .slider:before {
 .settings-actions .btn-primary,
 .settings-actions .btn-secondary,
 .action-buttons .btn-primary,
-.action-buttons .btn-secondary,
-.cookie-banner-buttons .btn,
-.cookie-modal-footer .btn {
+.action-buttons .btn-secondary {
   flex: 1;
   min-width: 140px;
   max-width: 200px;
@@ -3058,9 +3054,7 @@ input:checked + .slider:before {
 
 /* === Ensure Consistent Button Heights === */
 .btn-primary,
-.btn-secondary,
-.cookie-banner-buttons .btn,
-.cookie-modal-footer .btn {
+.btn-secondary {
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
@@ -3073,30 +3067,136 @@ input:checked + .slider:before {
   white-space: nowrap !important;
 }
 
-/* === Cookie Banner Button Specific Styles === */
-.cookie-banner-buttons {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-  align-items: stretch;
-  justify-content: center;
+/* === Cookie Banner Buttons Override === */
+#cookie-consent-banner .cookie-banner-buttons .btn-primary,
+#cookie-consent-banner .cookie-banner-buttons .btn-secondary,
+#cookie-consent-banner .cookie-banner-buttons .btn-outline {
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  font-size: 14px !important;
+  min-width: 360px !important;
+  width: 360px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
 }
 
-.cookie-banner-buttons .btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 100px;
-  flex: 1;
-  max-width: 150px;
+/* === Cookie Banner Button Specific Styles === */
+.cookie-banner-buttons .btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #5a6268 !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 100px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+.cookie-banner-buttons .btn-secondary:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.cookie-banner-buttons .btn-secondary:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cookie-banner-buttons .btn-primary {
+  background: linear-gradient(135deg, #4a7c59 0%, #3d6b4a 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid #3d6b4a !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 100px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+.cookie-banner-buttons .btn-primary:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.cookie-banner-buttons .btn-primary:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.cookie-banner-buttons .btn-outline {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  transition: all 0.3s ease !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 100px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+}
+
+.cookie-banner-buttons .btn-outline:hover {
+  opacity: 0.9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.cookie-banner-buttons .btn-outline:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* === Cookie Modal Footer Specific Styles === */
@@ -3104,19 +3204,18 @@ input:checked + .slider:before {
   padding: 20px;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: nowrap;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: stretch;
 }
 
 .cookie-modal-footer .btn {
-  flex: 1;
-  min-width: 140px;
-  max-width: 200px;
-  height: 48px !important;
-  min-height: 48px !important;
-  max-height: 48px !important;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  box-sizing: border-box;
 }
 
 /* === Mobile Responsive Adjustments === */
@@ -3143,15 +3242,20 @@ input:checked + .slider:before {
     padding: 0 16px;
   }
   
-  .cookie-banner-buttons {
-    flex-direction: column;
-    gap: 8px;
+  .cookie-banner-buttons .btn-primary,
+  .cookie-banner-buttons .btn-secondary,
+  .cookie-banner-buttons .btn-outline {
+    width: 100% !important;
+    margin-bottom: 5px !important;
   }
   
-  .cookie-banner-buttons .btn {
-    min-width: 100px;
-    max-width: none;
-    width: 100%;
+  @media (max-width: 480px) {
+    .cookie-banner-buttons .btn-primary,
+    .cookie-banner-buttons .btn-secondary,
+    .cookie-banner-buttons .btn-outline {
+      width: 100% !important;
+      margin-bottom: 8px !important;
+    }
   }
 }
 
@@ -3532,3 +3636,4 @@ input:checked + .slider:before {
     height: 160px;
   }
 }
+
