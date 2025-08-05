@@ -338,7 +338,11 @@ function updateCartDisplay() {
 // 切換購物車側邊欄
 function toggleCart() {
   const cartSidebar = document.getElementById("cartSidebar");
-  cartSidebar.classList.toggle("show");
+  if (cartSidebar) {
+    cartSidebar.classList.toggle("show");
+  } else {
+    console.error('購物車側邊欄元素不存在');
+  }
 }
 
 // 顯示通知
@@ -467,13 +471,12 @@ function getCategoryName(categoryId) {
 // 結帳功能
 function checkout() {
   if (cart.length === 0) {
-    alert("購物車是空的");
+    showNotification("購物車是空的，請先添加商品", "error");
     return;
   }
 
-  // 這裡可以跳轉到結帳頁面
-  console.log("跳轉到結帳頁面");
-  // window.location.href = "checkout.html";
+  // 跳轉到結帳頁面
+  window.location.href = "checkout.html";
 }
 
 // 顯示商品詳情模態視窗
@@ -647,6 +650,18 @@ function goToMember() {
   window.location.href = "member.html";
 }
 
+// 跳轉到結帳頁面
+function goToCheckout() {
+  // 檢查購物車是否有商品
+  if (cart.length === 0) {
+    showNotification('購物車是空的，請先添加商品', 'error');
+    return;
+  }
+  
+  // 跳轉到結帳頁面
+  window.location.href = "checkout.html";
+}
+
 // 設置滾動隱藏功能
 function setupScrollHide() {
   let lastScrollTop = 0;
@@ -670,12 +685,14 @@ function setupScrollHide() {
 // 點擊購物車外部關閉側邊欄
 document.addEventListener("click", function (event) {
   const cartSidebar = document.getElementById("cartSidebar");
-  const cartFab = document.querySelector(".cart-fab");
+  const cartButton = document.querySelector(".nav-item.active"); // 底部導航的購物車按鈕
 
   if (
+    cartSidebar &&
     cartSidebar.classList.contains("show") &&
     !cartSidebar.contains(event.target) &&
-    !cartFab.contains(event.target)
+    cartButton &&
+    !cartButton.contains(event.target)
   ) {
     cartSidebar.classList.remove("show");
   }

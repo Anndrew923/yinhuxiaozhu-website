@@ -130,6 +130,7 @@
         gap: 15px;
         align-items: center;
         justify-content: space-between;
+        min-height: 60px;
       }
 
       .toolbar-left {
@@ -767,22 +768,57 @@
           padding: 10px;
         }
 
+        /* 工具欄在手機上保持水平，但調整間距和大小 */
         .toolbar {
-          flex-direction: column;
-          align-items: stretch;
+          padding: 15px;
+          gap: 10px;
+          /* 保持 flex-direction: row (預設值) */
         }
 
-        .toolbar-left,
+        .toolbar-left {
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
         .toolbar-right {
-          width: 100%;
-          justify-content: space-between;
+          gap: 6px;
+          flex-shrink: 0;
         }
 
+        /* 搜尋框在手機上縮小 */
         .search-box {
-          min-width: auto;
-          flex: 1;
+          min-width: 180px;
+          max-width: 200px;
         }
 
+        /* 篩選選單縮小 */
+        .filter-select {
+          min-width: 80px;
+          padding: 8px 10px;
+          font-size: 12px;
+        }
+
+        /* 按鈕在手機上縮小 */
+        .btn {
+          padding: 8px 12px;
+          font-size: 12px;
+          gap: 4px;
+        }
+
+        .btn i {
+          font-size: 12px;
+        }
+
+        /* 批量操作區域調整 */
+        .batch-actions {
+          gap: 6px;
+        }
+
+        .batch-actions .filter-select {
+          min-width: 100px;
+        }
+
+        /* 表格容器水平滾動 */
         .products-table-container {
           overflow-x: auto;
         }
@@ -791,8 +827,90 @@
           min-width: 800px;
         }
 
+        /* 表單在手機上改為單欄 */
         .form-row {
           grid-template-columns: 1fr;
+        }
+
+        /* 模態視窗在手機上的調整 */
+        .modal-content {
+          margin: 10px;
+          max-height: 90vh;
+          width: calc(100vw - 20px);
+        }
+
+        .modal-body {
+          max-height: calc(90vh - 140px);
+          overflow-y: auto;
+        }
+
+        /* 操作按鈕在手機上也保持水平 */
+        .actions {
+          gap: 4px;
+        }
+
+        .action-btn {
+          padding: 6px 8px;
+          font-size: 11px;
+          min-width: 30px;
+          height: 28px;
+        }
+
+        .action-btn i {
+          font-size: 12px;
+        }
+      }
+
+      /* 極小螢幕 (480px 以下) 的額外調整 */
+      @media (max-width: 480px) {
+        .toolbar {
+          padding: 10px;
+          gap: 8px;
+        }
+
+        .toolbar-left {
+          gap: 6px;
+        }
+
+        .toolbar-right {
+          gap: 4px;
+        }
+
+        .search-box {
+          min-width: 140px;
+          max-width: 160px;
+        }
+
+        .search-box input {
+          padding: 8px 35px 8px 12px;
+          font-size: 12px;
+        }
+
+        .btn {
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+
+        .filter-select {
+          min-width: 70px;
+          padding: 6px 8px;
+          font-size: 11px;
+        }
+
+        .batch-actions .filter-select {
+          min-width: 80px;
+        }
+
+        /* 更小的操作按鈕 */
+        .action-btn {
+          padding: 4px 6px;
+          font-size: 10px;
+          min-width: 26px;
+          height: 24px;
+        }
+
+        .action-btn i {
+          font-size: 11px;
         }
       }
 
@@ -1038,7 +1156,7 @@
                     <div class="upload-placeholder">
                       <i class="fas fa-cloud-upload-alt"></i>
                       <p>點擊選擇圖片或拖拽圖片到此處</p>
-                      <small>支援 JPG, PNG, GIF 格式，檔案大小不超過 5MB</small>
+                      <small>支援 JPG, PNG, GIF 格式，系統會自動壓縮圖片</small>
                     </div>
                   </div>
                   <div id="uploadProgress" class="upload-progress" style="display: none;">
@@ -1629,50 +1747,44 @@
           return;
         }
 
-        // 檢查檔案大小 (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          alert('檔案大小不能超過 5MB！');
-          return;
-        }
-
         // 顯示上傳進度
         showUploadProgress();
 
-        // 模擬上傳進度 (實際上是轉換為 base64)
-        const reader = new FileReader();
-        reader.onload = function(e) {
+        // 自動壓縮圖片
+        compressImage(file, (compressedDataUrl) => {
           // 更新進度到100%
           updateProgress(100);
           
           setTimeout(() => {
             // 設定圖片 URL
-            document.getElementById('productImage').value = e.target.result;
+            document.getElementById('productImage').value = compressedDataUrl;
             
             // 顯示預覽
-            showImagePreview(e.target.result);
+            showImagePreview(compressedDataUrl);
             
             // 隱藏進度條
             hideUploadProgress();
+            
+            // 顯示壓縮結果
+            const originalSize = formatFileSize(file.size);
+            const compressedSize = formatFileSize(Math.round(compressedDataUrl.length * 0.75));
+            console.log(`圖片壓縮完成：${originalSize} → ${compressedSize}`);
           }, 500);
-        };
-
-        reader.onerror = function() {
-          alert('圖片讀取失敗，請重試！');
+        }, (error) => {
+          alert('圖片處理失敗：' + error);
           hideUploadProgress();
-        };
+        });
 
         // 模擬進度更新
         let progress = 0;
         const progressInterval = setInterval(() => {
           progress += Math.random() * 30;
-          if (progress >= 90) {
+          if (progress >= 85) {
             clearInterval(progressInterval);
-            progress = 90;
+            progress = 85;
           }
           updateProgress(progress);
         }, 200);
-
-        reader.readAsDataURL(file);
       }
 
       function showUploadProgress() {
@@ -1709,6 +1821,81 @@
       function resetFileUpload() {
         document.getElementById('imagePreview').style.display = 'none';
         hideUploadProgress();
+      }
+
+      // 圖片壓縮函數
+      function compressImage(file, onSuccess, onError) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.onload = function() {
+          // 設定最大尺寸
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 600;
+          
+          let { width, height } = img;
+          
+          // 計算縮放比例
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = (height * MAX_WIDTH) / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = (width * MAX_HEIGHT) / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          
+          // 設定畫布尺寸
+          canvas.width = width;
+          canvas.height = height;
+          
+          // 繪製壓縮後的圖片
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // 轉換為base64，調整品質
+          let quality = 0.8;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          
+          // 如果還是太大，進一步降低品質
+          while (dataUrl.length > 800000 && quality > 0.1) { // 約600KB的base64
+            quality -= 0.1;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          
+          if (dataUrl.length > 800000) {
+            onError('圖片壓縮後仍然過大，請選擇更小的圖片');
+            return;
+          }
+          
+          onSuccess(dataUrl);
+        };
+        
+        img.onerror = function() {
+          onError('圖片載入失敗');
+        };
+        
+        // 載入圖片
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          img.src = e.target.result;
+        };
+        reader.onerror = function() {
+          onError('檔案讀取失敗');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // 格式化檔案大小
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
       }
 
       // 拖拽上傳支援

@@ -185,9 +185,12 @@ const AuthService = (() => {
   }
 
   // 檢查是否應該顯示註冊邀請
-  function shouldShowSignupPrompt() {
+  async function shouldShowSignupPrompt() {
+    // 確保 Firebase 已初始化
+    await initFirebase();
+    
     // 檢查是否已登入
-    if (auth.currentUser) {
+    if (auth && auth.currentUser) {
       return false;
     }
 
@@ -245,6 +248,7 @@ const AuthService = (() => {
             </div>
           </div>
           <div class="signup-modal-footer">
+            <button class="btn-secondary" onclick="closeSignupModal()">稍後再說</button>
             <button class="btn-primary" onclick="goToSignup()">立即註冊</button>
           </div>
         </div>
@@ -320,6 +324,9 @@ const AuthService = (() => {
             border-top: 1px solid #eee;
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: nowrap;
           }
           .btn-primary, .btn-secondary {
             padding: 0 20px;
@@ -337,6 +344,11 @@ const AuthService = (() => {
             overflow: hidden; /* 防止內容撐高 */
             white-space: nowrap; /* 防止文字換行 */
             min-width: 140px;
+            flex: 1; /* 讓按鈕平均分配空間 */
+            max-width: 200px; /* 限制最大寬度 */
+            margin: 0; /* 移除預設邊距 */
+            text-decoration: none; /* 移除連結樣式 */
+            transition: background-color 0.2s ease; /* 平滑過渡效果 */
           }
           .btn-primary {
             background: #007bff;
@@ -352,20 +364,102 @@ const AuthService = (() => {
           .btn-secondary:hover {
             background: #545b62;
           }
+          
+          /* 確保按鈕在所有瀏覽器中都有一致的外觀 */
+          .btn-primary:focus, .btn-secondary:focus {
+            outline: 2px solid #007bff;
+            outline-offset: 2px;
+          }
+          
+          /* 防止按鈕被其他樣式覆蓋 */
+          .signup-modal .btn-primary,
+          .signup-modal .btn-secondary {
+            height: 48px !important;
+            min-height: 48px !important;
+            max-height: 48px !important;
+          }
         </style>
       `;
       document.head.insertAdjacentHTML("beforeend", styles);
     }
   }
 
-  // 關閉註冊邀請Modal（稍後再說）
+  // 關閉註冊邀請Modal並繼續結帳流程
   function closeSignupModal() {
     const modal = document.getElementById("signupModal");
     if (modal) {
       modal.remove();
     }
-    // 繼續結帳流程
-    window.location.href = "checkout.html";
+    // 繼續執行原本的結帳流程
+    continueCheckoutProcess();
+  }
+
+  // 繼續結帳流程的函數
+  function continueCheckoutProcess() {
+    // 檢查表單是否已填寫完整
+    const requiredFields = [
+      "customerName",
+      "customerPhone", 
+      "customerAddress",
+      "customerCity",
+      "customerDistrict",
+    ];
+
+    for (const fieldId of requiredFields) {
+      const field = document.getElementById(fieldId);
+      if (!field || !field.value.trim()) {
+        alert("請先填寫完整的配送資訊");
+        return;
+      }
+    }
+
+    // 驗證電話號碼格式
+    const phone = document.getElementById("customerPhone").value;
+    const phoneRegex = /^09\d{8}$/;
+    if (!phoneRegex.test(phone)) {
+      alert("請輸入正確的手機號碼格式");
+      document.getElementById("customerPhone").focus();
+      return;
+    }
+
+    // 儲存地址
+    if (typeof saveAddress === 'function') {
+      saveAddress();
+    }
+
+    // 從 checkout.js 獲取當前資料
+    const cart = JSON.parse(localStorage.getItem("yinhuCart") || "[]");
+    const cartTotal = window.cartTotal || cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    
+    // 嘗試從 checkout.js 的變數獲取資料，如果不存在則使用預設值
+    const shippingFee = window.shippingFee || 150;
+    const discountAmount = window.discountAmount || 0;
+    const selectedDelivery = window.selectedDelivery || "home";
+    const appliedCoupon = window.appliedCoupon || null;
+
+    const orderData = {
+      items: cart,
+      subtotal: cartTotal,
+      shippingFee: shippingFee,
+      discountAmount: discountAmount,
+      finalTotal: cartTotal + shippingFee - discountAmount,
+      delivery: selectedDelivery,
+      customer: {
+        name: document.getElementById("customerName")?.value || "",
+        phone: document.getElementById("customerPhone")?.value || "",
+        address: document.getElementById("customerAddress")?.value || "",
+        city: document.getElementById("customerCity")?.value || "",
+        district: document.getElementById("customerDistrict")?.value || "",
+      },
+      note: document.getElementById("orderNote")?.value || "",
+      coupon: appliedCoupon,
+    };
+
+    // 儲存訂單資料到 localStorage
+    localStorage.setItem("yinhuOrder", JSON.stringify(orderData));
+
+    // 跳轉到付款頁面
+    window.location.href = "payment.html";
   }
 
   // 跳轉到註冊頁面
@@ -377,6 +471,7 @@ const AuthService = (() => {
   // 將函數設為全域可訪問
   window.closeSignupModal = closeSignupModal;
   window.goToSignup = goToSignup;
+  window.continueCheckoutProcess = continueCheckoutProcess;
 
   // 檢查用戶是否為管理員
   async function checkAdminRole(uid) {
@@ -507,6 +602,7 @@ const AuthService = (() => {
     showSignupPrompt,
     closeSignupModal,
     goToSignup,
+    continueCheckoutProcess,
     // 新增管理員相關功能
     checkAdminRole,
     adminSignIn,

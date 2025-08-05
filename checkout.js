@@ -6,6 +6,12 @@ let selectedDelivery = "home";
 let appliedCoupon = null;
 let discountAmount = 0;
 
+// 將重要變數設為全域可訪問，供 AuthService 使用
+window.shippingFee = shippingFee;
+window.selectedDelivery = selectedDelivery;
+window.appliedCoupon = appliedCoupon;
+window.discountAmount = discountAmount;
+
 // 運費設定
 const shippingFees = {
   home: 150, // 宅配到府
@@ -59,6 +65,9 @@ function calculateCartTotal() {
   cartTotal = cart.reduce((total, item) => {
     return total + item.price * item.quantity;
   }, 0);
+  
+  // 更新全域變數
+  window.cartTotal = cartTotal;
 }
 
 // 更新訂單摘要
@@ -103,6 +112,10 @@ function selectDelivery(deliveryType) {
   selectedDelivery = deliveryType;
   shippingFee = shippingFees[deliveryType];
 
+  // 更新全域變數
+  window.selectedDelivery = selectedDelivery;
+  window.shippingFee = shippingFee;
+
   // 更新選中的配送方式
   document.querySelectorAll(".delivery-option").forEach((option) => {
     option.classList.remove("selected");
@@ -145,6 +158,10 @@ function applyCoupon() {
 
   appliedCoupon = coupon;
 
+  // 更新全域變數
+  window.appliedCoupon = appliedCoupon;
+  window.discountAmount = discountAmount;
+
   // 顯示已使用的優惠券
   document.getElementById(
     "couponText"
@@ -162,6 +179,10 @@ function applyCoupon() {
 function removeCoupon() {
   appliedCoupon = null;
   discountAmount = 0;
+
+  // 更新全域變數
+  window.appliedCoupon = appliedCoupon;
+  window.discountAmount = discountAmount;
 
   document.getElementById("couponApplied").style.display = "none";
   updateOrderSummary();
@@ -192,6 +213,9 @@ function saveAddress() {
 
   localStorage.setItem("yinhuAddress", JSON.stringify(address));
 }
+
+// 將 saveAddress 設為全域可訪問
+window.saveAddress = saveAddress;
 
 // 驗證表單
 function validateForm() {
@@ -225,7 +249,7 @@ function validateForm() {
 }
 
 // 前往付款頁面
-function proceedToPayment() {
+async function proceedToPayment() {
   if (cart.length === 0) {
     alert("購物車是空的，請先添加商品");
     return;
@@ -235,11 +259,19 @@ function proceedToPayment() {
     return;
   }
 
-      // 檢查是否應該顯示註冊邀請（最後一次機會）
-    if (typeof AuthService !== 'undefined' && AuthService && AuthService.shouldShowSignupPrompt()) {
+  // 檢查是否應該顯示註冊邀請（最後一次機會）
+  if (typeof AuthService !== 'undefined' && AuthService) {
+    try {
+      const shouldShow = await AuthService.shouldShowSignupPrompt();
+      if (shouldShow) {
         AuthService.showSignupPrompt();
         return;
+      }
+    } catch (error) {
+      console.warn("檢查註冊邀請時發生錯誤:", error);
+      // 繼續執行，不阻擋用戶結帳
     }
+  }
 
   // 儲存地址
   saveAddress();
