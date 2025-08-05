@@ -1064,6 +1064,8 @@
         // 監聽視窗大小改變，重新計算滑動位置
         window.addEventListener('resize', debounce(() => {
           console.log("視窗大小改變，重新計算滑動位置");
+          // 清除位置快取
+          clearPositionCache();
           const categories = ['noodles', 'drinks'];
           categories.forEach(category => {
             const track = document.getElementById(category + "Track");
@@ -1155,7 +1157,7 @@
         const expectedValues = extractTranslateValues(expectedTransform);
         
         // 比較數值是否在可接受的誤差範圍內
-        const tolerance = 2; // 增加誤差容許範圍，避免過於嚴格的檢查
+        const tolerance = 3; // 進一步增加誤差容許範圍，適應不同裝置
         const isPositionCorrect = currentValues && expectedValues &&
           Math.abs(currentValues[0] - expectedValues[0]) <= tolerance &&
           Math.abs(currentValues[1] - expectedValues[1]) <= tolerance &&
@@ -1165,9 +1167,18 @@
           const categoryLabel = category ? `${category} ` : '';
           console.warn(`${categoryLabel}滑動位置不匹配，預期: ${expectedTransform}, 實際: ${currentTransform}`);
           
-          // 只有在差異較大時才強制修正
+          // 動態校準：記錄偏差並修正快取
           const currentX = currentValues ? currentValues[0] : 0;
-          if (Math.abs(currentX - expectedTranslateX) > 5) {
+          const deviation = currentX - expectedTranslateX;
+          
+          // 如果偏差較大，更新快取中的位置
+          if (Math.abs(deviation) > 3) {
+            const cacheKey = `${category}_${sliderPositions[category]}`;
+            if (positionCache[cacheKey]) {
+              positionCache[cacheKey] = expectedTranslateX;
+              console.log(`${categoryLabel}位置快取已更新，偏差: ${deviation}px`);
+            }
+            
             // 強制修正（暫時禁用轉換以確保精確定位）
             const originalTransition = track.style.transition;
             track.style.transition = 'none';
@@ -1181,6 +1192,34 @@
         return true;
       }
 
+      // 預計算位置表（避免累積誤差）
+      const positionCache = {};
+      
+      // 獲取精確位置
+      function getPrecisePosition(category, position) {
+        const cacheKey = `${category}_${position}`;
+        if (positionCache[cacheKey]) {
+          return positionCache[cacheKey];
+        }
+        
+        const track = document.getElementById(category + "Track");
+        const container = track.parentElement;
+        const containerRect = container.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        
+        // 使用子像素精度計算
+        const preciseTranslateX = -(position * containerWidth);
+        
+        // 快取結果
+        positionCache[cacheKey] = preciseTranslateX;
+        return preciseTranslateX;
+      }
+      
+      // 清除位置快取（當視窗大小改變時）
+      function clearPositionCache() {
+        Object.keys(positionCache).forEach(key => delete positionCache[key]);
+      }
+
       // 統一的滑動執行函數
       function performSlide(category, track) {
         const container = track.parentElement;
@@ -1189,45 +1228,41 @@
         const containerRect = container.getBoundingClientRect();
         const containerWidth = containerRect.width;
         
-        // 計算滑動距離：每次滑動一個容器的寬度
-        const slideDistance = containerWidth;
-        const translateX = -sliderPositions[category] * slideDistance;
-        
-        // 使用更精確的計算，確保對齊
-        const roundedTranslateX = Math.round(translateX);
+        // 使用預計算的精確位置
+        const preciseTranslateX = getPrecisePosition(category, sliderPositions[category]);
         
         // 獲取當前位置
         const currentTransform = track.style.transform;
         const currentTranslateX = extractTranslateX(currentTransform);
         
         // 計算滑動距離
-        const slideDistancePx = Math.abs(currentTranslateX - roundedTranslateX);
+        const slideDistancePx = Math.abs(currentTranslateX - preciseTranslateX);
         
         // 根據滑動距離調整動畫時間
         if (slideDistancePx < 10) {
           // 微小調整，無動畫
           track.style.transition = 'none';
-          track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
           track.offsetHeight;
           track.style.transition = ''; // 恢復預設轉換
         } else if (slideDistancePx < 100) {
           // 短距離滑動，快速動畫
           track.style.transition = 'transform 0.3s ease-out';
-          track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
         } else {
           // 長距離滑動，正常動畫
           track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-          track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+          track.style.transform = `translate3d(${preciseTranslateX}px, 0, 0)`;
         }
         
         updateDots(category);
         
         // 調試信息
-        console.log(`${category} 滑動到位置 ${sliderPositions[category]}, 容器寬度: ${containerWidth}, 滑動距離: ${roundedTranslateX}px, 動畫距離: ${slideDistancePx}px`);
+        console.log(`${category} 滑動到位置 ${sliderPositions[category]}, 容器寬度: ${containerWidth}, 精確位置: ${preciseTranslateX}px, 動畫距離: ${slideDistancePx}px`);
         
         // 驗證滑動是否正確（延遲更長時間以確保轉換完成）
         setTimeout(() => {
-          validateTransformPosition(track, roundedTranslateX, category);
+          validateTransformPosition(track, preciseTranslateX, category);
         }, 150);
       }
       
