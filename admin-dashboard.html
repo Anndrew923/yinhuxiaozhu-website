@@ -899,6 +899,13 @@
         // 導航選單點擊事件
         document.querySelectorAll(".nav-item").forEach((item) => {
           item.addEventListener("click", function (e) {
+            // 如果連結有 href 且不是 '#'，就直接跳轉
+            const href = this.getAttribute("href");
+            if (href && href !== "#") {
+              return; // 不阻止預設行為，讓瀏覽器正常跳轉
+            }
+
+            // 對於使用 data-page 的內部導航，才阻止預設行為
             e.preventDefault();
             const page = this.dataset.page;
 
