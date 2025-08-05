@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整診斷工具 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+            white-space: pre-wrap;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 完整診斷工具</h1>
+        
+        <div id="status" class="status info">
+            <strong>📋 準備開始診斷...</strong> 請點擊下方按鈕開始全面檢查。
+        </div>
+        
+        <!-- 快速導航測試區 -->
+        <div class="section">
+            <h2>🚀 快速導航測試</h2>
+            <p>直接測試各個頁面是否可以正常訪問：</p>
+            <a href="admin-dashboard.html" class="btn btn-primary" target="_blank">📊 管理後台</a>
+            <a href="admin-menu.html" class="btn btn-success" target="_blank">🍽️ 菜單管理</a>
+            <a href="admin-orders.html" class="btn btn-warning" target="_blank">📦 訂單管理</a>
+            <a href="admin-products.html" class="btn btn-danger" target="_blank">🏷️ 商品管理</a>
+            <div id="navigation-results"></div>
+        </div>
+        
+        <!-- 檔案存在性檢查 -->
+        <div class="section">
+            <h2>📁 檔案存在性檢查</h2>
+            <button class="btn btn-primary" onclick="checkFileExistence()">🔍 檢查所有檔案</button>
+            <div id="file-check-results"></div>
+        </div>
+        
+        <!-- 連結檢查 -->
+        <div class="section">
+            <h2>🔗 連結檢查</h2>
+            <button class="btn btn-success" onclick="checkLinks()">🔍 檢查所有連結</button>
+            <div id="link-check-results"></div>
+        </div>
+        
+        <!-- JavaScript 錯誤檢查 -->
+        <div class="section">
+            <h2>⚠️ JavaScript 錯誤檢查</h2>
+            <button class="btn btn-warning" onclick="checkJSErrors()">🔍 檢查 JS 錯誤</button>
+            <div id="js-error-results"></div>
+        </div>
+        
+        <!-- 網路請求檢查 -->
+        <div class="section">
+            <h2>🌐 網路請求檢查</h2>
+            <button class="btn btn-danger" onclick="checkNetworkRequests()">🔍 檢查網路狀態</button>
+            <div id="network-results"></div>
+        </div>
+        
+        <!-- 綜合診斷 -->
+        <div class="section">
+            <h2>🏥 綜合診斷</h2>
+            <button class="btn btn-primary" onclick="runCompleteDiagnosis()" style="font-size: 18px; padding: 15px 30px;">
+                🔍 執行完整診斷
+            </button>
+            <div id="complete-diagnosis-results"></div>
+        </div>
+        
+        <!-- 修復工具 -->
+        <div class="section">
+            <h2>🔧 自動修復工具</h2>
+            <button class="btn btn-success" onclick="attemptAutoFix()">🔧 嘗試自動修復</button>
+            <button class="btn btn-warning" onclick="clearAllCache()">🗑️ 清除所有快取</button>
+            <div id="fix-results"></div>
+        </div>
+    </div>
+
+    <script>
+        let diagnosticResults = {};
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: '📋'
+            };
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>${icons[type]} ${message}</strong>`;
+        }
+        
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `test-result status ${type}`;
+            result.innerHTML = message;
+            container.appendChild(result);
+        }
+        
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+        
+        async function checkFileExistence() {
+            clearResults('file-check-results');
+            updateStatus('檢查檔案存在性...', 'warning');
+            
+            const files = [
+                'admin-dashboard.html',
+                'admin-menu.html',
+                'admin-orders.html',
+                'admin-products.html',
+                'styles.css'
+            ];
+            
+            for (const file of files) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        addResult('file-check-results', `✅ ${file} - 存在且可訪問`, 'success');
+                        diagnosticResults[file] = true;
+                    } else {
+                        addResult('file-check-results', `❌ ${file} - HTTP ${response.status}`, 'error');
+                        diagnosticResults[file] = false;
+                    }
+                } catch (error) {
+                    addResult('file-check-results', `❌ ${file} - 錯誤: ${error.message}`, 'error');
+                    diagnosticResults[file] = false;
+                }
+            }
+            
+            updateStatus('檔案檢查完成', 'success');
+        }
+        
+        async function checkLinks() {
+            clearResults('link-check-results');
+            updateStatus('檢查連結...', 'warning');
+            
+            const links = document.querySelectorAll('a[href]');
+            let validLinks = 0;
+            let invalidLinks = 0;
+            
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                if (href.startsWith('http') || href.startsWith('#')) {
+                    continue; // 跳過外部連結和錨點
+                }
+                
+                try {
+                    const response = await fetch(href, { method: 'HEAD' });
+                    if (response.ok) {
+                        validLinks++;
+                    } else {
+                        invalidLinks++;
+                        addResult('link-check-results', `❌ 連結失效: ${href}`, 'error');
+                    }
+                } catch (error) {
+                    invalidLinks++;
+                    addResult('link-check-results', `❌ 連結錯誤: ${href} - ${error.message}`, 'error');
+                }
+            }
+            
+            addResult('link-check-results', `✅ 有效連結: ${validLinks} 個`, 'success');
+            if (invalidLinks > 0) {
+                addResult('link-check-results', `❌ 無效連結: ${invalidLinks} 個`, 'error');
+            }
+            
+            updateStatus('連結檢查完成', 'success');
+        }
+        
+        function checkJSErrors() {
+            clearResults('js-error-results');
+            updateStatus('檢查 JavaScript 錯誤...', 'warning');
+            
+            // 檢查全局錯誤
+            const errors = window.jsErrors || [];
+            if (errors.length === 0) {
+                addResult('js-error-results', '✅ 沒有發現 JavaScript 錯誤', 'success');
+            } else {
+                errors.forEach(error => {
+                    addResult('js-error-results', `❌ JS錯誤: ${error}`, 'error');
+                });
+            }
+            
+            // 測試基本功能
+            try {
+                console.log('測試 console.log');
+                addResult('js-error-results', '✅ console.log 正常工作', 'success');
+            } catch (e) {
+                addResult('js-error-results', `❌ console.log 錯誤: ${e.message}`, 'error');
+            }
+            
+            updateStatus('JavaScript 檢查完成', 'success');
+        }
+        
+        async function checkNetworkRequests() {
+            clearResults('network-results');
+            updateStatus('檢查網路狀態...', 'warning');
+            
+            // 檢查當前頁面訊息
+            addResult('network-results', `🌐 當前 URL: ${window.location.href}`, 'info');
+            addResult('network-results', `🕐 載入時間: ${new Date().toLocaleString()}`, 'info');
+            addResult('network-results', `📱 User Agent: ${navigator.userAgent.substring(0, 50)}...`, 'info');
+            
+            // 測試網路連接
+            try {
+                const start = Date.now();
+                await fetch(window.location.href, { method: 'HEAD' });
+                const end = Date.now();
+                addResult('network-results', `✅ 網路連接正常 (${end - start}ms)`, 'success');
+            } catch (error) {
+                addResult('network-results', `❌ 網路連接錯誤: ${error.message}`, 'error');
+            }
+            
+            updateStatus('網路檢查完成', 'success');
+        }
+        
+        async function runCompleteDiagnosis() {
+            clearResults('complete-diagnosis-results');
+            updateStatus('執行完整診斷...', 'warning');
+            
+            addResult('complete-diagnosis-results', '🔍 開始完整診斷...', 'info');
+            
+            // 執行所有檢查
+            await checkFileExistence();
+            await checkLinks();
+            checkJSErrors();
+            await checkNetworkRequests();
+            
+            // 生成診斷報告
+            addResult('complete-diagnosis-results', '📊 診斷報告:', 'info');
+            
+            const totalFiles = Object.keys(diagnosticResults).length;
+            const existingFiles = Object.values(diagnosticResults).filter(Boolean).length;
+            
+            addResult('complete-diagnosis-results', `📁 檔案狀態: ${existingFiles}/${totalFiles} 檔案可訪問`, 
+                existingFiles === totalFiles ? 'success' : 'warning');
+            
+            // 具體建議
+            if (!diagnosticResults['admin-menu.html']) {
+                addResult('complete-diagnosis-results', '🔧 建議: admin-menu.html 檔案無法訪問，請檢查檔案是否存在', 'error');
+            } else {
+                addResult('complete-diagnosis-results', '✅ admin-menu.html 檔案狀態正常', 'success');
+            }
+            
+            updateStatus('完整診斷完成', 'success');
+        }
+        
+        function attemptAutoFix() {
+            clearResults('fix-results');
+            updateStatus('嘗試自動修復...', 'warning');
+            
+            // 修復建議
+            addResult('fix-results', '🔧 自動修復建議:', 'info');
+            addResult('fix-results', '1. 清除瀏覽器快取 (Ctrl+Shift+R)', 'warning');
+            addResult('fix-results', '2. 確認所有檔案已正確部署到伺服器', 'warning');
+            addResult('fix-results', '3. 檢查檔案路徑是否正確', 'warning');
+            addResult('fix-results', '4. 如果問題持續，請重新部署網站', 'warning');
+            
+            updateStatus('修復建議已提供', 'success');
+        }
+        
+        function clearAllCache() {
+            clearResults('fix-results');
+            updateStatus('清除快取...', 'warning');
+            
+            // 嘗試清除快取
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                    addResult('fix-results', '✅ Service Worker 快取已清除', 'success');
+                });
+            }
+            
+            // 刷新頁面
+            setTimeout(() => {
+                addResult('fix-results', '🔄 準備重新載入頁面...', 'info');
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 2000);
+            }, 1000);
+            
+            updateStatus('正在清除快取並重新載入...', 'warning');
+        }
+        
+        // 捕獲 JavaScript 錯誤
+        window.jsErrors = [];
+        window.onerror = function(msg, url, line, col, error) {
+            window.jsErrors.push(`${msg} at ${url}:${line}:${col}`);
+        };
+        
+        // 頁面載入完成
+        window.addEventListener('load', function() {
+            updateStatus('診斷工具已就緒，請選擇要執行的檢查', 'success');
+        });
+    </script>
+</body>
+</html>
