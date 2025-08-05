@@ -770,7 +770,7 @@
             const todayRevenue = await getTodayRevenue();
             document.getElementById(
               "todayRevenue"
-            ).textContent = `NT$ ${todayRevenue.toLocaleString()}`;
+            ).textContent = "NT$ " + todayRevenue.toLocaleString();
 
             // 載入商品總數
             const totalProducts = await getTotalProductsCount();
@@ -924,7 +924,7 @@
               .querySelectorAll(".nav-item")
               .forEach((nav) => nav.classList.remove("active"));
             document
-              .querySelector(`[data-page="${page}"]`)
+              .querySelector('[data-page="' + page + '"]')
               .classList.add("active");
 
             loadPage(page);
@@ -989,141 +989,134 @@
               break;
             default:
               // 顯示開發中頁面
-              dynamicContent.innerHTML = `
-              <div style="text-align: center; padding: 60px 20px;">
-                <i class="fas fa-tools" style="font-size: 64px; color: #bdc3c7; margin-bottom: 20px;"></i>
-                <h2 style="color: #7f8c8d; margin-bottom: 10px;">${title}</h2>
-                <p style="color: #95a5a6;">此功能正在開發中...</p>
-              </div>
-            `;
+              dynamicContent.innerHTML = 
+              '<div style="text-align: center; padding: 60px 20px;">' +
+                '<i class="fas fa-tools" style="font-size: 64px; color: #bdc3c7; margin-bottom: 20px;"></i>' +
+                '<h2 style="color: #7f8c8d; margin-bottom: 10px;">' + title + '</h2>' +
+                '<p style="color: #95a5a6;">此功能正在開發中...</p>' +
+              '</div>';
           }
         }
 
         // 商品管理頁面
         function loadProductsPage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-box" style="font-size: 64px; color: #f39c12; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">商品管理</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">商品管理功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 商品列表管理</li>
-                <li>✅ 新增/編輯商品</li>
-                <li>✅ 庫存管理</li>
-                <li>✅ 分類管理</li>
-                <li>✅ 即時庫存警告</li>
-                <li>✅ 季節性商品管理</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-box" style="font-size: 64px; color: #f39c12; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">商品管理</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">商品管理功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 商品列表管理</li>' +
+                '<li>✅ 新增/編輯商品</li>' +
+                '<li>✅ 庫存管理</li>' +
+                '<li>✅ 分類管理</li>' +
+                '<li>✅ 即時庫存警告</li>' +
+                '<li>✅ 季節性商品管理</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 客戶管理頁面
         function loadCustomersPage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-users" style="font-size: 64px; color: #3498db; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">客戶管理</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">客戶管理功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 客戶列表查看</li>
-                <li>✅ 購買歷史分析</li>
-                <li>✅ 會員等級管理</li>
-                <li>✅ 客戶偏好分析</li>
-                <li>✅ 客戶標籤系統</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-users" style="font-size: 64px; color: #3498db; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">客戶管理</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">客戶管理功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 客戶列表查看</li>' +
+                '<li>✅ 購買歷史分析</li>' +
+                '<li>✅ 會員等級管理</li>' +
+                '<li>✅ 客戶偏好分析</li>' +
+                '<li>✅ 客戶標籤系統</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 營業報表頁面
         function loadReportsPage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-chart-bar" style="font-size: 64px; color: #9b59b6; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">營業報表</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">報表功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 日報/週報/月報</li>
-                <li>✅ 銷售趨勢分析</li>
-                <li>✅ 商品銷售排行</li>
-                <li>✅ 客戶消費分析</li>
-                <li>✅ 圖表視覺化</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-chart-bar" style="font-size: 64px; color: #9b59b6; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">營業報表</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">報表功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 日報/週報/月報</li>' +
+                '<li>✅ 銷售趨勢分析</li>' +
+                '<li>✅ 商品銷售排行</li>' +
+                '<li>✅ 客戶消費分析</li>' +
+                '<li>✅ 圖表視覺化</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 財務管理頁面
         function loadFinancePage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-dollar-sign" style="font-size: 64px; color: #27ae60; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">財務管理</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">財務管理功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 收入統計</li>
-                <li>✅ 退款處理</li>
-                <li>✅ 優惠券管理</li>
-                <li>✅ 財務報表</li>
-                <li>✅ 對帳功能</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-dollar-sign" style="font-size: 64px; color: #27ae60; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">財務管理</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">財務管理功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 收入統計</li>' +
+                '<li>✅ 退款處理</li>' +
+                '<li>✅ 優惠券管理</li>' +
+                '<li>✅ 財務報表</li>' +
+                '<li>✅ 對帳功能</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 系統設定頁面
         function loadSettingsPage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-cog" style="font-size: 64px; color: #95a5a6; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">系統設定</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">系統設定功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 基本設定</li>
-                <li>✅ 付款設定</li>
-                <li>✅ 物流設定</li>
-                <li>✅ 通知設定</li>
-                <li>✅ 資料備份</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-cog" style="font-size: 64px; color: #95a5a6; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">系統設定</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">系統設定功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 基本設定</li>' +
+                '<li>✅ 付款設定</li>' +
+                '<li>✅ 物流設定</li>' +
+                '<li>✅ 通知設定</li>' +
+                '<li>✅ 資料備份</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 管理員管理頁面
         function loadAdminsPage() {
-          dynamicContent.innerHTML = `
-          <div style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-user-shield" style="font-size: 64px; color: #e74c3c; margin-bottom: 20px;"></i>
-            <h2 style="color: #7f8c8d; margin-bottom: 10px;">管理員管理</h2>
-            <p style="color: #95a5a6; margin-bottom: 20px;">管理員管理功能正在開發中...</p>
-            <div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">
-              <h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>
-              <ul style="color: #666; line-height: 1.6;">
-                <li>✅ 管理員列表</li>
-                <li>✅ 新增管理員</li>
-                <li>✅ 權限設定</li>
-                <li>✅ 操作記錄</li>
-                <li>✅ 角色管理</li>
-              </ul>
-            </div>
-          </div>
-        `;
+          dynamicContent.innerHTML = 
+          '<div style="text-align: center; padding: 60px 20px;">' +
+            '<i class="fas fa-user-shield" style="font-size: 64px; color: #e74c3c; margin-bottom: 20px;"></i>' +
+            '<h2 style="color: #7f8c8d; margin-bottom: 10px;">管理員管理</h2>' +
+            '<p style="color: #95a5a6; margin-bottom: 20px;">管理員管理功能正在開發中...</p>' +
+            '<div style="background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: 0 auto; text-align: left;">' +
+              '<h4 style="margin-bottom: 15px; color: #2c3e50;">預計功能：</h4>' +
+              '<ul style="color: #666; line-height: 1.6;">' +
+                '<li>✅ 管理員列表</li>' +
+                '<li>✅ 新增管理員</li>' +
+                '<li>✅ 權限設定</li>' +
+                '<li>✅ 操作記錄</li>' +
+                '<li>✅ 角色管理</li>' +
+              '</ul>' +
+            '</div>' +
+          '</div>';
         }
 
         // 管理員個人資料下拉選單
