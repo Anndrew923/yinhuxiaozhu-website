@@ -67,13 +67,18 @@
       .slider-container {
         position: relative;
         margin-bottom: 25px;
+        overflow: hidden;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .slider-track {
         display: flex;
-        gap: 25px;
         transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        overflow: hidden;
+        width: 100%;
       }
 
       .slider-nav {
@@ -110,7 +115,9 @@
 
       /* 商品卡片 */
       .product-card {
-        min-width: 320px;
+        width: 100%;
+        min-width: 100%;
+        flex-shrink: 0;
         background: white;
         border-radius: 20px;
         overflow: hidden;
@@ -203,6 +210,106 @@
       }
 
       .dot.active {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(1.2);
+      }
+
+      /* 當前商品資訊顯示 */
+      .current-product-info {
+        text-align: center;
+        margin-top: 15px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .current-product-info:hover {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .current-product-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        letter-spacing: 0.3px;
+      }
+
+      .current-product-price {
+        font-size: 16px;
+        font-weight: 700;
+        color: #e74c3c;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        letter-spacing: 0.3px;
+      }
+
+
+
+      /* 響應式設計 */
+      @media (max-width: 768px) {
+        .slider-container {
+          max-width: 350px;
+        }
+
+        .current-product-info {
+          margin-top: 12px;
+          padding: 6px 12px;
+        }
+
+        .current-product-name {
+          font-size: 13px;
+        }
+
+        .current-product-price {
+          font-size: 15px;
+        }
+
+        .slider-nav {
+          width: 40px;
+          height: 40px;
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .slider-container {
+          max-width: 300px;
+        }
+
+        .current-product-info {
+          margin-top: 10px;
+          padding: 5px 10px;
+        }
+
+        .current-product-name {
+          font-size: 12px;
+        }
+
+        .current-product-price {
+          font-size: 14px;
+        }
+
+        .slider-nav {
+          width: 35px;
+          height: 35px;
+          font-size: 14px;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .slider-container {
+          max-width: 280px;
+        }
+      }
         background: white;
         transform: scale(1.2);
       }
@@ -412,12 +519,17 @@
 
         .product-card {
           min-width: 280px;
+          max-width: 280px;
         }
 
         .slider-nav {
           width: 40px;
           height: 40px;
           font-size: 16px;
+        }
+        
+        .slider-track {
+          gap: 15px;
         }
       }
     </style>
@@ -457,6 +569,10 @@
           </button>
         </div>
         <div class="slider-dots" id="noodlesDots"></div>
+        <div class="current-product-info" id="noodlesProductInfo">
+          <div class="current-product-name">載入中...</div>
+          <div class="current-product-price">NT$ --</div>
+        </div>
       </div>
 
       <!-- 飲品幻燈片 -->
@@ -476,6 +592,10 @@
           </button>
         </div>
         <div class="slider-dots" id="drinksDots"></div>
+        <div class="current-product-info" id="drinksProductInfo">
+          <div class="current-product-name">載入中...</div>
+          <div class="current-product-price">NT$ --</div>
+        </div>
       </div>
     </section>
 
@@ -508,6 +628,7 @@
         </div>
         <div class="menu-modal-body">
           <img
+            id="fullMenuImage"
             src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&h=1200&fit=crop"
             alt="隱湖小竹完整菜單"
             class="full-menu-image"
@@ -551,7 +672,7 @@
 
     <!-- App Scripts -->
     <script src="js/firebase-config.js"></script>
-    <script src="js/services/product.service.js"></script>
+    <script src="js/services/menu.service.js"></script> <!-- 改為只使用 MenuService -->
 
     <script>
       // 全域變數
@@ -561,26 +682,60 @@
       document.addEventListener("DOMContentLoaded", async function () {
         try {
           await loadDynamicMenu();
+          await loadFullMenuImage();
           initSliders();
+          
+          // 添加視窗大小改變監聽器
+          window.addEventListener('resize', function() {
+            // 重新計算當前位置的滑動距離
+            Object.keys(sliderPositions).forEach(category => {
+              const track = document.getElementById(category + "Track");
+              if (track) {
+                const container = track.parentElement;
+                const cardWidth = container.offsetWidth;
+                const slideDistance = cardWidth;
+                const translateX = -sliderPositions[category] * slideDistance;
+                track.style.transform = `translateX(${Math.round(translateX)}px)`;
+              }
+            });
+          });
+          
+          // 添加一個延遲的重新對齊檢查
+          setTimeout(function() {
+            Object.keys(sliderPositions).forEach(category => {
+              const track = document.getElementById(category + "Track");
+              if (track) {
+                const container = track.parentElement;
+                const cardWidth = container.offsetWidth;
+                const slideDistance = cardWidth;
+                const translateX = -sliderPositions[category] * slideDistance;
+                track.style.transform = `translateX(${Math.round(translateX)}px)`;
+              }
+            });
+          }, 100);
         } catch (error) {
           console.error("載入動態菜單失敗:", error);
-          // 如果動態載入失敗，使用靜態資料
-          loadStaticData();
+          // 如果動態載入失敗，可以顯示錯誤訊息或使用靜態資料
+          console.log("使用靜態數據作為備用方案...");
+          loadStaticData(); // 作為備用方案
+          initSliders(); // 確保幻燈片初始化
         }
       });
 
       // 載入動態菜單
       async function loadDynamicMenu() {
         try {
-          // 載入幻燈片商品 - 只顯示已上架的商品
+          console.log("開始載入動態菜單數據...");
+          
+          // 使用 MenuService 獲取菜單項目
           const [noodles, drinks] = await Promise.all([
-            ProductService.getAllProducts({
+            MenuService.getAllMenuItems({
               category: "麵食",
               isAvailable: true,
               orderBy: "sortOrder",
               orderDirection: "asc"
             }),
-            ProductService.getAllProducts({
+            MenuService.getAllMenuItems({
               category: "飲品", 
               isAvailable: true,
               orderBy: "sortOrder",
@@ -588,41 +743,76 @@
             })
           ]);
 
+          console.log(`數據載入完成 - 麵食: ${noodles.length} 項, 飲品: ${drinks.length} 項`);
+
           // 轉換資料格式以符合前端需求
-          const formattedNoodles = noodles.map(formatProductForDisplay);
-          const formattedDrinks = drinks.map(formatProductForDisplay);
+          const formattedNoodles = noodles.map(formatMenuItemForDisplay);
+          const formattedDrinks = drinks.map(formatMenuItemForDisplay);
+
+          // 存儲商品數據到全域變數
+          window.currentProducts = {
+            noodles: formattedNoodles,
+            drinks: formattedDrinks
+          };
+
+          console.log("數據格式轉換完成，開始更新幻燈片內容...");
 
           // 更新幻燈片內容
           updateSliderContent("noodles", formattedNoodles);
           updateSliderContent("drinks", formattedDrinks);
 
-          console.log("載入的麵食商品:", formattedNoodles);
-          console.log("載入的飲品商品:", formattedDrinks);
+          // 初始化當前商品資訊顯示
+          updateCurrentProductInfo("noodles", formattedNoodles);
+          updateCurrentProductInfo("drinks", formattedDrinks);
+
+          console.log("幻燈片內容更新完成");
+
         } catch (error) {
           console.error("載入菜單資料失敗:", error);
+          console.error("錯誤詳情:", {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          });
           throw error;
         }
       }
 
-      // 轉換商品資料格式
-      function formatProductForDisplay(product) {
+      // 載入完整菜單圖片
+      async function loadFullMenuImage() {
+        try {
+          const fullMenuData = await MenuService.getFullMenuImage();
+          const fullMenuImage = document.getElementById('fullMenuImage');
+          
+          if (fullMenuData && fullMenuData.imageUrl) {
+            fullMenuImage.src = fullMenuData.imageUrl;
+            console.log('完整菜單圖片載入成功:', fullMenuData.imageUrl);
+          } else {
+            console.log('沒有找到完整菜單圖片，使用預設圖片');
+          }
+        } catch (error) {
+          console.error("載入完整菜單圖片失敗:", error);
+          // 保持預設圖片
+        }
+      }
+
+      // 轉換菜單項目資料格式
+      function formatMenuItemForDisplay(item) {
         return {
-          id: product.id,
-          name: product.name,
-          description: product.description || "美味可口",
-          price: product.price,
-          imageUrl: product.image && product.image.startsWith('http') 
-            ? product.image 
-            : product.image 
-              ? `assets/${product.image}`
-              : "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
-          badge: product.tags && product.tags.length > 0 ? "hot" : null,
-          badgeText: product.tags && product.tags.length > 0 ? product.tags[0] : null
+          id: item.id,
+          name: item.name,
+          description: item.description || "美味可口",
+          price: item.price,
+          imageUrl: item.image || "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
+          badge: item.tags && item.tags.length > 0 ? "hot" : null,
+          badgeText: item.tags && item.tags.length > 0 ? item.tags[0] : null
         };
       }
 
       // 載入靜態資料（備用）
       function loadStaticData() {
+        console.log("開始載入靜態數據...");
+        
         const staticNoodles = [
           {
             id: "noodle1",
@@ -687,18 +877,97 @@
           },
         ];
 
+        // 存儲靜態商品數據到全域變數
+        window.currentProducts = {
+          noodles: staticNoodles,
+          drinks: staticDrinks
+        };
+
         updateSliderContent("noodles", staticNoodles);
         updateSliderContent("drinks", staticDrinks);
+        
+        // 初始化當前商品資訊顯示
+        updateCurrentProductInfo("noodles", staticNoodles);
+        updateCurrentProductInfo("drinks", staticDrinks);
+        
+        console.log("靜態數據載入完成");
       }
 
       // 更新幻燈片內容
       function updateSliderContent(category, products) {
+        console.log(`開始更新 ${category} 幻燈片內容，共 ${products.length} 項`);
+        
         const track = document.getElementById(category + "Track");
-        if (!track) return;
+        if (!track) {
+          console.error(`找不到 ${category}Track 元素`);
+          return;
+        }
 
-        track.innerHTML = products
-          .map((product) => createProductCard(product))
-          .join("");
+        console.log(`找到 ${category}Track 元素，開始渲染 ${products.length} 個商品卡片`);
+
+        const productCards = products.map((product) => {
+          console.log(`渲染商品: ${product.name}`);
+          return createProductCard(product);
+        });
+
+        track.innerHTML = productCards.join("");
+        
+        console.log(`${category} 幻燈片內容更新完成，共渲染 ${products.length} 個商品卡片`);
+        
+        // 檢查渲染結果
+        const renderedCards = track.querySelectorAll('.product-card');
+        console.log(`實際渲染的卡片數量: ${renderedCards.length}`);
+      }
+
+      // 更新當前商品資訊顯示
+      function updateCurrentProductInfo(category, products) {
+        const productInfoContainer = document.getElementById(category + "ProductInfo");
+        if (!productInfoContainer) return;
+
+        const nameElement = productInfoContainer.querySelector('.current-product-name');
+        const priceElement = productInfoContainer.querySelector('.current-product-price');
+        
+        if (!products || products.length === 0) {
+          // 沒有商品時的顯示
+          if (nameElement) {
+            nameElement.textContent = "暫無商品";
+          }
+          if (priceElement) {
+            priceElement.textContent = "NT$ --";
+          }
+          return;
+        }
+
+        const currentPosition = sliderPositions[category] || 0;
+        const currentProduct = products[currentPosition];
+
+        if (currentProduct) {
+          // 添加淡出效果
+          productInfoContainer.style.opacity = '0.7';
+          productInfoContainer.style.transform = 'scale(0.95)';
+          
+          setTimeout(() => {
+            if (nameElement) {
+              nameElement.textContent = currentProduct.name;
+            }
+            if (priceElement) {
+              priceElement.textContent = `NT$ ${currentProduct.price}`;
+            }
+            
+            // 添加淡入效果
+            productInfoContainer.style.opacity = '1';
+            productInfoContainer.style.transform = 'scale(1)';
+          }, 150);
+        }
+      }
+
+      // 獲取當前類別的商品數據
+      function getCurrentProducts(category) {
+        // 這裡我們需要存儲商品數據，讓我們添加全域變數
+        if (window.currentProducts && window.currentProducts[category]) {
+          return window.currentProducts[category];
+        }
+        return null;
       }
 
       // 建立商品卡片
@@ -722,14 +991,38 @@
 
       // 初始化幻燈片
       function initSliders() {
+        console.log("開始初始化幻燈片...");
+        
+        // 動態計算圓點數量
+        const noodlesTrack = document.getElementById("noodlesTrack");
+        const drinksTrack = document.getElementById("drinksTrack");
+        
+        console.log(`noodlesTrack 元素: ${noodlesTrack ? '找到' : '未找到'}`);
+        console.log(`drinksTrack 元素: ${drinksTrack ? '找到' : '未找到'}`);
+        
+        if (noodlesTrack) {
+          console.log(`noodlesTrack 子元素數量: ${noodlesTrack.children.length}`);
+        }
+        if (drinksTrack) {
+          console.log(`drinksTrack 子元素數量: ${drinksTrack.children.length}`);
+        }
+        
+        // 計算圓點數量：確保至少有6個圓點，或者根據商品數量計算
+        const noodlesCount = noodlesTrack ? Math.max(6, Math.ceil(noodlesTrack.children.length / 1)) : 6;
+        const drinksCount = drinksTrack ? Math.max(6, Math.ceil(drinksTrack.children.length / 1)) : 6;
+        
+        console.log(`計算的圓點數量 - 麵食: ${noodlesCount}, 飲品: ${drinksCount}`);
+        
         // 建立圓點指示器
-        createDots("noodles", 3);
-        createDots("drinks", 3);
+        createDots("noodles", noodlesCount);
+        createDots("drinks", drinksCount);
         updateDots("noodles");
         updateDots("drinks");
 
         // 啟動自動輪播
         setInterval(autoSlide, 6000);
+        
+        console.log("幻燈片初始化完成");
       }
 
       // 建立圓點指示器
@@ -761,17 +1054,41 @@
         const track = document.getElementById(category + "Track");
         if (!track) return;
 
-        const maxPosition = Math.max(
-          0,
-          Math.floor((track.children.length - 1) / 2)
-        );
-        sliderPositions[category] = Math.max(
-          0,
-          (sliderPositions[category] || 0) - 1
-        );
+        // 計算最大滑動位置：基於圓點數量而不是商品數量
+        const dotsCount = document.querySelectorAll(`#${category}Dots .dot`).length;
+        const maxPosition = Math.max(0, dotsCount - 1);
+        
+        // 如果已經到第一頁，跳到最後一頁
+        if ((sliderPositions[category] || 0) <= 0) {
+          sliderPositions[category] = maxPosition;
+        } else {
+          sliderPositions[category] = (sliderPositions[category] || 0) - 1;
+        }
 
-        const translateX = -sliderPositions[category] * 345; // 320px item width + 25px gap
-        track.style.transform = `translateX(${translateX}px)`;
+        // 使用更精確的滑動計算
+        performSlide(category, track);
+        
+        // 更新當前商品資訊
+        const products = getCurrentProducts(category);
+        if (products) {
+          updateCurrentProductInfo(category, products);
+        }
+      }
+      
+      // 統一的滑動執行函數
+      function performSlide(category, track) {
+        const container = track.parentElement;
+        const cardWidth = container.offsetWidth;
+        const slideDistance = cardWidth;
+        const translateX = -sliderPositions[category] * slideDistance;
+        
+        // 使用更精確的計算，確保對齊
+        const roundedTranslateX = Math.round(translateX);
+        track.style.transform = `translateX(${roundedTranslateX}px)`;
+        
+        // 強制瀏覽器重新計算佈局
+        track.offsetHeight;
+        
         updateDots(category);
       }
 
@@ -779,18 +1096,25 @@
         const track = document.getElementById(category + "Track");
         if (!track) return;
 
-        const maxPosition = Math.max(
-          0,
-          Math.floor((track.children.length - 1) / 2)
-        );
-        sliderPositions[category] = Math.min(
-          maxPosition,
-          (sliderPositions[category] || 0) + 1
-        );
+        // 計算最大滑動位置：基於圓點數量而不是商品數量
+        const dotsCount = document.querySelectorAll(`#${category}Dots .dot`).length;
+        const maxPosition = Math.max(0, dotsCount - 1);
+        
+        // 如果已經到最後一頁，回到第一頁
+        if ((sliderPositions[category] || 0) >= maxPosition) {
+          sliderPositions[category] = 0;
+        } else {
+          sliderPositions[category] = (sliderPositions[category] || 0) + 1;
+        }
 
-        const translateX = -sliderPositions[category] * 345; // 320px item width + 25px gap
-        track.style.transform = `translateX(${translateX}px)`;
-        updateDots(category);
+        // 使用更精確的滑動計算
+        performSlide(category, track);
+        
+        // 更新當前商品資訊
+        const products = getCurrentProducts(category);
+        if (products) {
+          updateCurrentProductInfo(category, products);
+        }
       }
 
       function goToSlide(category, position) {
@@ -798,15 +1122,32 @@
         if (!track) return;
 
         sliderPositions[category] = position;
-        const translateX = -position * 345;
-        track.style.transform = `translateX(${translateX}px)`;
-        updateDots(category);
+        
+        // 使用更精確的滑動計算
+        performSlide(category, track);
+        
+        // 更新當前商品資訊
+        const products = getCurrentProducts(category);
+        if (products) {
+          updateCurrentProductInfo(category, products);
+        }
       }
 
       // 自動輪播
       function autoSlide() {
-        slideRight("noodles");
-        setTimeout(() => slideRight("drinks"), 2000); // 錯開時間
+        const noodlesTrack = document.getElementById("noodlesTrack");
+        const drinksTrack = document.getElementById("drinksTrack");
+        
+        // 檢查圓點數量，只有當有足夠的圓點時才進行輪播
+        const noodlesDots = document.querySelectorAll("#noodlesDots .dot").length;
+        const drinksDots = document.querySelectorAll("#drinksDots .dot").length;
+        
+        if (noodlesDots > 1) {
+          slideRight("noodles");
+        }
+        if (drinksDots > 1) {
+          setTimeout(() => slideRight("drinks"), 2000); // 錯開時間
+        }
       }
 
       // 完整菜單彈窗控制

@@ -104,6 +104,8 @@ const CookieConsent = (() => {
         gap: 10px;
         flex-shrink: 0;
         align-items: stretch;
+        justify-content: center;
+        flex-wrap: nowrap;
       }
       
       .cookie-banner-buttons .btn {
@@ -119,6 +121,13 @@ const CookieConsent = (() => {
         justify-content: center;
         box-sizing: border-box;
         min-width: 100px;
+        flex: 1;
+        max-width: 150px;
+        margin: 0;
+        text-decoration: none;
+        line-height: 1;
+        overflow: hidden;
+        white-space: nowrap;
       }
       
       .btn-primary {
@@ -407,18 +416,28 @@ const CookieConsent = (() => {
         padding: 20px;
         border-top: 1px solid #eee;
         display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        align-items: stretch;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: nowrap;
       }
       
       .cookie-modal-footer .btn {
-        height: 40px;
+        flex: 1;
+        min-width: 140px;
+        max-width: 200px;
+        height: 48px !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 100px;
         box-sizing: border-box;
+        line-height: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        margin: 0;
+        text-decoration: none;
       }
       
       @media (max-width: 480px) {
