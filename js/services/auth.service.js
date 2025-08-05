@@ -571,6 +571,7 @@ const AuthService = (() => {
         "products.edit",
         "products.create",
         "products.delete",
+        "products.manage",
         "inventory.manage",
       ],
       finance_manager: [

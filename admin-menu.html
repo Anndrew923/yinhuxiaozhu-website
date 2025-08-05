@@ -365,6 +365,106 @@
         }
       }
 
+      /* Modal 樣式 */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: #a8e6cf;
+      }
+
+      .form-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+      }
+
+      .image-preview {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: 6px;
+        border: 2px solid #e0e0e0;
+      }
+
       /* 響應式設計 */
       @media (max-width: 768px) {
         .container {
@@ -387,6 +487,11 @@
 
         .tabs {
           flex-direction: column;
+        }
+
+        .modal-content {
+          width: 95%;
+          margin: 10px;
         }
       }
     </style>
@@ -441,8 +546,6 @@
           <div class="toolbar-left">
             <select id="categoryFilter" class="form-select">
               <option value="">所有分類</option>
-              <option value="noodles">麵食</option>
-              <option value="drinks">飲品</option>
             </select>
           </div>
           <div class="toolbar-right">
@@ -489,6 +592,72 @@
       </div>
     </div>
 
+    <!-- 商品編輯 Modal -->
+    <div id="productModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">新增商品</h2>
+          <button class="close-modal" onclick="closeProductModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <form id="productForm">
+            <div class="form-group">
+              <label for="productName">商品名稱 *</label>
+              <input type="text" id="productName" name="name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="productCategory">分類 *</label>
+              <select id="productCategory" name="category" required>
+                <option value="">請選擇分類</option>
+                <option value="麵食">麵食</option>
+                <option value="飲品">飲品</option>
+                <option value="禮盒">禮盒</option>
+                <option value="其他">其他</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="productPrice">價格 *</label>
+              <input type="number" id="productPrice" name="price" min="0" step="1" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="productDescription">商品描述</label>
+              <textarea id="productDescription" name="description" rows="3"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="productImage">商品圖片</label>
+              <input type="file" id="productImage" name="image" accept="image/*">
+              <div id="imagePreview" style="margin-top: 10px;"></div>
+            </div>
+            
+            <div class="form-group">
+              <label for="productTags">標籤 (用逗號分隔)</label>
+              <input type="text" id="productTags" name="tags" placeholder="例如：熱門,推薦,新品">
+            </div>
+            
+            <div class="form-group">
+              <label for="sortOrder">排序順序</label>
+              <input type="number" id="sortOrder" name="sortOrder" min="0" value="999">
+            </div>
+            
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="isAvailable" name="isAvailable" checked>
+                立即上架
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeProductModal()">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveProduct()">儲存</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -498,7 +667,8 @@
     <!-- App Scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/services/auth.service.js"></script>
-    <script src="js/services/menu.service.js"></script>
+    <script src="js/services/storage.service.js"></script>
+    <script src="js/services/product.service.js"></script>
 
     <script>
       // 全域變數
@@ -509,6 +679,7 @@
       document.addEventListener("DOMContentLoaded", function () {
         checkAuth();
         initTabs();
+        loadCategories();
         loadStats();
         loadProducts();
         loadFullMenu();
@@ -527,7 +698,23 @@
           if (!adminCheck.isAdmin) {
             alert("您沒有管理員權限");
             window.location.href = "admin-login.html";
+            return;
           }
+
+          // 檢查是否有產品管理權限
+          const hasProductPermission = AuthService.hasPermission(
+            adminCheck.adminData.permissions, 
+            'products.manage'
+          ) || adminCheck.adminData.permissions.includes('all');
+
+          if (!hasProductPermission) {
+            alert("您沒有菜單管理權限");
+            window.location.href = "admin-dashboard.html";
+            return;
+          }
+
+          console.log("權限檢查通過：", adminCheck.adminData.role);
+          
         } catch (error) {
           console.error("權限檢查失敗:", error);
           window.location.href = "admin-login.html";
@@ -558,17 +745,39 @@
         });
       }
 
+      // 載入分類選項
+      async function loadCategories() {
+        try {
+          const categories = await ProductService.getCategories();
+          const categoryFilter = document.getElementById("categoryFilter");
+          
+          // 清空現有選項（除了"所有分類"）
+          categoryFilter.innerHTML = '<option value="">所有分類</option>';
+          
+          // 添加分類選項
+          categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categoryFilter.appendChild(option);
+          });
+        } catch (error) {
+          console.error("載入分類失敗:", error);
+        }
+      }
+
       // 載入統計資料
       async function loadStats() {
         try {
-          const stats = await MenuService.getMenuStats();
+          const allProducts = await ProductService.getAllProducts();
+          
+          const noodlesCount = allProducts.filter(p => p.category === '麵食').length;
+          const drinksCount = allProducts.filter(p => p.category === '飲品').length;
+          const totalCount = allProducts.length;
 
-          document.getElementById("noodlesCount").textContent =
-            stats.noodlesCount;
-          document.getElementById("drinksCount").textContent =
-            stats.drinksCount;
-          document.getElementById("totalCount").textContent =
-            stats.totalProducts;
+          document.getElementById("noodlesCount").textContent = noodlesCount;
+          document.getElementById("drinksCount").textContent = drinksCount;
+          document.getElementById("totalCount").textContent = totalCount;
         } catch (error) {
           console.error("載入統計資料失敗:", error);
         }
@@ -586,7 +795,16 @@
           `;
 
           const category = document.getElementById("categoryFilter").value;
-          products = await MenuService.getFeaturedProducts(category || null);
+          const options = {
+            orderBy: 'sortOrder',
+            orderDirection: 'asc'
+          };
+          
+          if (category) {
+            options.category = category;
+          }
+          
+          products = await ProductService.getAllProducts(options);
 
           if (products.length === 0) {
             container.innerHTML = `
@@ -619,22 +837,34 @@
 
       // 建立商品卡片
       function createProductCard(product) {
-        const badgeHtml = product.badge
-          ? `<div class="product-badge badge-${product.badge}">${product.badgeText}</div>`
+        const badgeHtml = product.tags && product.tags.length > 0
+          ? `<div class="product-badge badge-hot">${product.tags[0]}</div>`
           : "";
 
-        const visibilityIcon = product.isVisible ? "fa-eye" : "fa-eye-slash";
-        const visibilityText = product.isVisible ? "隱藏" : "顯示";
+        const visibilityIcon = product.isAvailable ? "fa-eye" : "fa-eye-slash";
+        const visibilityText = product.isAvailable ? "下架" : "上架";
+        
+        // 判斷圖片路徑類型
+        let imageUrl = 'https://via.placeholder.com/300x200?text=No+Image';
+        if (product.image) {
+          if (product.image.startsWith('http')) {
+            // Firebase Storage URL
+            imageUrl = product.image;
+          } else {
+            // 本地檔案
+            imageUrl = `assets/${product.image}`;
+          }
+        }
 
         return `
           <div class="product-card ${
-            !product.isVisible ? "hidden" : ""
+            !product.isAvailable ? "hidden" : ""
           }" data-id="${product.id}">
             <div class="order-handle" title="拖拽排序">${
-              product.order || 0
+              product.sortOrder || 0
             }</div>
             ${badgeHtml}
-            <img src="${product.imageUrl}" alt="${
+            <img src="${imageUrl}" alt="${
           product.name
         }" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
             <div class="product-info">
@@ -642,21 +872,21 @@
                 <div class="product-name">${product.name}</div>
                 <div class="product-price">NT$ ${product.price}</div>
               </div>
-              <div class="product-description">${product.description}</div>
+              <div class="product-description">${product.description || '暫無描述'}</div>
               <div class="product-actions">
                 <button class="btn btn-primary" onclick="editProduct('${
                   product.id
-                }')">
+                }')" title="編輯">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-secondary" onclick="toggleVisibility('${
+                <button class="btn btn-secondary" onclick="toggleAvailability('${
                   product.id
-                }', ${!product.isVisible})">
+                }')" title="${visibilityText}">
                   <i class="fas ${visibilityIcon}"></i>
                 </button>
                 <button class="btn btn-danger" onclick="deleteProduct('${
                   product.id
-                }')">
+                }')" title="刪除">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -714,44 +944,237 @@
         .getElementById("categoryFilter")
         .addEventListener("change", loadProducts);
 
-      // 切換可見性
-      async function toggleVisibility(productId, isVisible) {
+      // 切換上架狀態
+      async function toggleAvailability(productId) {
         try {
-          await MenuService.toggleProductVisibility(productId, isVisible);
+          await ProductService.toggleProductAvailability(productId);
           await loadProducts();
           await loadStats();
         } catch (error) {
-          console.error("切換可見性失敗:", error);
+          console.error("切換上架狀態失敗:", error);
           alert("操作失敗：" + error.message);
         }
       }
 
       // 刪除商品
       async function deleteProduct(productId) {
-        if (!confirm("確定要刪除這個商品嗎？")) return;
+        // 雙重確認
+        const product = products.find(p => p.id === productId);
+        if (!product) {
+          alert("找不到要刪除的商品");
+          return;
+        }
+
+        const confirmMessage = `確定要刪除商品「${product.name}」嗎？\n\n此操作無法復原！\n\n請再次確認：`;
+        if (!confirm(confirmMessage)) return;
+        
+        // 最終確認
+        const finalConfirm = prompt("請輸入商品名稱以確認刪除：", "");
+        if (finalConfirm !== product.name) {
+          alert("商品名稱不正確，刪除操作已取消");
+          return;
+        }
 
         try {
-          await MenuService.deleteFeaturedProduct(productId);
+          await ProductService.deleteProduct(productId);
           await loadProducts();
           await loadStats();
+          alert("商品刪除成功");
         } catch (error) {
           console.error("刪除商品失敗:", error);
           alert("刪除失敗：" + error.message);
         }
       }
 
-      // TODO: 實現模態框功能
+      // 全域變數 - 編輯模式
+      let editingProductId = null;
+
+      // 顯示新增商品 Modal
       function showAddProductModal() {
-        alert("新增商品功能開發中...");
+        editingProductId = null;
+        document.getElementById('modalTitle').textContent = '新增商品';
+        document.getElementById('productForm').reset();
+        document.getElementById('imagePreview').innerHTML = '';
+        document.getElementById('productModal').style.display = 'flex';
       }
 
-      function editProduct(productId) {
-        alert("編輯商品功能開發中...");
+      // 顯示編輯商品 Modal
+      async function editProduct(productId) {
+        try {
+          editingProductId = productId;
+          document.getElementById('modalTitle').textContent = '編輯商品';
+          
+          const product = await ProductService.getProduct(productId);
+          
+          // 填入表單資料
+          document.getElementById('productName').value = product.name;
+          document.getElementById('productCategory').value = product.category;
+          document.getElementById('productPrice').value = product.price;
+          document.getElementById('productDescription').value = product.description || '';
+          document.getElementById('productTags').value = product.tags ? product.tags.join(', ') : '';
+          document.getElementById('sortOrder').value = product.sortOrder || 999;
+          document.getElementById('isAvailable').checked = product.isAvailable;
+          
+          // 顯示現有圖片預覽
+          const imagePreview = document.getElementById('imagePreview');
+          if (product.image) {
+            let imageUrl;
+            if (product.image.startsWith('http')) {
+              imageUrl = product.image;
+            } else {
+              imageUrl = `assets/${product.image}`;
+            }
+            
+            imagePreview.innerHTML = `
+              <img src="${imageUrl}" alt="目前圖片" class="image-preview">
+              <p style="font-size: 12px; color: #666; margin-top: 5px;">目前圖片</p>
+            `;
+          } else {
+            imagePreview.innerHTML = '';
+          }
+          
+          document.getElementById('productModal').style.display = 'flex';
+        } catch (error) {
+          console.error('載入商品資料失敗:', error);
+          alert('載入商品資料失敗：' + error.message);
+        }
       }
 
+      // 關閉 Modal
+      function closeProductModal() {
+        document.getElementById('productModal').style.display = 'none';
+        editingProductId = null;
+      }
+
+      // 圖片預覽功能
+      document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('productImage');
+        if (imageInput) {
+          imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+              if (file.size > 5 * 1024 * 1024) { // 5MB 限制
+                alert('圖片檔案不能超過 5MB');
+                this.value = '';
+                return;
+              }
+              
+              const reader = new FileReader();
+              reader.onload = function(e) {
+                preview.innerHTML = `
+                  <img src="${e.target.result}" alt="預覽圖片" class="image-preview">
+                  <p style="font-size: 12px; color: #666; margin-top: 5px;">新圖片預覽</p>
+                `;
+              };
+              reader.readAsDataURL(file);
+            } else {
+              if (!editingProductId) {
+                preview.innerHTML = '';
+              }
+            }
+          });
+        }
+      });
+
+      // 儲存商品
+      async function saveProduct() {
+        try {
+          const form = document.getElementById('productForm');
+          const formData = new FormData(form);
+          
+          // 驗證必填欄位
+          const name = formData.get('name').trim();
+          const category = formData.get('category');
+          const price = parseFloat(formData.get('price'));
+          
+          if (!name || !category || !price) {
+            alert('請填寫所有必填欄位');
+            return;
+          }
+          
+          if (price <= 0) {
+            alert('價格必須大於 0');
+            return;
+          }
+          
+          // 準備商品資料
+          const productData = {
+            name: name,
+            category: category,
+            price: price,
+            description: formData.get('description').trim(),
+            sortOrder: parseInt(formData.get('sortOrder')) || 999,
+            isAvailable: formData.get('isAvailable') === 'on',
+            tags: formData.get('tags') ? 
+              formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag) : []
+          };
+          
+          // 處理圖片上傳
+          const imageFile = formData.get('image');
+          if (imageFile && imageFile.size > 0) {
+            try {
+              // 顯示上傳進度
+              const progressInfo = document.createElement('div');
+              progressInfo.innerHTML = '正在上傳圖片...';
+              progressInfo.style.cssText = 'margin-top: 10px; color: #007bff; font-size: 14px;';
+              document.getElementById('imagePreview').appendChild(progressInfo);
+              
+              // 上傳圖片到 Firebase Storage
+              const uploadResult = await StorageService.uploadImageWithCompression(
+                imageFile, 
+                'products',
+                (progress) => {
+                  progressInfo.innerHTML = `上傳進度: ${progress.toFixed(1)}%`;
+                }
+              );
+              
+              // 使用 Firebase Storage 的下載連結
+              productData.image = uploadResult.downloadURL;
+              
+              progressInfo.innerHTML = '圖片上傳成功！';
+              progressInfo.style.color = '#28a745';
+              
+            } catch (uploadError) {
+              console.error('圖片上傳失敗:', uploadError);
+              alert('圖片上傳失敗：' + uploadError.message);
+              return;
+            }
+          }
+          
+          // 儲存商品
+          if (editingProductId) {
+            await ProductService.updateProduct(editingProductId, productData);
+            alert('商品更新成功！');
+          } else {
+            await ProductService.createProduct(productData);
+            alert('商品新增成功！');
+          }
+          
+          // 關閉 Modal 並重新載入
+          closeProductModal();
+          await loadProducts();
+          await loadStats();
+          await loadCategories();
+          
+        } catch (error) {
+          console.error('儲存商品失敗:', error);
+          alert('儲存失敗：' + error.message);
+        }
+      }
+
+      // TODO: 上傳菜單功能
       function showUploadMenuModal() {
         alert("上傳菜單功能開發中...");
       }
+
+      // 點擊 Modal 背景關閉
+      document.addEventListener('click', function(e) {
+        if (e.target.id === 'productModal') {
+          closeProductModal();
+        }
+      });
     </script>
   </body>
 </html>

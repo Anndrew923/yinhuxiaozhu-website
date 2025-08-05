@@ -551,7 +551,7 @@
 
     <!-- App Scripts -->
     <script src="js/firebase-config.js"></script>
-    <script src="js/services/menu.service.js"></script>
+    <script src="js/services/product.service.js"></script>
 
     <script>
       // 全域變數
@@ -572,22 +572,53 @@
       // 載入動態菜單
       async function loadDynamicMenu() {
         try {
-          // 載入幻燈片商品
+          // 載入幻燈片商品 - 只顯示已上架的商品
           const [noodles, drinks] = await Promise.all([
-            MenuService.getFeaturedProducts("noodles"),
-            MenuService.getFeaturedProducts("drinks"),
+            ProductService.getAllProducts({
+              category: "麵食",
+              isAvailable: true,
+              orderBy: "sortOrder",
+              orderDirection: "asc"
+            }),
+            ProductService.getAllProducts({
+              category: "飲品", 
+              isAvailable: true,
+              orderBy: "sortOrder",
+              orderDirection: "asc"
+            })
           ]);
 
-          // 更新幻燈片內容
-          updateSliderContent("noodles", noodles);
-          updateSliderContent("drinks", drinks);
+          // 轉換資料格式以符合前端需求
+          const formattedNoodles = noodles.map(formatProductForDisplay);
+          const formattedDrinks = drinks.map(formatProductForDisplay);
 
-          console.log("載入的麵食商品:", noodles);
-          console.log("載入的飲品商品:", drinks);
+          // 更新幻燈片內容
+          updateSliderContent("noodles", formattedNoodles);
+          updateSliderContent("drinks", formattedDrinks);
+
+          console.log("載入的麵食商品:", formattedNoodles);
+          console.log("載入的飲品商品:", formattedDrinks);
         } catch (error) {
           console.error("載入菜單資料失敗:", error);
           throw error;
         }
+      }
+
+      // 轉換商品資料格式
+      function formatProductForDisplay(product) {
+        return {
+          id: product.id,
+          name: product.name,
+          description: product.description || "美味可口",
+          price: product.price,
+          imageUrl: product.image && product.image.startsWith('http') 
+            ? product.image 
+            : product.image 
+              ? `assets/${product.image}`
+              : "https://images.unsplash.com/photo-1585032226651-4df1b4128d3d?w=320&h=220&fit=crop",
+          badge: product.tags && product.tags.length > 0 ? "hot" : null,
+          badgeText: product.tags && product.tags.length > 0 ? product.tags[0] : null
+        };
       }
 
       // 載入靜態資料（備用）
