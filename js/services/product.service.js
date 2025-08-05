@@ -101,43 +101,58 @@ const ProductService = (() => {
   // 獲取所有商品
   async function getAllProducts(options = {}) {
     try {
+      console.log('ProductService: 開始獲取商品列表，選項:', options);
       await initFirebase();
+      console.log('ProductService: Firebase 初始化完成');
       
       let query = db.collection('products');
+      console.log('ProductService: 創建查詢');
       
       // 篩選選項
       if (options.category) {
+        console.log('ProductService: 添加分類篩選:', options.category);
         query = query.where('category', '==', options.category);
       }
       
       if (options.isAvailable !== undefined) {
+        console.log('ProductService: 添加上架狀態篩選:', options.isAvailable);
         query = query.where('isAvailable', '==', options.isAvailable);
       }
       
       // 排序
       const orderBy = options.orderBy || 'sortOrder';
       const orderDirection = options.orderDirection || 'asc';
+      console.log('ProductService: 設定排序:', orderBy, orderDirection);
       query = query.orderBy(orderBy, orderDirection);
       
       // 限制數量
       if (options.limit) {
+        console.log('ProductService: 設定數量限制:', options.limit);
         query = query.limit(options.limit);
       }
       
+      console.log('ProductService: 執行查詢...');
       const snapshot = await query.get();
+      console.log('ProductService: 查詢完成，文檔數量:', snapshot.size);
+      
       const products = [];
       
       snapshot.forEach(doc => {
+        const productData = doc.data();
+        console.log('ProductService: 處理商品:', doc.id, productData.name);
         products.push({
           id: doc.id,
-          ...doc.data()
+          ...productData
         });
       });
       
+      console.log('ProductService: 返回商品列表，總數:', products.length);
       return products;
       
     } catch (error) {
-      console.error('獲取商品列表失敗:', error);
+      console.error('ProductService: 獲取商品列表失敗:', error);
+      console.error('ProductService: 錯誤詳情:', error.message);
+      console.error('ProductService: 錯誤堆疊:', error.stack);
       throw error;
     }
   }

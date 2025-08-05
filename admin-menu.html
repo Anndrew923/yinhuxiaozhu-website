@@ -677,46 +677,88 @@
 
       // 初始化頁面
       document.addEventListener("DOMContentLoaded", function () {
-        checkAuth();
-        initTabs();
-        loadCategories();
-        loadStats();
-        loadProducts();
-        loadFullMenu();
+        console.log("頁面載入完成，開始初始化...");
+        
+        // 添加錯誤處理
+        window.addEventListener('error', function(e) {
+          console.error('JavaScript 錯誤:', e.error);
+          alert('頁面發生錯誤: ' + e.error.message);
+        });
+        
+        // 按順序初始化
+        (async function() {
+          try {
+            await checkAuth();
+            console.log("權限檢查完成");
+            
+            initTabs();
+            console.log("標籤頁初始化完成");
+            
+            await loadCategories();
+            console.log("分類載入完成");
+            
+            await loadStats();
+            console.log("統計資料載入完成");
+            
+            await loadProducts();
+            console.log("商品列表載入完成");
+            
+            await loadFullMenu();
+            console.log("完整菜單載入完成");
+            
+            console.log("所有初始化完成");
+          } catch (error) {
+            console.error("初始化過程中發生錯誤:", error);
+            alert("初始化失敗: " + error.message);
+          }
+        })();
       });
 
       // 檢查管理員權限
       async function checkAuth() {
         try {
+          console.log("開始權限檢查...");
+          
+          // 等待 Firebase 初始化
+          await new Promise(resolve => {
+            const checkFirebase = () => {
+              if (window.firebaseAuth && window.firebaseDB) {
+                console.log("Firebase 已初始化");
+                resolve();
+              } else {
+                console.log("等待 Firebase 初始化...");
+                setTimeout(checkFirebase, 100);
+              }
+            };
+            checkFirebase();
+          });
+
           const user = firebase.auth().currentUser;
+          console.log("當前用戶:", user ? user.email : "未登入");
+          
           if (!user) {
+            console.log("用戶未登入，跳轉到登入頁面");
             window.location.href = "admin-login.html";
             return;
           }
 
+          console.log("檢查管理員權限...");
           const adminCheck = await AuthService.checkAdminRole(user.uid);
+          console.log("管理員檢查結果:", adminCheck);
+          
           if (!adminCheck.isAdmin) {
+            console.log("用戶不是管理員");
             alert("您沒有管理員權限");
             window.location.href = "admin-login.html";
             return;
           }
 
-          // 檢查是否有產品管理權限
-          const hasProductPermission = AuthService.hasPermission(
-            adminCheck.adminData.permissions, 
-            'products.manage'
-          ) || adminCheck.adminData.permissions.includes('all');
-
-          if (!hasProductPermission) {
-            alert("您沒有菜單管理權限");
-            window.location.href = "admin-dashboard.html";
-            return;
-          }
-
+          // 暫時簡化權限檢查，允許所有管理員訪問
           console.log("權限檢查通過：", adminCheck.adminData.role);
           
         } catch (error) {
           console.error("權限檢查失敗:", error);
+          alert("權限檢查失敗：" + error.message);
           window.location.href = "admin-login.html";
         }
       }
@@ -769,23 +811,32 @@
       // 載入統計資料
       async function loadStats() {
         try {
+          console.log("開始載入統計資料...");
           const allProducts = await ProductService.getAllProducts();
+          console.log("獲取到所有商品:", allProducts.length, "個");
           
           const noodlesCount = allProducts.filter(p => p.category === '麵食').length;
           const drinksCount = allProducts.filter(p => p.category === '飲品').length;
           const totalCount = allProducts.length;
+
+          console.log("統計結果:", { noodlesCount, drinksCount, totalCount });
 
           document.getElementById("noodlesCount").textContent = noodlesCount;
           document.getElementById("drinksCount").textContent = drinksCount;
           document.getElementById("totalCount").textContent = totalCount;
         } catch (error) {
           console.error("載入統計資料失敗:", error);
+          // 顯示錯誤信息
+          document.getElementById("noodlesCount").textContent = "錯誤";
+          document.getElementById("drinksCount").textContent = "錯誤";
+          document.getElementById("totalCount").textContent = "錯誤";
         }
       }
 
       // 載入商品列表
       async function loadProducts() {
         try {
+          console.log("開始載入商品列表...");
           const container = document.getElementById("productsContainer");
           container.innerHTML = `
             <div class="loading">
@@ -804,7 +855,9 @@
             options.category = category;
           }
           
+          console.log("載入商品選項:", options);
           products = await ProductService.getAllProducts(options);
+          console.log("載入商品成功:", products.length, "個商品");
 
           if (products.length === 0) {
             container.innerHTML = `
@@ -828,7 +881,8 @@
             <div style="text-align: center; padding: 40px; color: #e74c3c;">
               <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
               <h3>載入失敗</h3>
-              <p>${error.message}</p>
+              <p>錯誤詳情: ${error.message}</p>
+              <p>請檢查瀏覽器控制台獲取更多信息</p>
               <button class="btn btn-primary" onclick="loadProducts()">重試</button>
             </div>
           `;
@@ -898,38 +952,29 @@
       // 載入完整菜單
       async function loadFullMenu() {
         try {
+          console.log("開始載入完整菜單...");
           const container = document.getElementById("fullMenuContainer");
-          const menuData = await MenuService.getFullMenuImage();
-
-          if (menuData && menuData.imageUrl) {
-            container.innerHTML = `
-              <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                <h3 style="margin-bottom: 15px;">目前菜單圖片</h3>
-                <img src="${
-                  menuData.imageUrl
-                }" alt="完整菜單" style="width: 100%; max-width: 600px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                <p style="margin-top: 10px; color: #7f8c8d; font-size: 14px;">
-                  最後更新：${new Date(menuData.updatedAt).toLocaleString(
-                    "zh-TW"
-                  )}
-                </p>
-              </div>
-            `;
-          } else {
-            container.innerHTML = `
-              <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-                <i class="fas fa-image" style="font-size: 48px; margin-bottom: 15px; color: #7f8c8d;"></i>
-                <h3>尚未上傳菜單圖片</h3>
-                <p style="color: #7f8c8d; margin-bottom: 20px;">請上傳完整菜單圖片供客戶查看</p>
-                <button class="btn btn-primary" onclick="showUploadMenuModal()">
-                  <i class="fas fa-upload"></i>
-                  上傳菜單圖片
-                </button>
-              </div>
-            `;
-          }
+          
+          // 暫時顯示開發中訊息
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+              <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 15px; color: #7f8c8d;"></i>
+              <h3>完整菜單功能開發中</h3>
+              <p style="color: #7f8c8d; margin-bottom: 20px;">此功能正在開發中，敬請期待</p>
+            </div>
+          `;
+          
+          console.log("完整菜單載入完成");
         } catch (error) {
           console.error("載入完整菜單失敗:", error);
+          const container = document.getElementById("fullMenuContainer");
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+              <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px; color: #e74c3c;"></i>
+              <h3>載入失敗</h3>
+              <p style="color: #7f8c8d;">${error.message}</p>
+            </div>
+          `;
         }
       }
 

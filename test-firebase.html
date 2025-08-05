@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 連接測試</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Firebase 連接測試</h1>
+    
+    <div class="test-section">
+        <h2>1. Firebase 初始化測試</h2>
+        <div id="init-status" class="status info">等待測試...</div>
+        <button onclick="testFirebaseInit()">測試 Firebase 初始化</button>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Firestore 連接測試</h2>
+        <div id="firestore-status" class="status info">等待測試...</div>
+        <button onclick="testFirestore()">測試 Firestore 連接</button>
+    </div>
+
+    <div class="test-section">
+        <h2>3. 產品集合測試</h2>
+        <div id="products-status" class="status info">等待測試...</div>
+        <button onclick="testProductsCollection()">測試產品集合</button>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 創建測試商品</h2>
+        <div id="create-status" class="status info">等待測試...</div>
+        <button onclick="createTestProduct()">創建測試商品</button>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 控制台日誌</h2>
+        <div id="console-log"></div>
+        <button onclick="clearLog()">清除日誌</button>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/product.service.js"></script>
+
+    <script>
+        // 日誌功能
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logEntry.className = `status ${type}`;
+            logDiv.appendChild(logEntry);
+            console.log(message);
+        }
+
+        function clearLog() {
+            document.getElementById('console-log').innerHTML = '';
+        }
+
+        // 測試 Firebase 初始化
+        async function testFirebaseInit() {
+            const statusDiv = document.getElementById('init-status');
+            try {
+                log('開始測試 Firebase 初始化...');
+                
+                // 檢查 Firebase 是否已載入
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase 未載入');
+                }
+                
+                log('Firebase 已載入');
+                
+                // 檢查配置
+                if (!firebase.apps.length) {
+                    throw new Error('Firebase 應用未初始化');
+                }
+                
+                log('Firebase 應用已初始化');
+                
+                // 檢查 Auth 和 Firestore
+                if (!window.firebaseAuth) {
+                    throw new Error('Firebase Auth 未初始化');
+                }
+                
+                if (!window.firebaseDB) {
+                    throw new Error('Firebase Firestore 未初始化');
+                }
+                
+                log('Firebase Auth 和 Firestore 已初始化');
+                
+                statusDiv.innerHTML = '✅ Firebase 初始化成功';
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                log(`Firebase 初始化失敗: ${error.message}`, 'error');
+                statusDiv.innerHTML = `❌ Firebase 初始化失敗: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        // 測試 Firestore 連接
+        async function testFirestore() {
+            const statusDiv = document.getElementById('firestore-status');
+            try {
+                log('開始測試 Firestore 連接...');
+                
+                const db = firebase.firestore();
+                log('Firestore 實例創建成功');
+                
+                // 嘗試讀取一個測試文檔
+                const testDoc = await db.collection('test').doc('connection').get();
+                log('Firestore 讀取測試成功');
+                
+                statusDiv.innerHTML = '✅ Firestore 連接成功';
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                log(`Firestore 連接失敗: ${error.message}`, 'error');
+                statusDiv.innerHTML = `❌ Firestore 連接失敗: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        // 測試產品集合
+        async function testProductsCollection() {
+            const statusDiv = document.getElementById('products-status');
+            try {
+                log('開始測試產品集合...');
+                
+                const products = await ProductService.getAllProducts();
+                log(`產品集合測試成功，找到 ${products.length} 個商品`);
+                
+                if (products.length > 0) {
+                    log('第一個商品:', products[0]);
+                }
+                
+                statusDiv.innerHTML = `✅ 產品集合測試成功，找到 ${products.length} 個商品`;
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                log(`產品集合測試失敗: ${error.message}`, 'error');
+                statusDiv.innerHTML = `❌ 產品集合測試失敗: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        // 創建測試商品
+        async function createTestProduct() {
+            const statusDiv = document.getElementById('create-status');
+            try {
+                log('開始創建測試商品...');
+                
+                const testProduct = {
+                    name: '測試商品',
+                    description: '這是一個測試商品',
+                    price: 100,
+                    category: '測試',
+                    isAvailable: true,
+                    sortOrder: 999,
+                    tags: ['測試']
+                };
+                
+                const result = await ProductService.createProduct(testProduct);
+                log('測試商品創建成功:', result);
+                
+                statusDiv.innerHTML = `✅ 測試商品創建成功，ID: ${result.id}`;
+                statusDiv.className = 'status success';
+                
+            } catch (error) {
+                log(`測試商品創建失敗: ${error.message}`, 'error');
+                statusDiv.innerHTML = `❌ 測試商品創建失敗: ${error.message}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        // 頁面載入時自動運行基本測試
+        document.addEventListener('DOMContentLoaded', function() {
+            log('頁面載入完成，開始自動測試...');
+            setTimeout(testFirebaseInit, 1000);
+        });
+    </script>
+</body>
+</html> 
