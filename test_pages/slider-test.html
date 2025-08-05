@@ -274,6 +274,49 @@
             performSlide();
         }
         
+        // 驗證 transform 位置是否正確
+        function validateTransformPosition(track, expectedTranslateX) {
+            const currentTransform = track.style.transform;
+            const expectedTransform = `translate3d(${expectedTranslateX}px, 0, 0)`;
+            
+            // 提取 translate3d 的數值進行比較
+            const extractTranslateValues = (transform) => {
+                const match = transform.match(/translate3d\(([^)]+)\)/);
+                if (!match) return null;
+                
+                const values = match[1].split(',').map(v => parseFloat(v.trim()));
+                return values;
+            };
+            
+            const currentValues = extractTranslateValues(currentTransform);
+            const expectedValues = extractTranslateValues(expectedTransform);
+            
+            // 比較數值是否在可接受的誤差範圍內
+            const tolerance = 1; // 1px 的誤差容許
+            const isPositionCorrect = currentValues && expectedValues &&
+                Math.abs(currentValues[0] - expectedValues[0]) <= tolerance &&
+                Math.abs(currentValues[1] - expectedValues[1]) <= tolerance &&
+                Math.abs(currentValues[2] - expectedValues[2]) <= tolerance;
+            
+            if (!isPositionCorrect) {
+                console.warn(`滑動位置不匹配，預期: ${expectedTransform}, 實際: ${currentTransform}`);
+                
+                // 只有在差異較大時才強制修正
+                const currentX = currentValues ? currentValues[0] : 0;
+                if (Math.abs(currentX - expectedTranslateX) > 5) {
+                    // 強制修正（暫時禁用轉換以確保精確定位）
+                    const originalTransition = track.style.transition;
+                    track.style.transition = 'none';
+                    track.style.transform = expectedTransform;
+                    track.offsetHeight; // 強制重新計算
+                    track.style.transition = originalTransition;
+                }
+                
+                return false;
+            }
+            return true;
+        }
+
         // 執行滑動
         function performSlide() {
             const track = document.getElementById("testTrack");
@@ -288,24 +331,48 @@
             const translateX = -currentPosition * slideDistance;
             const roundedTranslateX = Math.round(translateX);
             
-            // 設置transform
-            track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+            // 獲取當前位置
+            const currentTransform = track.style.transform;
+            const currentTranslateX = extractTranslateX(currentTransform);
             
-            // 強制重新計算佈局
-            track.offsetHeight;
+            // 計算滑動距離
+            const slideDistancePx = Math.abs(currentTranslateX - roundedTranslateX);
+            
+            // 根據滑動距離調整動畫時間
+            if (slideDistancePx < 10) {
+                // 微小調整，無動畫
+                track.style.transition = 'none';
+                track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+                track.offsetHeight;
+                track.style.transition = ''; // 恢復預設轉換
+            } else if (slideDistancePx < 100) {
+                // 短距離滑動，快速動畫
+                track.style.transition = 'transform 0.3s ease-out';
+                track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+            } else {
+                // 長距離滑動，正常動畫
+                track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                track.style.transform = `translate3d(${roundedTranslateX}px, 0, 0)`;
+            }
             
             updateDots();
             updateDebugInfo();
             
-            // 驗證滑動
+            // 調試信息
+            console.log(`滑動到位置 ${currentPosition + 1}, 容器寬度: ${containerWidth}, 滑動距離: ${roundedTranslateX}px, 動畫距離: ${slideDistancePx}px`);
+            
+            // 驗證滑動（延遲更長時間以確保轉換完成）
             setTimeout(() => {
-                const currentTransform = track.style.transform;
-                const expectedTransform = `translate3d(${roundedTranslateX}px, 0, 0)`;
-                if (currentTransform !== expectedTransform) {
-                    console.warn(`滑動位置不匹配，預期: ${expectedTransform}, 實際: ${currentTransform}`);
-                    track.style.transform = expectedTransform;
-                }
-            }, 50);
+                validateTransformPosition(track, roundedTranslateX);
+            }, 150);
+        }
+        
+        // 提取當前 translateX 值
+        function extractTranslateX(transform) {
+            const match = transform.match(/translate3d\(([^)]+)\)/);
+            if (!match) return 0;
+            const values = match[1].split(',').map(v => parseFloat(v.trim()));
+            return values[0] || 0;
         }
         
         // 跳轉到指定位置
