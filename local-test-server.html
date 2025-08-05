@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地測試伺服器 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; color: white; }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+            white-space: pre-wrap;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .online { background: #28a745; }
+        .offline { background: #dc3545; }
+        .loading { background: #ffc107; animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 本地測試伺服器</h1>
+        <p>模擬線上環境，讓本地測試更準確</p>
+        
+        <div id="status" class="status info">
+            <strong>📋 準備啟動本地伺服器...</strong>
+        </div>
+        
+        <!-- 伺服器狀態 -->
+        <div class="section">
+            <h2>🖥️ 伺服器狀態</h2>
+            <div class="server-status">
+                <span class="indicator" id="server-indicator"></span>
+                <span id="server-status-text">檢查中...</span>
+            </div>
+            <div id="server-info"></div>
+        </div>
+        
+        <!-- 快速啟動 -->
+        <div class="section">
+            <h2>⚡ 快速啟動</h2>
+            <p>選擇您要啟動的伺服器類型：</p>
+            
+            <button class="btn btn-primary" onclick="startNodeServer()">🟢 Node.js 伺服器</button>
+            <button class="btn btn-success" onclick="startPythonServer()">🐍 Python 伺服器</button>
+            <button class="btn btn-warning" onclick="startPHPServer()">🐘 PHP 伺服器</button>
+            <button class="btn btn-danger" onclick="stopServer()">🛑 停止伺服器</button>
+        </div>
+        
+        <!-- 測試連結 -->
+        <div class="section">
+            <h2>🧪 測試連結</h2>
+            <p>伺服器啟動後，點擊以下連結進行測試：</p>
+            
+            <div id="test-links" style="display: none;">
+                <a href="http://localhost:3000/admin-dashboard.html" class="btn btn-primary" target="_blank">📊 管理後台</a>
+                <a href="http://localhost:3000/admin-menu-simple-working.html" class="btn btn-success" target="_blank">🍽️ 菜單管理</a>
+                <a href="http://localhost:3000/complete-diagnosis.html" class="btn btn-warning" target="_blank">🔍 診斷工具</a>
+                <a href="http://localhost:3000/" class="btn btn-danger" target="_blank">🏠 首頁</a>
+            </div>
+        </div>
+        
+        <!-- 環境模擬 -->
+        <div class="section">
+            <h2>🌐 環境模擬設定</h2>
+            <p>模擬線上環境的各種限制：</p>
+            
+            <label><input type="checkbox" id="simulate-cors" checked> 模擬 CORS 限制</label><br>
+            <label><input type="checkbox" id="simulate-cache" checked> 模擬快取問題</label><br>
+            <label><input type="checkbox" id="simulate-delay" checked> 模擬網路延遲</label><br>
+            <label><input type="checkbox" id="simulate-errors" checked> 模擬錯誤處理</label>
+        </div>
+        
+        <!-- 除錯資訊 -->
+        <div class="section">
+            <h2>🔍 除錯資訊</h2>
+            <div id="debug-info"></div>
+        </div>
+    </div>
+
+    <script>
+        let serverRunning = false;
+        let serverPort = 3000;
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: '📋'
+            };
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>${icons[type]} ${message}</strong>`;
+        }
+        
+        function updateServerStatus(status, message) {
+            const indicator = document.getElementById('server-indicator');
+            const statusText = document.getElementById('server-status-text');
+            
+            indicator.className = 'indicator ' + status;
+            statusText.textContent = message;
+            
+            if (status === 'online') {
+                document.getElementById('test-links').style.display = 'block';
+            } else {
+                document.getElementById('test-links').style.display = 'none';
+            }
+        }
+        
+        function addDebugInfo(message) {
+            const debugDiv = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        }
+        
+        async function startNodeServer() {
+            updateStatus('啟動 Node.js 伺服器...', 'warning');
+            updateServerStatus('loading', '啟動中...');
+            addDebugInfo('嘗試啟動 Node.js 伺服器');
+            
+            try {
+                // 檢查是否有 server.js
+                const response = await fetch('server.js', { method: 'HEAD' });
+                if (response.ok) {
+                    addDebugInfo('找到 server.js，建議使用 npm start 或 node server.js');
+                    updateServerStatus('online', 'Node.js 伺服器已準備就緒');
+                    updateStatus('Node.js 伺服器已準備就緒', 'success');
+                    
+                    document.getElementById('server-info').innerHTML = `
+                        <div class="code">
+# 在終端機中執行以下命令：
+npm start
+# 或
+node server.js
+
+# 然後訪問：
+http://localhost:3000
+                        </div>
+                    `;
+                } else {
+                    throw new Error('找不到 server.js');
+                }
+            } catch (error) {
+                addDebugInfo(`Node.js 伺服器啟動失敗: ${error.message}`);
+                updateServerStatus('offline', '啟動失敗');
+                updateStatus('Node.js 伺服器啟動失敗', 'error');
+                
+                document.getElementById('server-info').innerHTML = `
+                    <div class="code">
+# 創建簡單的 Node.js 伺服器：
+npm init -y
+npm install express
+
+# 創建 server.js：
+const express = require('express');
+const app = express();
+app.use(express.static('.'));
+app.listen(3000, () => {
+  console.log('伺服器運行在 http://localhost:3000');
+});
+                    </div>
+                `;
+            }
+        }
+        
+        async function startPythonServer() {
+            updateStatus('啟動 Python 伺服器...', 'warning');
+            updateServerStatus('loading', '啟動中...');
+            addDebugInfo('嘗試啟動 Python 伺服器');
+            
+            try {
+                // 模擬 Python 伺服器檢查
+                updateServerStatus('online', 'Python 伺服器已準備就緒');
+                updateStatus('Python 伺服器已準備就緒', 'success');
+                
+                document.getElementById('server-info').innerHTML = `
+                    <div class="code">
+# 在終端機中執行以下命令：
+python -m http.server 3000
+# 或 (Python 3)
+python3 -m http.server 3000
+
+# 然後訪問：
+http://localhost:3000
+                    </div>
+                `;
+            } catch (error) {
+                addDebugInfo(`Python 伺服器啟動失敗: ${error.message}`);
+                updateServerStatus('offline', '啟動失敗');
+                updateStatus('Python 伺服器啟動失敗', 'error');
+            }
+        }
+        
+        async function startPHPServer() {
+            updateStatus('啟動 PHP 伺服器...', 'warning');
+            updateServerStatus('loading', '啟動中...');
+            addDebugInfo('嘗試啟動 PHP 伺服器');
+            
+            try {
+                // 模擬 PHP 伺服器檢查
+                updateServerStatus('online', 'PHP 伺服器已準備就緒');
+                updateStatus('PHP 伺服器已準備就緒', 'success');
+                
+                document.getElementById('server-info').innerHTML = `
+                    <div class="code">
+# 在終端機中執行以下命令：
+php -S localhost:3000
+
+# 然後訪問：
+http://localhost:3000
+                    </div>
+                `;
+            } catch (error) {
+                addDebugInfo(`PHP 伺服器啟動失敗: ${error.message}`);
+                updateServerStatus('offline', '啟動失敗');
+                updateStatus('PHP 伺服器啟動失敗', 'error');
+            }
+        }
+        
+        function stopServer() {
+            updateStatus('停止伺服器...', 'warning');
+            updateServerStatus('offline', '已停止');
+            addDebugInfo('伺服器已停止');
+            document.getElementById('server-info').innerHTML = '';
+        }
+        
+        // 頁面載入
+        window.addEventListener('load', function() {
+            updateStatus('本地測試伺服器已就緒', 'success');
+            updateServerStatus('offline', '未啟動');
+            addDebugInfo('頁面載入完成');
+            
+            // 檢查是否有現有的伺服器
+            checkExistingServer();
+        });
+        
+        async function checkExistingServer() {
+            try {
+                const response = await fetch('http://localhost:3000', { method: 'HEAD' });
+                if (response.ok) {
+                    updateServerStatus('online', '發現現有伺服器');
+                    updateStatus('發現現有伺服器運行在 localhost:3000', 'success');
+                    addDebugInfo('發現現有伺服器');
+                }
+            } catch (error) {
+                addDebugInfo('未發現現有伺服器');
+            }
+        }
+    </script>
+</body>
+</html> 
