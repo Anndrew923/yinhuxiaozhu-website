@@ -843,7 +843,8 @@
               }
             });
             
-            console.log(`今日營業額: ${total}, 今日已付款訂單數: ${todayOrdersCount}`);
+            // 修正語法錯誤：改用普通字串相加
+            console.log("今日營業額: " + total + ", 今日已付款訂單數: " + todayOrdersCount);
             return total;
           } catch (error) {
             console.error("獲取今日營業額失敗:", error);
