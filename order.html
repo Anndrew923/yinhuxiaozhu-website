@@ -142,6 +142,10 @@
         transform: translateX(0);
       }
 
+      .add-to-cart-notification.error {
+        background: #e74c3c;
+      }
+
       /* 商品卡片樣式更新 */
       .product-card .add-to-cart:disabled {
         background: #ccc;
@@ -152,6 +156,289 @@
         font-size: 12px;
         color: #999;
         text-decoration: line-through;
+      }
+
+      /* 商品詳情模態視窗樣式 */
+      .product-detail-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .product-detail-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+      }
+
+      .product-detail-modal .modal-content {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        max-width: 500px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .product-detail-modal .modal-header {
+        padding: 20px 20px 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: none;
+      }
+
+      .product-detail-modal .modal-header h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+      }
+
+      .product-detail-modal .modal-close {
+        background: #f8f9fa;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #666;
+        transition: all 0.2s ease;
+      }
+
+      .product-detail-modal .modal-close:hover {
+        background: #e9ecef;
+        color: #333;
+      }
+
+      .product-detail-modal .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      .product-image-section {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .product-image-section img {
+        width: 100%;
+        max-width: 300px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .price-section {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .price-section .current-price {
+        font-size: 24px;
+        font-weight: 600;
+        color: #e74c3c;
+        margin-right: 10px;
+      }
+
+      .price-section .original-price {
+        font-size: 16px;
+        color: #999;
+        text-decoration: line-through;
+      }
+
+      .product-info-section h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .product-info-section h4:before {
+        content: "";
+        width: 3px;
+        height: 16px;
+        background: #3498db;
+        border-radius: 2px;
+      }
+
+      .description-section,
+      .detailed-description-section,
+      .ingredients-section,
+      .allergens-section,
+      .notice-section {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f1f3f4;
+      }
+
+      .description-section:last-child,
+      .notice-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .product-specs {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f1f3f4;
+      }
+
+      .spec-item {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .spec-label {
+        font-weight: 500;
+        color: #666;
+        min-width: 80px;
+      }
+
+      #modalNoticeList {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      #modalNoticeList li {
+        margin-bottom: 6px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .product-detail-modal .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #f1f3f4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 8px;
+      }
+
+      .qty-btn {
+        background: white;
+        border: 1px solid #e1e8ed;
+        border-radius: 6px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        color: #666;
+        transition: all 0.2s ease;
+      }
+
+      .qty-btn:hover {
+        background: #e9ecef;
+        color: #333;
+      }
+
+      .qty-btn:active {
+        transform: scale(0.95);
+      }
+
+      #modalQuantity {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 30px;
+        text-align: center;
+      }
+
+      .add-to-cart-btn {
+        flex: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .add-to-cart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      .add-to-cart-btn:active {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 768px) {
+        .product-detail-modal .modal-content {
+          width: 95vw;
+          max-height: 95vh;
+        }
+
+        .product-detail-modal .modal-footer {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .quantity-controls {
+          align-self: center;
+        }
+
+        .add-to-cart-btn {
+          width: 100%;
+        }
       }
     </style>
   </head>
@@ -194,6 +481,88 @@
           <span id="cartTotal">NT$ 0</span>
         </div>
         <button class="checkout-btn" onclick="checkout()">結帳</button>
+      </div>
+    </div>
+
+    <!-- 商品詳情模態視窗 -->
+    <div class="product-detail-modal" id="productDetailModal">
+      <div class="modal-overlay" onclick="closeProductDetail()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalProductName">商品名稱</h3>
+          <button class="modal-close" onclick="closeProductDetail()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="product-image-section">
+            <img id="modalProductImage" src="" alt="" />
+          </div>
+          
+          <div class="product-info-section">
+            <div class="price-section">
+              <span class="current-price" id="modalCurrentPrice">NT$ 0</span>
+              <span class="original-price" id="modalOriginalPrice" style="display: none;"></span>
+            </div>
+            
+            <div class="description-section">
+              <h4>商品說明</h4>
+              <p id="modalProductDescription">商品描述</p>
+            </div>
+            
+            <div class="detailed-description-section" id="detailedDescriptionSection" style="display: none;">
+              <h4>詳細說明</h4>
+              <p id="modalDetailedDescription"></p>
+            </div>
+            
+            <div class="product-specs" id="productSpecs" style="display: none;">
+              <h4>商品規格</h4>
+              <div class="spec-item" id="specificationItem">
+                <span class="spec-label">規格：</span>
+                <span id="modalSpecification"></span>
+              </div>
+              <div class="spec-item" id="originItem">
+                <span class="spec-label">產地：</span>
+                <span id="modalOrigin"></span>
+              </div>
+              <div class="spec-item" id="storageMethodItem">
+                <span class="spec-label">保存方式：</span>
+                <span id="modalStorageMethod"></span>
+              </div>
+              <div class="spec-item" id="shelfLifeItem">
+                <span class="spec-label">保存期限：</span>
+                <span id="modalShelfLife"></span>
+              </div>
+            </div>
+            
+            <div class="ingredients-section" id="ingredientsSection" style="display: none;">
+              <h4>成分說明</h4>
+              <p id="modalIngredients"></p>
+            </div>
+            
+            <div class="allergens-section" id="allergensSection" style="display: none;">
+              <h4>過敏原資訊</h4>
+              <p id="modalAllergens"></p>
+            </div>
+            
+            <div class="notice-section" id="noticeSection" style="display: none;">
+              <h4>注意事項</h4>
+              <ul id="modalNoticeList"></ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <div class="quantity-controls">
+            <button class="qty-btn" onclick="changeModalQuantity(-1)">-</button>
+            <span id="modalQuantity">1</span>
+            <button class="qty-btn" onclick="changeModalQuantity(1)">+</button>
+          </div>
+          <button class="add-to-cart-btn" onclick="addToCartFromModal()">
+            <i class="fas fa-shopping-cart"></i>
+            加入購物車
+          </button>
+        </div>
       </div>
     </div>
 

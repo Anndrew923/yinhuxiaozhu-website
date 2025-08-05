@@ -239,17 +239,17 @@ function saveCartToStorage() {
 }
 
 // 添加商品到購物車
-function addToCart(productName, price) {
+function addToCart(productName, price, quantity = 1) {
   // 檢查商品是否已在購物車中
   const existingItem = cart.find((item) => item.name === productName);
 
   if (existingItem) {
-    existingItem.quantity += 1;
+    existingItem.quantity += quantity;
   } else {
     cart.push({
       name: productName,
       price: price,
-      quantity: 1,
+      quantity: quantity,
     });
   }
 
@@ -258,7 +258,7 @@ function addToCart(productName, price) {
   saveCartToStorage();
 
   // 顯示添加成功提示
-  showAddToCartNotification(productName);
+  showAddToCartNotification(productName, quantity);
 }
 
 // 從購物車移除商品
@@ -341,14 +341,15 @@ function toggleCart() {
   cartSidebar.classList.toggle("show");
 }
 
-// 顯示添加成功提示
-function showAddToCartNotification(productName) {
-  // 創建提示元素
+// 顯示通知
+function showNotification(message, type = 'success') {
   const notification = document.createElement("div");
-  notification.className = "add-to-cart-notification";
+  notification.className = `add-to-cart-notification ${type}`;
+  
+  const icon = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
   notification.innerHTML = `
-    <i class="fas fa-check-circle"></i>
-    <span>${productName} 已加入購物車</span>
+    <i class="${icon}"></i>
+    <span>${message}</span>
   `;
 
   // 添加到頁面
@@ -366,6 +367,12 @@ function showAddToCartNotification(productName) {
       document.body.removeChild(notification);
     }, 300);
   }, 2000);
+}
+
+// 顯示添加成功提示
+function showAddToCartNotification(productName, quantity = 1) {
+  const message = `${productName} ${quantity > 1 ? `x${quantity}` : ''} 已加入購物車`;
+  showNotification(message, 'success');
 }
 
 // 綁定分類選單點擊事件
@@ -469,10 +476,159 @@ function checkout() {
   // window.location.href = "checkout.html";
 }
 
-// 跳轉到商品詳情頁面
+// 顯示商品詳情模態視窗
 function goToProduct(productId) {
-  console.log("跳轉到商品詳情頁面:", productId);
-  // window.location.href = `product.html?id=${productId}`;
+  const product = products.find(p => p.id === productId);
+  if (!product) {
+    console.error('找不到商品:', productId);
+    return;
+  }
+  
+  showProductDetail(product);
+}
+
+// 商品詳情模態視窗相關變數
+let currentModalProduct = null;
+let modalQuantity = 1;
+
+// 顯示商品詳情
+function showProductDetail(product) {
+  currentModalProduct = product;
+  modalQuantity = 1;
+  
+  // 更新模態視窗內容
+  document.getElementById('modalProductName').textContent = product.name;
+  document.getElementById('modalCurrentPrice').textContent = `NT$ ${product.price.toLocaleString()}`;
+  
+  // 處理原價顯示
+  const originalPriceElement = document.getElementById('modalOriginalPrice');
+  if (product.originalPrice && product.originalPrice > product.price) {
+    originalPriceElement.textContent = `NT$ ${product.originalPrice.toLocaleString()}`;
+    originalPriceElement.style.display = 'inline';
+  } else {
+    originalPriceElement.style.display = 'none';
+  }
+  
+  // 設定商品圖片
+  const productImage = document.getElementById('modalProductImage');
+  if (product.image) {
+    productImage.src = product.image;
+    productImage.alt = product.name;
+    productImage.onerror = function() {
+      this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaZguWcluePuzwvdGV4dD48L3N2Zz4=';
+    };
+  } else {
+    productImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaZguWcluePuzwvdGV4dD48L3N2Zz4=';
+  }
+  
+  // 設定基本描述
+  document.getElementById('modalProductDescription').textContent = product.description || '暫無描述';
+  
+  // 設定詳細說明
+  const detailedDescSection = document.getElementById('detailedDescriptionSection');
+  if (product.detailedDescription && product.detailedDescription.trim()) {
+    document.getElementById('modalDetailedDescription').textContent = product.detailedDescription;
+    detailedDescSection.style.display = 'block';
+  } else {
+    detailedDescSection.style.display = 'none';
+  }
+  
+  // 設定商品規格
+  const specsSection = document.getElementById('productSpecs');
+  let hasSpecs = false;
+  
+  // 處理規格項目的顯示
+  const specItems = [
+    { id: 'specificationItem', contentId: 'modalSpecification', value: product.specification },
+    { id: 'originItem', contentId: 'modalOrigin', value: product.origin },
+    { id: 'storageMethodItem', contentId: 'modalStorageMethod', value: product.storageMethod },
+    { id: 'shelfLifeItem', contentId: 'modalShelfLife', value: product.shelfLife }
+  ];
+  
+  specItems.forEach(item => {
+    const element = document.getElementById(item.id);
+    const contentElement = document.getElementById(item.contentId);
+    
+    if (item.value && item.value.trim()) {
+      contentElement.textContent = item.value;
+      element.style.display = 'flex';
+      hasSpecs = true;
+    } else {
+      contentElement.textContent = '';
+      element.style.display = 'none';
+    }
+  });
+  
+  specsSection.style.display = hasSpecs ? 'block' : 'none';
+  
+  // 設定成分說明
+  const ingredientsSection = document.getElementById('ingredientsSection');
+  if (product.ingredients && product.ingredients.trim()) {
+    document.getElementById('modalIngredients').textContent = product.ingredients;
+    ingredientsSection.style.display = 'block';
+  } else {
+    ingredientsSection.style.display = 'none';
+  }
+  
+  // 設定過敏原資訊
+  const allergensSection = document.getElementById('allergensSection');
+  if (product.allergens && product.allergens.trim()) {
+    document.getElementById('modalAllergens').textContent = product.allergens;
+    allergensSection.style.display = 'block';
+  } else {
+    allergensSection.style.display = 'none';
+  }
+  
+  // 設定注意事項
+  const noticeSection = document.getElementById('noticeSection');
+  if (product.noticeItems && product.noticeItems.length > 0) {
+    const noticeList = document.getElementById('modalNoticeList');
+    noticeList.innerHTML = product.noticeItems.map(notice => `<li>${notice}</li>`).join('');
+    noticeSection.style.display = 'block';
+  } else {
+    noticeSection.style.display = 'none';
+  }
+  
+  // 重置數量
+  document.getElementById('modalQuantity').textContent = modalQuantity;
+  
+  // 顯示模態視窗
+  document.getElementById('productDetailModal').classList.add('show');
+  document.body.style.overflow = 'hidden'; // 防止背景滾動
+}
+
+// 關閉商品詳情模態視窗
+function closeProductDetail() {
+  document.getElementById('productDetailModal').classList.remove('show');
+  document.body.style.overflow = ''; // 恢復背景滾動
+  currentModalProduct = null;
+  modalQuantity = 1;
+}
+
+// 改變模態視窗中的數量
+function changeModalQuantity(delta) {
+  const newQuantity = modalQuantity + delta;
+  if (newQuantity >= 1 && newQuantity <= 99) {
+    modalQuantity = newQuantity;
+    document.getElementById('modalQuantity').textContent = modalQuantity;
+  }
+}
+
+// 從模態視窗加入購物車
+function addToCartFromModal() {
+  if (!currentModalProduct) return;
+  
+  // 檢查庫存
+  if (currentModalProduct.stock <= 0) {
+    showNotification('商品已售完', 'error');
+    return;
+  }
+  
+  // 加入購物車
+  addToCart(currentModalProduct.name, currentModalProduct.price, modalQuantity);
+  
+  // 關閉模態視窗
+  closeProductDetail();
 }
 
 // 跳轉到首頁

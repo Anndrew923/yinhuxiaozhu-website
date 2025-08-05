@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品詳情測試 | 隱湖小竹</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body {
+            font-family: "Noto Sans TC", sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f6fa;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .test-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .test-product-card {
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .test-product-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+        }
+        
+        .test-product-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .test-product-card p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .test-controls {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🧪 商品詳情功能測試</h1>
+            <p>點擊下方商品卡片測試彈出式詳情視窗</p>
+        </div>
+        
+        <div class="test-products">
+            <div class="test-product-card" onclick="testBasicProduct()">
+                <h3>📦 基本商品</h3>
+                <p>只有基本資訊的簡單商品測試</p>
+            </div>
+            
+            <div class="test-product-card" onclick="testDetailedProduct()">
+                <h3>🌟 完整詳情商品</h3>
+                <p>包含所有詳細資訊的完整商品測試</p>
+            </div>
+            
+            <div class="test-product-card" onclick="testPartialProduct()">
+                <h3>📝 部分資訊商品</h3>
+                <p>包含部分詳細資訊的商品測試</p>
+            </div>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn" onclick="window.location.href='order.html'">
+                <i class="fas fa-arrow-left"></i> 返回訂餐頁面
+            </button>
+            <button class="btn" onclick="window.location.href='admin-products.html'">
+                <i class="fas fa-cog"></i> 商品管理
+            </button>
+        </div>
+    </div>
+
+    <!-- 商品詳情模態視窗 (複製自 order.html) -->
+    <div class="product-detail-modal" id="productDetailModal">
+        <div class="modal-overlay" onclick="closeProductDetail()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalProductName">商品名稱</h3>
+                <button class="modal-close" onclick="closeProductDetail()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="product-image-section">
+                    <img id="modalProductImage" src="" alt="" />
+                </div>
+                
+                <div class="product-info-section">
+                    <div class="price-section">
+                        <span class="current-price" id="modalCurrentPrice">NT$ 0</span>
+                        <span class="original-price" id="modalOriginalPrice" style="display: none;"></span>
+                    </div>
+                    
+                    <div class="description-section">
+                        <h4>商品說明</h4>
+                        <p id="modalProductDescription">商品描述</p>
+                    </div>
+                    
+                    <div class="detailed-description-section" id="detailedDescriptionSection" style="display: none;">
+                        <h4>詳細說明</h4>
+                        <p id="modalDetailedDescription"></p>
+                    </div>
+                    
+                    <div class="product-specs" id="productSpecs" style="display: none;">
+                        <h4>商品規格</h4>
+                        <div class="spec-item" id="specificationItem">
+                            <span class="spec-label">規格：</span>
+                            <span id="modalSpecification"></span>
+                        </div>
+                        <div class="spec-item" id="originItem">
+                            <span class="spec-label">產地：</span>
+                            <span id="modalOrigin"></span>
+                        </div>
+                        <div class="spec-item" id="storageMethodItem">
+                            <span class="spec-label">保存方式：</span>
+                            <span id="modalStorageMethod"></span>
+                        </div>
+                        <div class="spec-item" id="shelfLifeItem">
+                            <span class="spec-label">保存期限：</span>
+                            <span id="modalShelfLife"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="ingredients-section" id="ingredientsSection" style="display: none;">
+                        <h4>成分說明</h4>
+                        <p id="modalIngredients"></p>
+                    </div>
+                    
+                    <div class="allergens-section" id="allergensSection" style="display: none;">
+                        <h4>過敏原資訊</h4>
+                        <p id="modalAllergens"></p>
+                    </div>
+                    
+                    <div class="notice-section" id="noticeSection" style="display: none;">
+                        <h4>注意事項</h4>
+                        <ul id="modalNoticeList"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="quantity-controls">
+                    <button class="qty-btn" onclick="changeModalQuantity(-1)">-</button>
+                    <span id="modalQuantity">1</span>
+                    <button class="qty-btn" onclick="changeModalQuantity(1)">+</button>
+                </div>
+                <button class="add-to-cart-btn" onclick="addToCartFromModal()">
+                    <i class="fas fa-shopping-cart"></i>
+                    加入購物車
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 測試用商品數據
+        const testProducts = {
+            basic: {
+                id: 'test-basic',
+                name: '經典竹筍湯',
+                price: 120,
+                description: '使用新鮮竹筍製作的清爽湯品',
+                image: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=300&h=200&fit=crop'
+            },
+            
+            detailed: {
+                id: 'test-detailed',
+                name: '頂級竹筍炒飯',
+                price: 180,
+                originalPrice: 220,
+                description: '精選優質竹筍搭配香Q米飯',
+                detailedDescription: '選用阿里山新鮮竹筍，搭配來自池上的優質稻米，經過主廚精心調理，呈現出竹筍的清香與米飯的香甜，是本店的招牌料理之一。每一口都能品嚐到食材的原始美味。',
+                specification: '250g/份',
+                origin: '台灣阿里山',
+                storageMethod: '冷藏保存',
+                shelfLife: '當日製作當日享用',
+                ingredients: '竹筍、白米、雞蛋、蔥花、蒜泥、醬油、香油',
+                allergens: '含有雞蛋、大豆製品',
+                noticeItems: ['請於製作後2小時內享用', '對竹筍過敏者請避免食用', '加熱時請注意溫度'],
+                image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&h=200&fit=crop'
+            },
+            
+            partial: {
+                id: 'test-partial',
+                name: '竹筍沙拉',
+                price: 150,
+                description: '清爽健康的竹筍沙拉',
+                detailedDescription: '新鮮竹筍搭配季節蔬菜，淋上特製和風醬汁',
+                specification: '200g/份',
+                origin: '台灣',
+                ingredients: '新鮮竹筍、生菜、小番茄、玉米粒、和風醬',
+                noticeItems: ['建議立即享用以保持最佳口感'],
+                image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=200&fit=crop'
+            }
+        };
+
+        // 商品詳情模態視窗變數
+        let currentModalProduct = null;
+        let modalQuantity = 1;
+
+        // 測試函數
+        function testBasicProduct() {
+            showProductDetail(testProducts.basic);
+        }
+
+        function testDetailedProduct() {
+            showProductDetail(testProducts.detailed);
+        }
+
+        function testPartialProduct() {
+            showProductDetail(testProducts.partial);
+        }
+
+        // 複製自 order.js 的函數
+        function showProductDetail(product) {
+            currentModalProduct = product;
+            modalQuantity = 1;
+            
+            // 更新模態視窗內容
+            document.getElementById('modalProductName').textContent = product.name;
+            document.getElementById('modalCurrentPrice').textContent = `NT$ ${product.price.toLocaleString()}`;
+            
+            // 處理原價顯示
+            const originalPriceElement = document.getElementById('modalOriginalPrice');
+            if (product.originalPrice && product.originalPrice > product.price) {
+                originalPriceElement.textContent = `NT$ ${product.originalPrice.toLocaleString()}`;
+                originalPriceElement.style.display = 'inline';
+            } else {
+                originalPriceElement.style.display = 'none';
+            }
+            
+            // 設定商品圖片
+            const productImage = document.getElementById('modalProductImage');
+            if (product.image) {
+                productImage.src = product.image;
+                productImage.alt = product.name;
+                productImage.onerror = function() {
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaZguWcluePuzwvdGV4dD48L3N2Zz4=';
+                };
+            } else {
+                productImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjhmOWZhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNiIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPuaaguaZguWcluePuzwvdGV4dD48L3N2Zz4=';
+            }
+            
+            // 設定基本描述
+            document.getElementById('modalProductDescription').textContent = product.description || '暫無描述';
+            
+            // 設定詳細說明
+            const detailedDescSection = document.getElementById('detailedDescriptionSection');
+            if (product.detailedDescription && product.detailedDescription.trim()) {
+                document.getElementById('modalDetailedDescription').textContent = product.detailedDescription;
+                detailedDescSection.style.display = 'block';
+            } else {
+                detailedDescSection.style.display = 'none';
+            }
+            
+            // 設定商品規格
+            const specsSection = document.getElementById('productSpecs');
+            let hasSpecs = false;
+            
+            // 處理規格項目的顯示
+            const specItems = [
+                { id: 'specificationItem', contentId: 'modalSpecification', value: product.specification },
+                { id: 'originItem', contentId: 'modalOrigin', value: product.origin },
+                { id: 'storageMethodItem', contentId: 'modalStorageMethod', value: product.storageMethod },
+                { id: 'shelfLifeItem', contentId: 'modalShelfLife', value: product.shelfLife }
+            ];
+            
+            specItems.forEach(item => {
+                const element = document.getElementById(item.id);
+                const contentElement = document.getElementById(item.contentId);
+                
+                if (item.value && item.value.trim()) {
+                    contentElement.textContent = item.value;
+                    element.style.display = 'flex';
+                    hasSpecs = true;
+                } else {
+                    contentElement.textContent = '';
+                    element.style.display = 'none';
+                }
+            });
+            
+            specsSection.style.display = hasSpecs ? 'block' : 'none';
+            
+            // 設定成分說明
+            const ingredientsSection = document.getElementById('ingredientsSection');
+            if (product.ingredients && product.ingredients.trim()) {
+                document.getElementById('modalIngredients').textContent = product.ingredients;
+                ingredientsSection.style.display = 'block';
+            } else {
+                ingredientsSection.style.display = 'none';
+            }
+            
+            // 設定過敏原資訊
+            const allergensSection = document.getElementById('allergensSection');
+            if (product.allergens && product.allergens.trim()) {
+                document.getElementById('modalAllergens').textContent = product.allergens;
+                allergensSection.style.display = 'block';
+            } else {
+                allergensSection.style.display = 'none';
+            }
+            
+            // 設定注意事項
+            const noticeSection = document.getElementById('noticeSection');
+            if (product.noticeItems && product.noticeItems.length > 0) {
+                const noticeList = document.getElementById('modalNoticeList');
+                noticeList.innerHTML = product.noticeItems.map(notice => `<li>${notice}</li>`).join('');
+                noticeSection.style.display = 'block';
+            } else {
+                noticeSection.style.display = 'none';
+            }
+            
+            // 重置數量
+            document.getElementById('modalQuantity').textContent = modalQuantity;
+            
+            // 顯示模態視窗
+            document.getElementById('productDetailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductDetail() {
+            document.getElementById('productDetailModal').classList.remove('show');
+            document.body.style.overflow = '';
+            currentModalProduct = null;
+            modalQuantity = 1;
+        }
+
+        function changeModalQuantity(delta) {
+            const newQuantity = modalQuantity + delta;
+            if (newQuantity >= 1 && newQuantity <= 99) {
+                modalQuantity = newQuantity;
+                document.getElementById('modalQuantity').textContent = modalQuantity;
+            }
+        }
+
+        function addToCartFromModal() {
+            if (!currentModalProduct) return;
+            
+            alert(`已將 "${currentModalProduct.name}" x${modalQuantity} 加入購物車！\n\n這是測試功能，實際購物車功能請到訂餐頁面使用。`);
+            closeProductDetail();
+        }
+    </script>
+    
+    <!-- 載入 order.html 的樣式 -->
+    <link rel="stylesheet" href="order.html" type="text/html" />
+    <style>
+        /* 商品詳情模態視窗樣式 (複製自 order.html) */
+        .product-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .product-detail-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .product-detail-modal .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-detail-modal .modal-header {
+            padding: 20px 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: none;
+        }
+
+        .product-detail-modal .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .product-detail-modal .modal-close {
+            background: #f8f9fa;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .product-detail-modal .modal-close:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .product-detail-modal .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .product-image-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .product-image-section img {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .price-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .price-section .current-price {
+            font-size: 24px;
+            font-weight: 600;
+            color: #e74c3c;
+            margin-right: 10px;
+        }
+
+        .price-section .original-price {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .product-info-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-info-section h4:before {
+            content: "";
+            width: 3px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 2px;
+        }
+
+        .description-section,
+        .detailed-description-section,
+        .ingredients-section,
+        .allergens-section,
+        .notice-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .description-section:last-child,
+        .notice-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .product-specs {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .spec-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .spec-label {
+            font-weight: 500;
+            color: #666;
+            min-width: 80px;
+        }
+
+        #modalNoticeList {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        #modalNoticeList li {
+            margin-bottom: 6px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .product-detail-modal .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #f1f3f4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .qty-btn {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .qty-btn:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .qty-btn:active {
+            transform: scale(0.95);
+        }
+
+        #modalQuantity {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .add-to-cart-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .add-to-cart-btn:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .product-detail-modal .modal-content {
+                width: 95vw;
+                max-height: 95vh;
+            }
+
+            .product-detail-modal .modal-footer {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .quantity-controls {
+                align-self: center;
+            }
+
+            .add-to-cart-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html> 
