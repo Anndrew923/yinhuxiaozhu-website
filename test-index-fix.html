@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>索引修復測試 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .console-output {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>索引修復測試</h1>
+    
+    <div class="test-section">
+        <h2>測試結果</h2>
+        <div id="testResults">等待測試...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>測試操作</h2>
+        <button class="btn-primary" onclick="testBasicQuery()">測試基本查詢</button>
+        <button class="btn-primary" onclick="testCategoryFilter()">測試分類篩選</button>
+        <button class="btn-primary" onclick="testAvailabilityFilter()">測試上架狀態篩選</button>
+        <button class="btn-primary" onclick="testSorting()">測試排序</button>
+        <button class="btn-success" onclick="createTestProducts()">創建測試商品</button>
+        <button class="btn-secondary" onclick="clearConsole()">清除日誌</button>
+    </div>
+
+    <div class="test-section">
+        <h2>控制台日誌</h2>
+        <div id="consoleOutput" class="console-output"></div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/product.service.js"></script>
+
+    <script>
+        // 重寫 console.log 來捕獲輸出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleOutput = document.getElementById('consoleOutput');
+        
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            consoleOutput.innerHTML += `<span style="color: ${color}">[${timestamp}] ${message}</span>\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            addToConsole(args.join(' '), 'warn');
+        };
+
+        function updateResults(message, type = 'success') {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+        }
+
+        // 測試基本查詢
+        async function testBasicQuery() {
+            try {
+                console.log('=== 測試基本查詢 ===');
+                updateResults('測試中...', 'warning');
+                
+                const products = await ProductService.getAllProducts();
+                console.log(`✓ 基本查詢成功，獲取到 ${products.length} 個商品`);
+                updateResults(`基本查詢成功！商品數量: ${products.length}`, 'success');
+                
+            } catch (error) {
+                console.error('基本查詢失敗:', error);
+                updateResults(`基本查詢失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 測試分類篩選
+        async function testCategoryFilter() {
+            try {
+                console.log('=== 測試分類篩選 ===');
+                updateResults('測試中...', 'warning');
+                
+                const products = await ProductService.getAllProducts({ category: '麵食' });
+                console.log(`✓ 分類篩選成功，獲取到 ${products.length} 個麵食商品`);
+                updateResults(`分類篩選成功！麵食商品數量: ${products.length}`, 'success');
+                
+            } catch (error) {
+                console.error('分類篩選失敗:', error);
+                updateResults(`分類篩選失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 測試上架狀態篩選
+        async function testAvailabilityFilter() {
+            try {
+                console.log('=== 測試上架狀態篩選 ===');
+                updateResults('測試中...', 'warning');
+                
+                const products = await ProductService.getAllProducts({ isAvailable: true });
+                console.log(`✓ 上架狀態篩選成功，獲取到 ${products.length} 個上架商品`);
+                updateResults(`上架狀態篩選成功！上架商品數量: ${products.length}`, 'success');
+                
+            } catch (error) {
+                console.error('上架狀態篩選失敗:', error);
+                updateResults(`上架狀態篩選失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 測試排序
+        async function testSorting() {
+            try {
+                console.log('=== 測試排序 ===');
+                updateResults('測試中...', 'warning');
+                
+                const products = await ProductService.getAllProducts({ 
+                    orderBy: 'sortOrder', 
+                    orderDirection: 'asc' 
+                });
+                console.log(`✓ 排序成功，獲取到 ${products.length} 個商品`);
+                
+                if (products.length > 1) {
+                    console.log('前3個商品的排序順序:');
+                    products.slice(0, 3).forEach((p, i) => {
+                        console.log(`${i + 1}. ${p.name} (sortOrder: ${p.sortOrder})`);
+                    });
+                }
+                
+                updateResults(`排序成功！商品數量: ${products.length}`, 'success');
+                
+            } catch (error) {
+                console.error('排序失敗:', error);
+                updateResults(`排序失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 創建測試商品
+        async function createTestProducts() {
+            try {
+                console.log('=== 創建測試商品 ===');
+                updateResults('創建中...', 'warning');
+                
+                const testProducts = [
+                    {
+                        name: '測試麵食1',
+                        category: '麵食',
+                        price: 120,
+                        description: '測試用的麵食商品',
+                        isAvailable: true,
+                        sortOrder: 1
+                    },
+                    {
+                        name: '測試飲品1',
+                        category: '飲品',
+                        price: 80,
+                        description: '測試用的飲品商品',
+                        isAvailable: true,
+                        sortOrder: 2
+                    },
+                    {
+                        name: '測試麵食2',
+                        category: '麵食',
+                        price: 150,
+                        description: '另一個測試麵食',
+                        isAvailable: false,
+                        sortOrder: 3
+                    }
+                ];
+                
+                for (const productData of testProducts) {
+                    const result = await ProductService.createProduct(productData);
+                    console.log(`✓ 創建商品成功: ${result.name} (ID: ${result.id})`);
+                }
+                
+                updateResults('測試商品創建成功！', 'success');
+                
+            } catch (error) {
+                console.error('創建測試商品失敗:', error);
+                updateResults(`創建測試商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動執行基本測試
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('索引修復測試頁面載入完成');
+            setTimeout(() => {
+                testBasicQuery();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

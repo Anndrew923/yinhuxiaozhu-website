@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品診斷工具 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .product-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-item:last-child { border-bottom: none; }
+        .product-info { flex: 1; }
+        .product-actions { display: flex; gap: 10px; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>商品診斷工具</h1>
+        <div id="status" class="status info">準備診斷商品問題...</div>
+        
+        <div>
+            <button class="btn btn-primary" onclick="diagnoseProducts()">開始診斷</button>
+            <button class="btn btn-warning" onclick="checkStatsCalculation()">檢查統計計算</button>
+            <button class="btn btn-danger" onclick="forceDeleteAllProducts()">強制刪除所有商品</button>
+            <button class="btn btn-success" onclick="window.location.href='admin-products.html'">返回商品管理</button>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProducts">0</div>
+                <div class="stat-label">總商品數</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeProducts">0</div>
+                <div class="stat-label">上架商品</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="productsWithImage">0</div>
+                <div class="stat-label">有圖片商品</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="productsWithoutImage">0</div>
+                <div class="stat-label">無圖片商品</div>
+            </div>
+        </div>
+        
+        <div id="productList" class="product-list" style="display: none;">
+            <h3>所有商品列表：</h3>
+            <div id="products"></div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/admin-product.service.js"></script>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function diagnoseProducts() {
+            try {
+                updateStatus('開始診斷商品問題...', 'info');
+                
+                // 檢查認證
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    updateStatus('請先登入管理員帳號', 'error');
+                    return;
+                }
+                
+                // 獲取所有商品
+                const allProducts = await AdminProductService.getProducts({ limit: 1000 });
+                const products = allProducts.products;
+                
+                console.log('所有商品:', products);
+                
+                // 計算統計數據
+                const stats = {
+                    total: products.length,
+                    active: products.filter(p => p.status === 'active').length,
+                    withImage: products.filter(p => p.image && p.image.trim() !== '').length,
+                    withoutImage: products.filter(p => !p.image || p.image.trim() === '').length
+                };
+                
+                // 顯示統計
+                document.getElementById('totalProducts').textContent = stats.total;
+                document.getElementById('activeProducts').textContent = stats.active;
+                document.getElementById('productsWithImage').textContent = stats.withImage;
+                document.getElementById('productsWithoutImage').textContent = stats.withoutImage;
+                document.getElementById('statsGrid').style.display = 'grid';
+                
+                // 顯示商品列表
+                const productList = document.getElementById('productList');
+                const productsDiv = document.getElementById('products');
+                
+                if (products.length === 0) {
+                    updateStatus('沒有找到任何商品', 'success');
+                    productList.style.display = 'none';
+                    return;
+                }
+                
+                productsDiv.innerHTML = products.map(product => `
+                    <div class="product-item">
+                        <div class="product-info">
+                            <strong>${product.name}</strong> (ID: ${product.id})<br>
+                            分類: ${product.category || '無分類'} | 
+                            價格: NT$ ${product.price} | 
+                            狀態: ${product.status === 'active' ? '上架' : '下架'} | 
+                            圖片: ${product.image ? '有' : '無'} |
+                            創建時間: ${new Date(product.createdAt).toLocaleString()}
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">刪除</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                productList.style.display = 'block';
+                
+                updateStatus(`診斷完成！找到 ${products.length} 個商品`, 'success');
+                
+            } catch (error) {
+                console.error('診斷失敗:', error);
+                updateStatus(`診斷失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkStatsCalculation() {
+            try {
+                updateStatus('檢查統計計算...', 'info');
+                
+                // 獲取服務統計
+                const serviceStats = await AdminProductService.getProductStats();
+                console.log('服務統計:', serviceStats);
+                
+                // 獲取實際商品
+                const allProducts = await AdminProductService.getProducts({ limit: 1000 });
+                const products = allProducts.products;
+                
+                // 手動計算統計
+                const manualStats = {
+                    totalProducts: products.length,
+                    activeProducts: products.filter(p => p.status === 'active').length,
+                    outOfStockProducts: products.filter(p => p.stock === 0).length,
+                    lowStockProducts: products.filter(p => p.stock > 0 && p.stock <= (p.stockWarningThreshold || 10)).length
+                };
+                
+                console.log('手動計算統計:', manualStats);
+                
+                // 比較差異
+                const differences = [];
+                if (serviceStats.totalProducts !== manualStats.totalProducts) {
+                    differences.push(`總商品數: 服務=${serviceStats.totalProducts}, 實際=${manualStats.totalProducts}`);
+                }
+                if (serviceStats.activeProducts !== manualStats.activeProducts) {
+                    differences.push(`上架商品: 服務=${serviceStats.activeProducts}, 實際=${manualStats.activeProducts}`);
+                }
+                
+                if (differences.length > 0) {
+                    updateStatus(`發現統計差異: ${differences.join('; ')}`, 'warning');
+                } else {
+                    updateStatus('統計計算正確', 'success');
+                }
+                
+            } catch (error) {
+                console.error('檢查統計失敗:', error);
+                updateStatus(`檢查統計失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('確定要刪除此商品嗎？')) {
+                return;
+            }
+            
+            try {
+                updateStatus('刪除商品中...', 'info');
+                await AdminProductService.deleteProduct(productId);
+                updateStatus('商品刪除成功', 'success');
+                diagnoseProducts(); // 重新診斷
+            } catch (error) {
+                console.error('刪除商品失敗:', error);
+                updateStatus(`刪除失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function forceDeleteAllProducts() {
+            if (!confirm('確定要刪除所有商品嗎？此操作無法復原！')) {
+                return;
+            }
+            
+            try {
+                updateStatus('開始強制刪除所有商品...', 'warning');
+                
+                const allProducts = await AdminProductService.getProducts({ limit: 1000 });
+                const products = allProducts.products;
+                
+                if (products.length === 0) {
+                    updateStatus('沒有商品需要刪除', 'info');
+                    return;
+                }
+                
+                let deletedCount = 0;
+                for (const product of products) {
+                    try {
+                        await AdminProductService.deleteProduct(product.id);
+                        deletedCount++;
+                        updateStatus(`已刪除 ${deletedCount}/${products.length} 個商品`, 'info');
+                    } catch (error) {
+                        console.error(`刪除商品 ${product.name} 失敗:`, error);
+                    }
+                }
+                
+                updateStatus(`成功刪除 ${deletedCount} 個商品`, 'success');
+                diagnoseProducts(); // 重新診斷
+                
+            } catch (error) {
+                console.error('批量刪除失敗:', error);
+                updateStatus(`批量刪除失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動診斷
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('商品診斷工具載入完成');
+            setTimeout(() => {
+                diagnoseProducts();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清理測試商品 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 16px;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        .product-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        .product-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>清理測試商品</h1>
+        <div id="status" class="status info">準備清理測試商品...</div>
+        
+        <div>
+            <button class="btn btn-primary" onclick="loadTestProducts()">載入測試商品</button>
+            <button class="btn btn-danger" onclick="deleteAllTestProducts()">刪除所有測試商品</button>
+            <button class="btn btn-primary" onclick="window.location.href='admin-menu.html'">返回菜單管理</button>
+        </div>
+        
+        <div id="productList" class="product-list" style="display: none;">
+            <h3>測試商品列表：</h3>
+            <div id="products"></div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/services/auth.service.js"></script>
+    <script src="js/services/product.service.js"></script>
+
+    <script>
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function loadTestProducts() {
+            try {
+                updateStatus('載入測試商品中...', 'info');
+                
+                const allProducts = await ProductService.getAllProducts();
+                const testProducts = allProducts.filter(p => 
+                    p.name.includes('測試') || 
+                    p.category === '測試' ||
+                    p.name.includes('Test')
+                );
+                
+                const productList = document.getElementById('productList');
+                const productsDiv = document.getElementById('products');
+                
+                if (testProducts.length === 0) {
+                    updateStatus('沒有找到測試商品', 'success');
+                    productList.style.display = 'none';
+                    return;
+                }
+                
+                productsDiv.innerHTML = testProducts.map(product => `
+                    <div class="product-item">
+                        <span><strong>${product.name}</strong> - ${product.category} - NT$ ${product.price}</span>
+                        <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">刪除</button>
+                    </div>
+                `).join('');
+                
+                productList.style.display = 'block';
+                updateStatus(`找到 ${testProducts.length} 個測試商品`, 'warning');
+                
+            } catch (error) {
+                console.error('載入測試商品失敗:', error);
+                updateStatus(`載入失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            try {
+                updateStatus('刪除商品中...', 'info');
+                await ProductService.deleteProduct(productId);
+                updateStatus('商品刪除成功', 'success');
+                loadTestProducts(); // 重新載入列表
+            } catch (error) {
+                console.error('刪除商品失敗:', error);
+                updateStatus(`刪除失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteAllTestProducts() {
+            if (!confirm('確定要刪除所有測試商品嗎？此操作無法復原！')) {
+                return;
+            }
+            
+            try {
+                updateStatus('開始刪除所有測試商品...', 'warning');
+                
+                const allProducts = await ProductService.getAllProducts();
+                const testProducts = allProducts.filter(p => 
+                    p.name.includes('測試') || 
+                    p.category === '測試' ||
+                    p.name.includes('Test')
+                );
+                
+                if (testProducts.length === 0) {
+                    updateStatus('沒有測試商品需要刪除', 'info');
+                    return;
+                }
+                
+                let deletedCount = 0;
+                for (const product of testProducts) {
+                    try {
+                        await ProductService.deleteProduct(product.id);
+                        deletedCount++;
+                        updateStatus(`已刪除 ${deletedCount}/${testProducts.length} 個測試商品`, 'info');
+                    } catch (error) {
+                        console.error(`刪除商品 ${product.name} 失敗:`, error);
+                    }
+                }
+                
+                updateStatus(`成功刪除 ${deletedCount} 個測試商品`, 'success');
+                loadTestProducts(); // 重新載入列表
+                
+            } catch (error) {
+                console.error('批量刪除失敗:', error);
+                updateStatus(`批量刪除失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動載入測試商品
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTestProducts();
+        });
+    </script>
+</body>
+</html> 

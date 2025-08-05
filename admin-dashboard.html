@@ -501,7 +501,7 @@
             <i class="fas fa-box"></i>
             商品管理
           </a>
-          <a href="admin-menu.html" class="nav-item">
+          <a href="admin-menu.html" class="nav-item" onclick="window.location.href='admin-menu.html'">
             <i class="fas fa-utensils"></i>
             菜單管理
           </a>
@@ -790,14 +790,29 @@
         async function getTodayOrdersCount() {
           try {
             const today = new Date().toISOString().split("T")[0];
+            console.log("獲取今日訂單數，日期:", today);
+            
+            // 避免使用 where 查詢，獲取所有訂單後在客戶端篩選
             const snapshot = await firebase
               .firestore()
               .collection("orders")
-              .where("createdAt", ">=", today)
               .get();
-            return snapshot.size;
+              
+            let todayCount = 0;
+            snapshot.forEach((doc) => {
+              const order = doc.data();
+              const orderDate = order.createdAt;
+              
+              if (orderDate && orderDate.startsWith(today)) {
+                todayCount++;
+              }
+            });
+            
+            console.log("今日訂單數:", todayCount);
+            return todayCount;
           } catch (error) {
             console.error("獲取今日訂單數失敗:", error);
+            console.error("錯誤詳情:", error.message);
             return 0;
           }
         }
@@ -806,21 +821,33 @@
         async function getTodayRevenue() {
           try {
             const today = new Date().toISOString().split("T")[0];
+            console.log("獲取今日營業額，日期:", today);
+            
+            // 避免複合查詢，先獲取所有訂單，再在客戶端篩選
             const snapshot = await firebase
               .firestore()
               .collection("orders")
-              .where("createdAt", ">=", today)
-              .where("paymentStatus", "==", "paid")
               .get();
 
             let total = 0;
+            let todayOrdersCount = 0;
+            
             snapshot.forEach((doc) => {
               const order = doc.data();
-              total += order.finalTotal || 0;
+              const orderDate = order.createdAt;
+              
+              // 檢查是否為今日訂單且已付款
+              if (orderDate && orderDate.startsWith(today) && order.paymentStatus === "paid") {
+                total += order.finalTotal || 0;
+                todayOrdersCount++;
+              }
             });
+            
+            console.log(`今日營業額: ${total}, 今日已付款訂單數: ${todayOrdersCount}`);
             return total;
           } catch (error) {
             console.error("獲取今日營業額失敗:", error);
+            console.error("錯誤詳情:", error.message);
             return 0;
           }
         }

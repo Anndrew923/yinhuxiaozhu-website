@@ -92,6 +92,33 @@ nav ul li a:hover {
   letter-spacing: 3px;
 }
 
+/* 通用按鈕樣式，確保圖標按鈕水平對齊 */
+.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 10px 20px !important;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.btn i {
+  pointer-events: none;
+}
+
+/* 按鈕間距：連續按鈕自動留白 */
+.btn + .btn {
+  margin-left: 10px;
+}
+
 .btn-primary {
   display: inline-block;
   margin-top: 20px;

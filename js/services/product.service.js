@@ -105,37 +105,13 @@ const ProductService = (() => {
       await initFirebase();
       console.log('ProductService: Firebase 初始化完成');
       
-      let query = db.collection('products');
-      console.log('ProductService: 創建查詢');
-      
-      // 篩選選項
-      if (options.category) {
-        console.log('ProductService: 添加分類篩選:', options.category);
-        query = query.where('category', '==', options.category);
-      }
-      
-      if (options.isAvailable !== undefined) {
-        console.log('ProductService: 添加上架狀態篩選:', options.isAvailable);
-        query = query.where('isAvailable', '==', options.isAvailable);
-      }
-      
-      // 排序
-      const orderBy = options.orderBy || 'sortOrder';
-      const orderDirection = options.orderDirection || 'asc';
-      console.log('ProductService: 設定排序:', orderBy, orderDirection);
-      query = query.orderBy(orderBy, orderDirection);
-      
-      // 限制數量
-      if (options.limit) {
-        console.log('ProductService: 設定數量限制:', options.limit);
-        query = query.limit(options.limit);
-      }
-      
-      console.log('ProductService: 執行查詢...');
-      const snapshot = await query.get();
+      // 先獲取所有商品，然後在客戶端進行篩選和排序
+      // 這樣可以避免需要複合索引的查詢
+      console.log('ProductService: 獲取所有商品...');
+      const snapshot = await db.collection('products').get();
       console.log('ProductService: 查詢完成，文檔數量:', snapshot.size);
       
-      const products = [];
+      let products = [];
       
       snapshot.forEach(doc => {
         const productData = doc.data();
@@ -145,6 +121,45 @@ const ProductService = (() => {
           ...productData
         });
       });
+      
+      // 客戶端篩選
+      if (options.category) {
+        console.log('ProductService: 客戶端分類篩選:', options.category);
+        products = products.filter(p => p.category === options.category);
+      }
+      
+      if (options.isAvailable !== undefined) {
+        console.log('ProductService: 客戶端上架狀態篩選:', options.isAvailable);
+        products = products.filter(p => p.isAvailable === options.isAvailable);
+      }
+      
+      // 客戶端排序
+      const orderBy = options.orderBy || 'sortOrder';
+      const orderDirection = options.orderDirection || 'asc';
+      console.log('ProductService: 客戶端排序:', orderBy, orderDirection);
+      
+      products.sort((a, b) => {
+        let aValue = a[orderBy] || 0;
+        let bValue = b[orderBy] || 0;
+        
+        // 處理數字和字串排序
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+        
+        if (orderDirection === 'asc') {
+          return aValue > bValue ? 1 : -1;
+        } else {
+          return aValue < bValue ? 1 : -1;
+        }
+      });
+      
+      // 客戶端限制數量
+      if (options.limit) {
+        console.log('ProductService: 客戶端數量限制:', options.limit);
+        products = products.slice(0, options.limit);
+      }
       
       console.log('ProductService: 返回商品列表，總數:', products.length);
       return products;

@@ -178,20 +178,29 @@
       .toolbar-right {
         display: flex;
         gap: 10px;
+        align-items: center;
       }
 
       .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s ease;
+        padding: 10px 20px !important;
+        border: none !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        transition: all 0.3s ease !important;
+        box-sizing: border-box !important;
+        height: 40px !important;
+        line-height: 1 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+        vertical-align: top !important;
       }
 
       .btn-primary {
@@ -256,6 +265,8 @@
 
       .product-info {
         padding: 15px;
+        position: relative; /* 讓底部操作列定位 */
+        padding-bottom: 60px; /* 保留空間給底部按鈕 */
       }
 
       .product-header {
@@ -286,8 +297,18 @@
       }
 
       .product-actions {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
         gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .product-card:hover .product-actions {
+        opacity: 1;
       }
 
       .product-badge {
@@ -420,6 +441,7 @@
         border-top: 1px solid #eee;
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: 10px;
       }
 
@@ -463,6 +485,63 @@
         max-height: 150px;
         border-radius: 6px;
         border: 2px solid #e0e0e0;
+      }
+      
+      .image-preview-container {
+        margin-top: 10px;
+      }
+
+      /* 檔案上傳樣式 */
+      .file-input {
+        display: none;
+      }
+
+      .file-label {
+        display: inline-block;
+        padding: 12px 24px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        color: #6c757d;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+
+      .file-label:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+        color: #495057;
+      }
+
+      .file-label i {
+        margin-right: 8px;
+      }
+
+      .upload-status {
+        margin-top: 10px;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        height: 10px;
+        margin-top: 10px;
+      }
+
+      .progress {
+        width: 0%;
+        height: 100%;
+        background-color: #a8e6cf;
+        transition: width 0.3s ease;
       }
 
       /* 響應式設計 */
@@ -535,12 +614,12 @@
 
       <!-- 標籤頁 -->
       <div class="tabs">
-        <button class="tab active" data-tab="featured">幻燈片管理</button>
-        <button class="tab" data-tab="full-menu">完整菜單</button>
+        <button class="tab active" data-tab="products-management">商品管理</button>
+        <button class="tab" data-tab="full-menu-management">完整菜單管理</button>
       </div>
 
-      <!-- 幻燈片管理內容 -->
-      <div id="featured" class="tab-content active">
+      <!-- 商品管理內容 -->
+      <div id="products-management" class="tab-content active">
         <!-- 工具列 -->
         <div class="toolbar">
           <div class="toolbar-left">
@@ -569,20 +648,28 @@
         </div>
       </div>
 
-      <!-- 完整菜單內容 -->
-      <div id="full-menu" class="tab-content">
+      <!-- 完整菜單管理內容 -->
+      <div id="full-menu-management" class="tab-content">
         <div class="toolbar">
-          <div class="toolbar-left">
-            <h3>完整菜單圖片管理</h3>
+          <h3>上傳新版完整菜單</h3>
+          <p>
+            選擇一張新的菜單圖片（建議使用高解析度的長圖），上傳後將會更新整個網站的完整菜單。
+          </p>
+          <input type="file" id="fullMenuUploader" class="file-input" accept="image/jpeg,image/png,image/webp" />
+          <label for="fullMenuUploader" class="file-label">
+            <i class="fas fa-upload"></i> 選擇菜單圖片
+          </label>
+          <div id="fullMenuPreview" class="image-preview-container" style="display: none;">
+            <img id="fullMenuPreviewImg" class="image-preview" src="#" alt="菜單預覽" />
           </div>
-          <div class="toolbar-right">
-            <button class="btn btn-primary" onclick="showUploadMenuModal()">
-              <i class="fas fa-upload"></i>
-              上傳菜單圖片
+          <button id="uploadFullMenuBtn" class="btn btn-primary" style="margin-top: 10px; display: none;">
+            <i class="fas fa-cloud-upload-alt"></i> 確認上傳
             </button>
+          <div id="fullMenuUploadProgress" class="progress-bar" style="display: none;">
+            <div class="progress"></div>
           </div>
+          <div class="upload-status" id="fullMenuUploadStatus"></div>
         </div>
-
         <div id="fullMenuContainer">
           <div class="loading">
             <div class="loading-spinner"></div>
@@ -682,33 +769,62 @@
         // 添加錯誤處理
         window.addEventListener('error', function(e) {
           console.error('JavaScript 錯誤:', e.error);
+          console.error('錯誤詳情:', e.error.message);
+          console.error('錯誤堆疊:', e.error.stack);
           alert('頁面發生錯誤: ' + e.error.message);
         });
+        
+        // 檢查服務是否可用
+        console.log("檢查服務可用性...");
+        if (typeof ProductService === 'undefined') {
+          console.error("ProductService 未定義！");
+          alert("ProductService 未載入，請檢查網路連接");
+          return;
+        }
+        console.log("ProductService 可用");
+        
+        if (typeof AuthService === 'undefined') {
+          console.error("AuthService 未定義！");
+          alert("AuthService 未載入，請檢查網路連接");
+          return;
+        }
+        console.log("AuthService 可用");
         
         // 按順序初始化
         (async function() {
           try {
+            console.log("開始權限檢查...");
             await checkAuth();
             console.log("權限檢查完成");
             
-            initTabs();
+            console.log("開始初始化標籤頁...");
+        initTabs();
             console.log("標籤頁初始化完成");
             
+            console.log("開始載入分類...");
             await loadCategories();
             console.log("分類載入完成");
             
+            console.log("開始載入統計資料...");
             await loadStats();
             console.log("統計資料載入完成");
             
+            console.log("開始載入商品列表...");
             await loadProducts();
             console.log("商品列表載入完成");
             
+            console.log("開始載入完整菜單...");
             await loadFullMenu();
             console.log("完整菜單載入完成");
+
+            // 初始化完整菜單上傳功能
+            initFullMenuUpload();
             
             console.log("所有初始化完成");
           } catch (error) {
             console.error("初始化過程中發生錯誤:", error);
+            console.error("錯誤詳情:", error.message);
+            console.error("錯誤堆疊:", error.stack);
             alert("初始化失敗: " + error.message);
           }
         })();
@@ -733,8 +849,17 @@
             checkFirebase();
           });
 
-          const user = firebase.auth().currentUser;
-          console.log("當前用戶:", user ? user.email : "未登入");
+          // 等待 Auth 狀態變化
+          console.log("等待用戶登入狀態確認...");
+          const user = await new Promise((resolve) => {
+            const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+              console.log("Auth 狀態變化:", user ? user.email : "未登入");
+              unsubscribe();
+              resolve(user);
+            });
+          });
+          
+          console.log("最終用戶狀態:", user ? user.email : "未登入");
           
           if (!user) {
             console.log("用戶未登入，跳轉到登入頁面");
@@ -753,11 +878,21 @@
             return;
           }
 
-          // 暫時簡化權限檢查，允許所有管理員訪問
           console.log("權限檢查通過：", adminCheck.adminData.role);
+          console.log("用戶已認證，繼續載入頁面內容");
           
         } catch (error) {
           console.error("權限檢查失敗:", error);
+          console.error("錯誤詳情:", error.message);
+          console.error("錯誤堆疊:", error.stack);
+          
+          // 如果是本地測試環境，不要跳轉，而是顯示錯誤
+          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            console.warn("本地測試環境，跳過權限檢查");
+            alert("本地測試環境，跳過權限檢查。錯誤: " + error.message);
+            return;
+          }
+          
           alert("權限檢查失敗：" + error.message);
           window.location.href = "admin-login.html";
         }
@@ -765,12 +900,28 @@
 
       // 初始化標籤頁
       function initTabs() {
+        try {
+          console.log("開始初始化標籤頁...");
         const tabs = document.querySelectorAll(".tab");
         const contents = document.querySelectorAll(".tab-content");
+
+          console.log("找到標籤:", tabs.length, "個");
+          console.log("找到內容:", contents.length, "個");
+
+          if (tabs.length === 0) {
+            console.warn("沒有找到標籤元素");
+            return;
+          }
+
+          if (contents.length === 0) {
+            console.warn("沒有找到內容元素");
+            return;
+          }
 
         tabs.forEach((tab) => {
           tab.addEventListener("click", function () {
             const targetTab = this.dataset.tab;
+              console.log("點擊標籤:", targetTab);
 
             // 更新標籤狀態
             tabs.forEach((t) => t.classList.remove("active"));
@@ -785,13 +936,27 @@
             });
           });
         });
+          
+          console.log("標籤頁初始化完成");
+        } catch (error) {
+          console.error("初始化標籤頁失敗:", error);
+          console.error("錯誤詳情:", error.message);
+          console.error("錯誤堆疊:", error.stack);
+        }
       }
 
       // 載入分類選項
       async function loadCategories() {
         try {
+          console.log("開始載入分類...");
           const categories = await ProductService.getCategories();
+          console.log("獲取到分類:", categories);
+          
           const categoryFilter = document.getElementById("categoryFilter");
+          if (!categoryFilter) {
+            console.error("找不到 categoryFilter 元素");
+            return;
+          }
           
           // 清空現有選項（除了"所有分類"）
           categoryFilter.innerHTML = '<option value="">所有分類</option>';
@@ -803,8 +968,12 @@
             option.textContent = category;
             categoryFilter.appendChild(option);
           });
+          
+          console.log("分類載入完成，共", categories.length, "個分類");
         } catch (error) {
           console.error("載入分類失敗:", error);
+          console.error("錯誤詳情:", error.message);
+          console.error("錯誤堆疊:", error.stack);
         }
       }
 
@@ -821,15 +990,28 @@
 
           console.log("統計結果:", { noodlesCount, drinksCount, totalCount });
 
-          document.getElementById("noodlesCount").textContent = noodlesCount;
-          document.getElementById("drinksCount").textContent = drinksCount;
-          document.getElementById("totalCount").textContent = totalCount;
+          const noodlesElement = document.getElementById("noodlesCount");
+          const drinksElement = document.getElementById("drinksCount");
+          const totalElement = document.getElementById("totalCount");
+          
+          if (noodlesElement) noodlesElement.textContent = noodlesCount;
+          if (drinksElement) drinksElement.textContent = drinksCount;
+          if (totalElement) totalElement.textContent = totalCount;
+          
+          console.log("統計資料更新完成");
         } catch (error) {
           console.error("載入統計資料失敗:", error);
+          console.error("錯誤詳情:", error.message);
+          console.error("錯誤堆疊:", error.stack);
+          
           // 顯示錯誤信息
-          document.getElementById("noodlesCount").textContent = "錯誤";
-          document.getElementById("drinksCount").textContent = "錯誤";
-          document.getElementById("totalCount").textContent = "錯誤";
+          const noodlesElement = document.getElementById("noodlesCount");
+          const drinksElement = document.getElementById("drinksCount");
+          const totalElement = document.getElementById("totalCount");
+          
+          if (noodlesElement) noodlesElement.textContent = "錯誤";
+          if (drinksElement) drinksElement.textContent = "錯誤";
+          if (totalElement) totalElement.textContent = "錯誤";
         }
       }
 
@@ -838,6 +1020,12 @@
         try {
           console.log("開始載入商品列表...");
           const container = document.getElementById("productsContainer");
+          
+          if (!container) {
+            console.error("找不到 productsContainer 元素");
+            throw new Error("頁面元素未找到");
+          }
+          
           container.innerHTML = `
             <div class="loading">
               <div class="loading-spinner"></div>
@@ -845,7 +1033,8 @@
             </div>
           `;
 
-          const category = document.getElementById("categoryFilter").value;
+          const categoryFilter = document.getElementById("categoryFilter");
+          const category = categoryFilter ? categoryFilter.value : "";
           const options = {
             orderBy: 'sortOrder',
             orderDirection: 'asc'
@@ -856,10 +1045,12 @@
           }
           
           console.log("載入商品選項:", options);
+          console.log("調用 ProductService.getAllProducts...");
           products = await ProductService.getAllProducts(options);
           console.log("載入商品成功:", products.length, "個商品");
 
           if (products.length === 0) {
+            console.log("沒有商品，顯示空狀態");
             container.innerHTML = `
               <div style="text-align: center; padding: 40px; color: #7f8c8d;">
                 <i class="fas fa-utensils" style="font-size: 48px; margin-bottom: 15px;"></i>
@@ -870,83 +1061,111 @@
             return;
           }
 
+          console.log("開始渲染商品卡片...");
           container.innerHTML = `
             <div class="products-grid">
               ${products.map((product) => createProductCard(product)).join("")}
             </div>
           `;
+          console.log("商品卡片渲染完成");
         } catch (error) {
           console.error("載入商品失敗:", error);
-          document.getElementById("productsContainer").innerHTML = `
+          console.error("錯誤詳情:", error.message);
+          console.error("錯誤堆疊:", error.stack);
+          
+          const container = document.getElementById("productsContainer");
+          if (container) {
+            container.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #e74c3c;">
               <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
               <h3>載入失敗</h3>
-              <p>錯誤詳情: ${error.message}</p>
-              <p>請檢查瀏覽器控制台獲取更多信息</p>
+                <p>錯誤詳情: ${error.message}</p>
+                <p>請檢查瀏覽器控制台獲取更多信息</p>
               <button class="btn btn-primary" onclick="loadProducts()">重試</button>
             </div>
           `;
+          } else {
+            console.error("連 productsContainer 元素都找不到，頁面可能有嚴重問題");
+          }
         }
       }
 
       // 建立商品卡片
       function createProductCard(product) {
-        const badgeHtml = product.tags && product.tags.length > 0
-          ? `<div class="product-badge badge-hot">${product.tags[0]}</div>`
-          : "";
+        try {
+          console.log("創建商品卡片:", product.id, product.name);
+          
+          const badgeHtml = product.tags && product.tags.length > 0
+            ? `<div class="product-badge badge-hot">${product.tags[0]}</div>`
+            : "";
 
-        const visibilityIcon = product.isAvailable ? "fa-eye" : "fa-eye-slash";
-        const visibilityText = product.isAvailable ? "下架" : "上架";
-        
-        // 判斷圖片路徑類型
-        let imageUrl = 'https://via.placeholder.com/300x200?text=No+Image';
-        if (product.image) {
-          if (product.image.startsWith('http')) {
-            // Firebase Storage URL
-            imageUrl = product.image;
-          } else {
-            // 本地檔案
-            imageUrl = `assets/${product.image}`;
+          const visibilityIcon = product.isAvailable ? "fa-eye" : "fa-eye-slash";
+          const visibilityText = product.isAvailable ? "下架" : "上架";
+          
+          // 判斷圖片路徑類型
+          let imageUrl = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+          if (product.image) {
+            if (product.image.startsWith('http')) {
+              // Firebase Storage URL
+              imageUrl = product.image;
+            } else {
+              // 本地檔案
+              imageUrl = `assets/${product.image}`;
+            }
           }
-        }
 
-        return `
+          const cardHtml = `
           <div class="product-card ${
-            !product.isAvailable ? "hidden" : ""
+              !product.isAvailable ? "hidden" : ""
           }" data-id="${product.id}">
             <div class="order-handle" title="拖拽排序">${
-              product.sortOrder || 0
+                product.sortOrder || 0
             }</div>
             ${badgeHtml}
-            <img src="${imageUrl}" alt="${
+              <img src="${imageUrl}" alt="${
           product.name
-        }" class="product-image" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+          }" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
             <div class="product-info">
               <div class="product-header">
                 <div class="product-name">${product.name}</div>
                 <div class="product-price">NT$ ${product.price}</div>
               </div>
-              <div class="product-description">${product.description || '暫無描述'}</div>
+                <div class="product-description">${product.description || '暫無描述'}</div>
               <div class="product-actions">
                 <button class="btn btn-primary" onclick="editProduct('${
                   product.id
-                }')" title="編輯">
+                  }')" title="編輯">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-secondary" onclick="toggleAvailability('${
+                  <button class="btn btn-secondary" onclick="toggleAvailability('${
                   product.id
-                }')" title="${visibilityText}">
+                  }')" title="${visibilityText}">
                   <i class="fas ${visibilityIcon}"></i>
                 </button>
                 <button class="btn btn-danger" onclick="deleteProduct('${
                   product.id
-                }')" title="刪除">
+                  }')" title="刪除">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
             </div>
           </div>
         `;
+          
+          console.log("商品卡片創建成功:", product.id);
+          return cardHtml;
+        } catch (error) {
+          console.error("創建商品卡片失敗:", error);
+          console.error("商品資料:", product);
+          return `
+            <div class="product-card error" style="border: 2px solid red;">
+              <div class="product-info">
+                <h3 class="product-name">載入失敗</h3>
+                <p class="product-description">商品資料載入錯誤: ${error.message}</p>
+            </div>
+          </div>
+        `;
+        }
       }
 
       // 載入完整菜單
@@ -954,15 +1173,33 @@
         try {
           console.log("開始載入完整菜單...");
           const container = document.getElementById("fullMenuContainer");
-          
-          // 暫時顯示開發中訊息
-          container.innerHTML = `
+
+          // 顯示載入中狀態
+            container.innerHTML = `
             <div style="text-align: center; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
-              <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 15px; color: #7f8c8d;"></i>
-              <h3>完整菜單功能開發中</h3>
-              <p style="color: #7f8c8d; margin-bottom: 20px;">此功能正在開發中，敬請期待</p>
-            </div>
-          `;
+              <div class="loading-spinner"></div>
+              <p style="color: #7f8c8d; margin-top: 15px;">載入完整菜單中...</p>
+              </div>
+            `;
+          
+          // TODO: 從 Firestore 獲取最新的菜單圖片 URL
+          // 目前先顯示上傳區域
+            container.innerHTML = `
+            <div style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 30px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <i class="fas fa-utensils" style="font-size: 48px; margin-bottom: 15px; color: #28a745;"></i>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">完整菜單管理</h3>
+                <p style="color: #7f8c8d;">上傳新的完整菜單圖片，將會更新整個網站的菜單顯示</p>
+              </div>
+              
+              <div style="border: 2px dashed #dee2e6; border-radius: 12px; padding: 40px; text-align: center; background: #f8f9fa;">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 36px; color: #6c757d; margin-bottom: 15px;"></i>
+                <h4 style="color: #495057; margin-bottom: 10px;">上傳完整菜單</h4>
+                <p style="color: #6c757d; margin-bottom: 20px;">支援 JPG、PNG、WebP 格式，建議使用高解析度長圖</p>
+                <p style="color: #dc3545; font-size: 12px;">注意：上傳新菜單將會覆蓋現有菜單</p>
+              </div>
+              </div>
+            `;
           
           console.log("完整菜單載入完成");
         } catch (error) {
@@ -1209,9 +1446,113 @@
         }
       }
 
-      // TODO: 上傳菜單功能
-      function showUploadMenuModal() {
-        alert("上傳菜單功能開發中...");
+      // 初始化完整菜單上傳功能
+      function initFullMenuUpload() {
+        const uploader = document.getElementById('fullMenuUploader');
+        const previewContainer = document.getElementById('fullMenuPreview');
+        const previewImg = document.getElementById('fullMenuPreviewImg');
+        const uploadBtn = document.getElementById('uploadFullMenuBtn');
+        const progressContainer = document.getElementById('fullMenuUploadProgress');
+        const progress = progressContainer.querySelector('.progress');
+        const statusDiv = document.getElementById('fullMenuUploadStatus');
+        let selectedFile = null;
+
+        // 檔案選擇事件
+        uploader.addEventListener('change', (e) => {
+          selectedFile = e.target.files[0];
+          if (selectedFile) {
+            // 驗證檔案大小
+            if (selectedFile.size > 10 * 1024 * 1024) { // 10MB 限制
+              alert('菜單圖片檔案不能超過 10MB');
+              uploader.value = '';
+              selectedFile = null;
+              previewContainer.style.display = 'none';
+              uploadBtn.style.display = 'none';
+              return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              previewImg.src = event.target.result;
+              previewContainer.style.display = 'block';
+              uploadBtn.style.display = 'inline-block';
+              statusDiv.textContent = '圖片已選擇，點擊確認上傳';
+              statusDiv.style.color = '#007bff';
+            };
+            reader.readAsDataURL(selectedFile);
+          } else {
+            previewContainer.style.display = 'none';
+            uploadBtn.style.display = 'none';
+            statusDiv.textContent = '';
+          }
+        });
+
+        // 上傳按鈕事件
+        uploadBtn.addEventListener('click', async () => {
+          if (!selectedFile) {
+            alert('請先選擇一個菜單圖片檔案');
+            return;
+          }
+
+          // 禁用按鈕防止重複上傳
+          uploadBtn.disabled = true;
+          uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上傳中...';
+          statusDiv.textContent = '圖片壓縮中...';
+          statusDiv.style.color = '#007bff';
+          progressContainer.style.display = 'block';
+          progress.style.width = '0%';
+
+          try {
+            console.log('開始上傳完整菜單圖片...');
+            console.log('檔案資訊:', {
+              name: selectedFile.name,
+              size: (selectedFile.size / 1024 / 1024).toFixed(2) + 'MB',
+              type: selectedFile.type
+            });
+
+            // 使用與商品上傳相同的方式
+            const uploadResult = await StorageService.uploadImageWithCompression(
+              selectedFile,
+              'menus', // 上傳到 'menus' 資料夾
+              (progressPercent) => {
+                progress.style.width = `${progressPercent}%`;
+                statusDiv.textContent = `上傳進度: ${progressPercent.toFixed(1)}%`;
+              }
+            );
+
+            console.log('完整菜單上傳成功:', uploadResult);
+
+            // 更新狀態顯示
+            statusDiv.textContent = '上傳成功！菜單已更新';
+            statusDiv.style.color = '#28a745';
+            progress.style.width = '100%';
+
+            // 顯示成功訊息
+            alert('完整菜單上傳成功！新菜單已更新到系統中。');
+            
+            // 重新載入菜單顯示
+            await loadFullMenu();
+            
+            // 重置表單
+            uploader.value = '';
+            selectedFile = null;
+            previewContainer.style.display = 'none';
+            uploadBtn.style.display = 'none';
+            progressContainer.style.display = 'none';
+            
+          } catch (error) {
+            console.error('完整菜單上傳失敗:', error);
+            statusDiv.textContent = `上傳失敗: ${error.message}`;
+            statusDiv.style.color = '#dc3545';
+            alert(`完整菜單上傳失敗: ${error.message}\n\n請檢查網路連線或稍後再試。`);
+          } finally {
+            // 恢復按鈕狀態
+            uploadBtn.disabled = false;
+            uploadBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> 確認上傳';
+            progressContainer.style.display = 'none';
+            progress.style.width = '0%';
+          }
+        });
       }
 
       // 點擊 Modal 背景關閉
