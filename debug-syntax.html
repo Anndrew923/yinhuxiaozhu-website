@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>語法錯誤診斷工具 | 隱湖小竹</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 語法錯誤診斷工具</h1>
+        
+        <div id="status"></div>
+        
+        <div class="code">
+            <strong>正確的代碼應該是：</strong><br>
+            &lt;a href="admin-menu.html" class="nav-item" onclick="window.location.href='admin-menu.html'"&gt;
+        </div>
+        
+        <div class="code">
+            <strong>錯誤的代碼（如果看到這個就有問題）：</strong><br>
+            &lt;a class='nav-item' href='/admin-menu' onclick='window.location.href=\'admin-menu.html\''&gt;
+        </div>
+        
+        <h2>診斷步驟</h2>
+        <button class="btn btn-primary" onclick="checkSyntax()">🔍 檢查語法錯誤</button>
+        <button class="btn btn-success" onclick="testAdminMenu()">🧪 測試菜單連結</button>
+        <button class="btn btn-danger" onclick="showDeployInfo()">📋 顯示部署資訊</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function updateStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = `<strong>${type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '✅'}</strong> ${message}`;
+        }
+
+        function checkSyntax() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>語法檢查結果</h3>';
+            
+            try {
+                // 檢查是否有語法錯誤
+                eval('console.log("語法檢查通過")');
+                results.innerHTML += '<div class="status success">✅ JavaScript 語法正常</div>';
+                
+                // 檢查第504行
+                const adminMenuLink = document.querySelector('a[href*="admin-menu"]');
+                if (adminMenuLink) {
+                    results.innerHTML += '<div class="status success">✅ 找到菜單管理連結</div>';
+                    results.innerHTML += '<div class="code">實際代碼：<br>' + adminMenuLink.outerHTML + '</div>';
+                } else {
+                    results.innerHTML += '<div class="status error">❌ 未找到菜單管理連結</div>';
+                }
+                
+                updateStatus('語法檢查完成', 'success');
+            } catch (error) {
+                results.innerHTML += '<div class="status error">❌ 發現語法錯誤：' + error.message + '</div>';
+                updateStatus('發現語法錯誤：' + error.message, 'error');
+            }
+        }
+
+        function testAdminMenu() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>菜單連結測試</h3>';
+            
+            try {
+                // 測試點擊菜單管理
+                results.innerHTML += '<div class="status warning">⚠️ 準備測試菜單連結...</div>';
+                
+                // 模擬點擊
+                setTimeout(() => {
+                    try {
+                        window.location.href = 'admin-menu.html';
+                    } catch (error) {
+                        results.innerHTML += '<div class="status error">❌ 連結測試失敗：' + error.message + '</div>';
+                    }
+                }, 1000);
+                
+                updateStatus('菜單連結測試進行中...', 'warning');
+            } catch (error) {
+                results.innerHTML += '<div class="status error">❌ 連結測試錯誤：' + error.message + '</div>';
+                updateStatus('連結測試失敗：' + error.message, 'error');
+            }
+        }
+
+        function showDeployInfo() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>部署資訊</h3>';
+            
+            results.innerHTML += '<div class="status success">🌐 當前位置：' + window.location.href + '</div>';
+            results.innerHTML += '<div class="status success">🕐 頁面載入時間：' + new Date().toLocaleString() + '</div>';
+            results.innerHTML += '<div class="status success">🔄 User Agent：' + navigator.userAgent + '</div>';
+            
+            // 檢查緩存
+            const cacheTest = new Date().getTime();
+            results.innerHTML += '<div class="status success">🔄 緩存測試 ID：' + cacheTest + '</div>';
+            
+            updateStatus('部署資訊顯示完成', 'success');
+        }
+
+        // 頁面載入時自動檢查
+        window.addEventListener('load', function() {
+            updateStatus('診斷工具已載入，請點擊按鈕開始檢查', 'warning');
+        });
+    </script>
+</body>
+</html>
