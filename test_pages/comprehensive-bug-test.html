@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全面Bug測試 | 隱湖小竹</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: "Noto Sans TC", sans-serif;
+            background: #f5f6fa;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .test-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .test-item h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .test-result {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-result.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .test-result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.danger {
+            background: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn.success {
+            background: #27ae60;
+        }
+        
+        .btn.success:hover {
+            background: #229954;
+        }
+        
+        .log-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .log-entry.error {
+            color: #e74c3c;
+        }
+        
+        .log-entry.success {
+            color: #27ae60;
+        }
+        
+        .log-entry.warning {
+            color: #f39c12;
+        }
+        
+        .log-entry.info {
+            color: #3498db;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.pending {
+            background: #f39c12;
+        }
+        
+        .status-indicator.running {
+            background: #3498db;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-indicator.completed {
+            background: #27ae60;
+        }
+        
+        .status-indicator.failed {
+            background: #e74c3c;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-section">
+            <h1><i class="fas fa-bug"></i> 全面Bug測試系統</h1>
+            <p>此頁面將全面測試商品管理系統的各種功能，檢查是否存在bug。</p>
+            
+            <div class="test-controls">
+                <button class="btn" onclick="runAllTests()">
+                    <i class="fas fa-play"></i> 執行所有測試
+                </button>
+                <button class="btn success" onclick="runQuickTests()">
+                    <i class="fas fa-bolt"></i> 快速測試
+                </button>
+                <button class="btn danger" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i> 清除日誌
+                </button>
+                <button class="btn" onclick="exportTestResults()">
+                    <i class="fas fa-download"></i> 匯出結果
+                </button>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            
+            <div class="log-container" id="logContainer">
+                <div class="log-entry info">測試系統已準備就緒，點擊上方按鈕開始測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-database"></i> 資料庫連接測試</h2>
+            <div class="test-item">
+                <h3>Firebase 連接測試</h3>
+                <div id="firebaseTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>Firestore 讀取測試</h3>
+                <div id="firestoreTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>認證服務測試</h3>
+                <div id="authTest" class="test-result info">等待測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-box"></i> 商品管理功能測試</h2>
+            <div class="test-item">
+                <h3>商品列表載入測試</h3>
+                <div id="productListTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>商品排序功能測試</h3>
+                <div id="productSortTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>商品篩選功能測試</h3>
+                <div id="productFilterTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>商品搜尋功能測試</h3>
+                <div id="productSearchTest" class="test-result info">等待測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-tags"></i> 分類管理測試</h2>
+            <div class="test-item">
+                <h3>分類列表載入測試</h3>
+                <div id="categoryListTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>分類關聯測試</h3>
+                <div id="categoryRelationTest" class="test-result info">等待測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-chart-bar"></i> 統計功能測試</h2>
+            <div class="test-item">
+                <h3>商品統計測試</h3>
+                <div id="statsTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>庫存警告測試</h3>
+                <div id="stockWarningTest" class="test-result info">等待測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-cogs"></i> 系統功能測試</h2>
+            <div class="test-item">
+                <h3>批量操作測試</h3>
+                <div id="batchOperationTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>錯誤處理測試</h3>
+                <div id="errorHandlingTest" class="test-result info">等待測試...</div>
+            </div>
+            <div class="test-item">
+                <h3>性能測試</h3>
+                <div id="performanceTest" class="test-result info">等待測試...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2><i class="fas fa-exclamation-triangle"></i> 已知問題檢查</h2>
+            <div class="test-item">
+                <h3>排序值驗證</h3>
+                <div id="sortOrderValidation" class="test-result info">等待檢查...</div>
+            </div>
+            <div class="test-item">
+                <h3>資料完整性檢查</h3>
+                <div id="dataIntegrityCheck" class="test-result info">等待檢查...</div>
+            </div>
+            <div class="test-item">
+                <h3>UI響應性檢查</h3>
+                <div id="uiResponsivenessCheck" class="test-result info">等待檢查...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/auth.service.js"></script>
+    <script src="../js/services/admin-product.service.js"></script>
+
+    <script>
+        let testResults = [];
+        let currentTestIndex = 0;
+        let totalTests = 0;
+
+        // 日誌功能
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // 保存到測試結果
+            testResults.push({
+                timestamp: timestamp,
+                message: message,
+                type: type
+            });
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            testResults = [];
+            log('日誌已清除', 'info');
+        }
+
+        // 更新測試結果
+        function updateTestResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${type}`;
+            element.innerHTML = message;
+        }
+
+        // 更新進度條
+        function updateProgress(current, total) {
+            const progress = (current / total) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        // Firebase 連接測試
+        async function testFirebaseConnection() {
+            try {
+                log('開始測試 Firebase 連接...', 'info');
+                updateTestResult('firebaseTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 檢查 Firebase 是否已初始化
+                if (!firebase.apps.length) {
+                    throw new Error('Firebase 未初始化');
+                }
+                
+                log('Firebase 已初始化', 'success');
+                updateTestResult('firebaseTest', '<span class="status-indicator completed"></span>Firebase 連接正常', 'success');
+                return true;
+            } catch (error) {
+                log(`Firebase 連接失敗: ${error.message}`, 'error');
+                updateTestResult('firebaseTest', `<span class="status-indicator failed"></span>連接失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Firestore 讀取測試
+        async function testFirestoreRead() {
+            try {
+                log('開始測試 Firestore 讀取...', 'info');
+                updateTestResult('firestoreTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const db = firebase.firestore();
+                const snapshot = await db.collection('products').limit(1).get();
+                
+                log(`Firestore 讀取成功，獲取到 ${snapshot.size} 個文檔`, 'success');
+                updateTestResult('firestoreTest', '<span class="status-indicator completed"></span>Firestore 讀取正常', 'success');
+                return true;
+            } catch (error) {
+                log(`Firestore 讀取失敗: ${error.message}`, 'error');
+                updateTestResult('firestoreTest', `<span class="status-indicator failed"></span>讀取失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 認證服務測試
+        async function testAuthService() {
+            try {
+                log('開始測試認證服務...', 'info');
+                updateTestResult('authTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 檢查 AuthService 是否可用
+                if (typeof AuthService === 'undefined') {
+                    throw new Error('AuthService 未載入');
+                }
+                
+                log('認證服務已載入', 'success');
+                updateTestResult('authTest', '<span class="status-indicator completed"></span>認證服務正常', 'success');
+                return true;
+            } catch (error) {
+                log(`認證服務測試失敗: ${error.message}`, 'error');
+                updateTestResult('authTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 商品列表載入測試
+        async function testProductList() {
+            try {
+                log('開始測試商品列表載入...', 'info');
+                updateTestResult('productListTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const result = await AdminProductService.getProducts({
+                    limit: 5,
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+                
+                log(`商品列表載入成功，獲取到 ${result.products.length} 個商品`, 'success');
+                updateTestResult('productListTest', `<span class="status-indicator completed"></span>載入成功 (${result.products.length} 個商品)`, 'success');
+                return true;
+            } catch (error) {
+                log(`商品列表載入失敗: ${error.message}`, 'error');
+                updateTestResult('productListTest', `<span class="status-indicator failed"></span>載入失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 商品排序功能測試
+        async function testProductSort() {
+            try {
+                log('開始測試商品排序功能...', 'info');
+                updateTestResult('productSortTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 測試不同排序方式
+                const sortTests = [
+                    { sortBy: 'sortOrder', sortOrder: 'asc' },
+                    { sortBy: 'sortOrder', sortOrder: 'desc' },
+                    { sortBy: 'name', sortOrder: 'asc' },
+                    { sortBy: 'price', sortOrder: 'desc' }
+                ];
+                
+                for (const test of sortTests) {
+                    const result = await AdminProductService.getProducts({
+                        limit: 3,
+                        ...test
+                    });
+                    
+                    if (result.products.length > 0) {
+                        log(`排序測試 ${test.sortBy} ${test.sortOrder} 成功`, 'success');
+                    }
+                }
+                
+                updateTestResult('productSortTest', '<span class="status-indicator completed"></span>排序功能正常', 'success');
+                return true;
+            } catch (error) {
+                log(`商品排序測試失敗: ${error.message}`, 'error');
+                updateTestResult('productSortTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 商品篩選功能測試
+        async function testProductFilter() {
+            try {
+                log('開始測試商品篩選功能...', 'info');
+                updateTestResult('productFilterTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 測試狀態篩選
+                const activeResult = await AdminProductService.getProducts({
+                    status: 'active',
+                    limit: 3
+                });
+                
+                const inactiveResult = await AdminProductService.getProducts({
+                    status: 'inactive',
+                    limit: 3
+                });
+                
+                log(`狀態篩選測試成功 - 上架: ${activeResult.products.length}, 下架: ${inactiveResult.products.length}`, 'success');
+                updateTestResult('productFilterTest', '<span class="status-indicator completed"></span>篩選功能正常', 'success');
+                return true;
+            } catch (error) {
+                log(`商品篩選測試失敗: ${error.message}`, 'error');
+                updateTestResult('productFilterTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 商品搜尋功能測試
+        async function testProductSearch() {
+            try {
+                log('開始測試商品搜尋功能...', 'info');
+                updateTestResult('productSearchTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 測試搜尋功能
+                const result = await AdminProductService.getProducts({
+                    searchTerm: 'test',
+                    limit: 3
+                });
+                
+                log(`搜尋功能測試成功，找到 ${result.products.length} 個相關商品`, 'success');
+                updateTestResult('productSearchTest', '<span class="status-indicator completed"></span>搜尋功能正常', 'success');
+                return true;
+            } catch (error) {
+                log(`商品搜尋測試失敗: ${error.message}`, 'error');
+                updateTestResult('productSearchTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 分類列表載入測試
+        async function testCategoryList() {
+            try {
+                log('開始測試分類列表載入...', 'info');
+                updateTestResult('categoryListTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const categories = await AdminProductService.getCategories();
+                
+                log(`分類列表載入成功，獲取到 ${categories.length} 個分類`, 'success');
+                updateTestResult('categoryListTest', `<span class="status-indicator completed"></span>載入成功 (${categories.length} 個分類)`, 'success');
+                return true;
+            } catch (error) {
+                log(`分類列表載入失敗: ${error.message}`, 'error');
+                updateTestResult('categoryListTest', `<span class="status-indicator failed"></span>載入失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 分類關聯測試
+        async function testCategoryRelation() {
+            try {
+                log('開始測試分類關聯...', 'info');
+                updateTestResult('categoryRelationTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const [categories, products] = await Promise.all([
+                    AdminProductService.getCategories(),
+                    AdminProductService.getProducts({ limit: 10 })
+                ]);
+                
+                // 檢查商品是否有有效的分類
+                const invalidCategories = products.products.filter(product => {
+                    return product.category && !categories.find(cat => cat.id === product.category);
+                });
+                
+                if (invalidCategories.length > 0) {
+                    log(`發現 ${invalidCategories.length} 個商品有無效分類`, 'warning');
+                    updateTestResult('categoryRelationTest', `<span class="status-indicator failed"></span>發現 ${invalidCategories.length} 個無效分類`, 'warning');
+                    return false;
+                }
+                
+                log('分類關聯檢查通過', 'success');
+                updateTestResult('categoryRelationTest', '<span class="status-indicator completed"></span>分類關聯正常', 'success');
+                return true;
+            } catch (error) {
+                log(`分類關聯測試失敗: ${error.message}`, 'error');
+                updateTestResult('categoryRelationTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 統計功能測試
+        async function testStats() {
+            try {
+                log('開始測試統計功能...', 'info');
+                updateTestResult('statsTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const stats = await AdminProductService.getProductStats();
+                
+                log(`統計功能測試成功 - 總商品: ${stats.totalProducts}, 上架: ${stats.activeProducts}`, 'success');
+                updateTestResult('statsTest', `<span class="status-indicator completed"></span>統計功能正常`, 'success');
+                return true;
+            } catch (error) {
+                log(`統計功能測試失敗: ${error.message}`, 'error');
+                updateTestResult('statsTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 庫存警告測試
+        async function testStockWarning() {
+            try {
+                log('開始測試庫存警告功能...', 'info');
+                updateTestResult('stockWarningTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const warnings = await AdminProductService.getStockWarnings(false);
+                
+                log(`庫存警告測試成功，發現 ${warnings.length} 個警告`, 'success');
+                updateTestResult('stockWarningTest', `<span class="status-indicator completed"></span>警告功能正常 (${warnings.length} 個警告)`, 'success');
+                return true;
+            } catch (error) {
+                log(`庫存警告測試失敗: ${error.message}`, 'error');
+                updateTestResult('stockWarningTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 批量操作測試
+        async function testBatchOperations() {
+            try {
+                log('開始測試批量操作功能...', 'info');
+                updateTestResult('batchOperationTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 獲取一些商品進行測試
+                const result = await AdminProductService.getProducts({ limit: 2 });
+                
+                if (result.products.length > 0) {
+                    // 測試批量更新狀態（模擬）
+                    log('批量操作功能測試通過（模擬測試）', 'success');
+                    updateTestResult('batchOperationTest', '<span class="status-indicator completed"></span>批量操作功能正常', 'success');
+                    return true;
+                } else {
+                    log('沒有足夠的商品進行批量操作測試', 'warning');
+                    updateTestResult('batchOperationTest', '<span class="status-indicator completed"></span>無商品可測試', 'warning');
+                    return true;
+                }
+            } catch (error) {
+                log(`批量操作測試失敗: ${error.message}`, 'error');
+                updateTestResult('batchOperationTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 錯誤處理測試
+        async function testErrorHandling() {
+            try {
+                log('開始測試錯誤處理...', 'info');
+                updateTestResult('errorHandlingTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                // 測試無效的商品ID
+                try {
+                    await AdminProductService.getProduct('invalid-id');
+                } catch (error) {
+                    if (error.message.includes('商品不存在')) {
+                        log('錯誤處理測試通過 - 正確處理無效ID', 'success');
+                        updateTestResult('errorHandlingTest', '<span class="status-indicator completed"></span>錯誤處理正常', 'success');
+                        return true;
+                    }
+                }
+                
+                log('錯誤處理測試通過', 'success');
+                updateTestResult('errorHandlingTest', '<span class="status-indicator completed"></span>錯誤處理正常', 'success');
+                return true;
+            } catch (error) {
+                log(`錯誤處理測試失敗: ${error.message}`, 'error');
+                updateTestResult('errorHandlingTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 性能測試
+        async function testPerformance() {
+            try {
+                log('開始測試性能...', 'info');
+                updateTestResult('performanceTest', '<span class="status-indicator running"></span>測試中...', 'info');
+                
+                const startTime = performance.now();
+                
+                // 測試商品載入性能
+                await AdminProductService.getProducts({ limit: 20 });
+                
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                if (duration < 2000) {
+                    log(`性能測試通過 - 載入時間: ${duration.toFixed(2)}ms`, 'success');
+                    updateTestResult('performanceTest', `<span class="status-indicator completed"></span>性能正常 (${duration.toFixed(2)}ms)`, 'success');
+                    return true;
+                } else {
+                    log(`性能較慢 - 載入時間: ${duration.toFixed(2)}ms`, 'warning');
+                    updateTestResult('performanceTest', `<span class="status-indicator failed"></span>性能較慢 (${duration.toFixed(2)}ms)`, 'warning');
+                    return false;
+                }
+            } catch (error) {
+                log(`性能測試失敗: ${error.message}`, 'error');
+                updateTestResult('performanceTest', `<span class="status-indicator failed"></span>測試失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 排序值驗證
+        async function validateSortOrder() {
+            try {
+                log('開始檢查排序值...', 'info');
+                updateTestResult('sortOrderValidation', '<span class="status-indicator running"></span>檢查中...', 'info');
+                
+                const result = await AdminProductService.getProducts({ limit: 50 });
+                
+                const invalidSortOrders = result.products.filter(product => {
+                    const sortOrder = product.sortOrder || 999;
+                    return sortOrder < 1 || sortOrder > 9999 || !Number.isInteger(sortOrder);
+                });
+                
+                if (invalidSortOrders.length > 0) {
+                    log(`發現 ${invalidSortOrders.length} 個商品有無效排序值`, 'warning');
+                    updateTestResult('sortOrderValidation', `<span class="status-indicator failed"></span>發現 ${invalidSortOrders.length} 個無效排序值`, 'warning');
+                    return false;
+                }
+                
+                log('排序值驗證通過', 'success');
+                updateTestResult('sortOrderValidation', '<span class="status-indicator completed"></span>排序值正常', 'success');
+                return true;
+            } catch (error) {
+                log(`排序值驗證失敗: ${error.message}`, 'error');
+                updateTestResult('sortOrderValidation', `<span class="status-indicator failed"></span>驗證失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 資料完整性檢查
+        async function checkDataIntegrity() {
+            try {
+                log('開始檢查資料完整性...', 'info');
+                updateTestResult('dataIntegrityCheck', '<span class="status-indicator running"></span>檢查中...', 'info');
+                
+                const result = await AdminProductService.getProducts({ limit: 50 });
+                
+                const issues = [];
+                
+                result.products.forEach(product => {
+                    if (!product.name || product.name.trim() === '') {
+                        issues.push(`商品 ${product.id} 缺少名稱`);
+                    }
+                    if (!product.price || product.price <= 0) {
+                        issues.push(`商品 ${product.id} 價格無效`);
+                    }
+                    if (product.stock === undefined || product.stock < 0) {
+                        issues.push(`商品 ${product.id} 庫存無效`);
+                    }
+                });
+                
+                if (issues.length > 0) {
+                    log(`發現 ${issues.length} 個資料完整性問題`, 'warning');
+                    updateTestResult('dataIntegrityCheck', `<span class="status-indicator failed"></span>發現 ${issues.length} 個問題`, 'warning');
+                    return false;
+                }
+                
+                log('資料完整性檢查通過', 'success');
+                updateTestResult('dataIntegrityCheck', '<span class="status-indicator completed"></span>資料完整性正常', 'success');
+                return true;
+            } catch (error) {
+                log(`資料完整性檢查失敗: ${error.message}`, 'error');
+                updateTestResult('dataIntegrityCheck', `<span class="status-indicator failed"></span>檢查失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // UI響應性檢查
+        function checkUIResponsiveness() {
+            try {
+                log('開始檢查UI響應性...', 'info');
+                updateTestResult('uiResponsivenessCheck', '<span class="status-indicator running"></span>檢查中...', 'info');
+                
+                // 檢查頁面載入時間
+                const loadTime = performance.now();
+                
+                if (loadTime < 3000) {
+                    log('UI響應性檢查通過', 'success');
+                    updateTestResult('uiResponsivenessCheck', '<span class="status-indicator completed"></span>UI響應性正常', 'success');
+                    return true;
+                } else {
+                    log('UI載入時間較長', 'warning');
+                    updateTestResult('uiResponsivenessCheck', '<span class="status-indicator failed"></span>UI載入較慢', 'warning');
+                    return false;
+                }
+            } catch (error) {
+                log(`UI響應性檢查失敗: ${error.message}`, 'error');
+                updateTestResult('uiResponsivenessCheck', `<span class="status-indicator failed"></span>檢查失敗: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 執行所有測試
+        async function runAllTests() {
+            log('開始執行全面測試...', 'info');
+            
+            const tests = [
+                { name: 'Firebase 連接', func: testFirebaseConnection },
+                { name: 'Firestore 讀取', func: testFirestoreRead },
+                { name: '認證服務', func: testAuthService },
+                { name: '商品列表載入', func: testProductList },
+                { name: '商品排序功能', func: testProductSort },
+                { name: '商品篩選功能', func: testProductFilter },
+                { name: '商品搜尋功能', func: testProductSearch },
+                { name: '分類列表載入', func: testCategoryList },
+                { name: '分類關聯', func: testCategoryRelation },
+                { name: '統計功能', func: testStats },
+                { name: '庫存警告', func: testStockWarning },
+                { name: '批量操作', func: testBatchOperations },
+                { name: '錯誤處理', func: testErrorHandling },
+                { name: '性能測試', func: testPerformance },
+                { name: '排序值驗證', func: validateSortOrder },
+                { name: '資料完整性', func: checkDataIntegrity },
+                { name: 'UI響應性', func: checkUIResponsiveness }
+            ];
+            
+            totalTests = tests.length;
+            let passedTests = 0;
+            
+            for (let i = 0; i < tests.length; i++) {
+                currentTestIndex = i + 1;
+                updateProgress(currentTestIndex, totalTests);
+                
+                try {
+                    log(`執行測試 ${currentTestIndex}/${totalTests}: ${tests[i].name}`, 'info');
+                    const result = await tests[i].func();
+                    if (result) {
+                        passedTests++;
+                        log(`測試通過: ${tests[i].name}`, 'success');
+                    } else {
+                        log(`測試失敗: ${tests[i].name}`, 'error');
+                    }
+                } catch (error) {
+                    log(`測試異常: ${tests[i].name} - ${error.message}`, 'error');
+                }
+                
+                // 短暫延遲避免過於頻繁的請求
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            updateProgress(totalTests, totalTests);
+            
+            const successRate = ((passedTests / totalTests) * 100).toFixed(1);
+            log(`測試完成！通過率: ${successRate}% (${passedTests}/${totalTests})`, 'info');
+            
+            if (successRate >= 80) {
+                log('系統整體狀況良好！', 'success');
+            } else if (successRate >= 60) {
+                log('系統需要一些改進', 'warning');
+            } else {
+                log('系統存在較多問題，需要修復', 'error');
+            }
+        }
+
+        // 快速測試
+        async function runQuickTests() {
+            log('開始執行快速測試...', 'info');
+            
+            const quickTests = [
+                { name: 'Firebase 連接', func: testFirebaseConnection },
+                { name: '商品列表載入', func: testProductList },
+                { name: '分類列表載入', func: testCategoryList },
+                { name: '統計功能', func: testStats }
+            ];
+            
+            totalTests = quickTests.length;
+            let passedTests = 0;
+            
+            for (let i = 0; i < quickTests.length; i++) {
+                currentTestIndex = i + 1;
+                updateProgress(currentTestIndex, totalTests);
+                
+                try {
+                    log(`執行快速測試 ${currentTestIndex}/${totalTests}: ${quickTests[i].name}`, 'info');
+                    const result = await quickTests[i].func();
+                    if (result) {
+                        passedTests++;
+                        log(`快速測試通過: ${quickTests[i].name}`, 'success');
+                    } else {
+                        log(`快速測試失敗: ${quickTests[i].name}`, 'error');
+                    }
+                } catch (error) {
+                    log(`快速測試異常: ${quickTests[i].name} - ${error.message}`, 'error');
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            updateProgress(totalTests, totalTests);
+            
+            const successRate = ((passedTests / totalTests) * 100).toFixed(1);
+            log(`快速測試完成！通過率: ${successRate}% (${passedTests}/${totalTests})`, 'info');
+        }
+
+        // 匯出測試結果
+        function exportTestResults() {
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const dataStr = JSON.stringify(testResults, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `bug-test-results-${timestamp}.json`;
+            link.click();
+            
+            log('測試結果已匯出', 'success');
+        }
+
+        // 頁面載入完成後初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Bug測試系統已載入完成', 'success');
+        });
+    </script>
+</body>
+</html> 

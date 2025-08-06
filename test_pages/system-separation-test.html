@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統分離測試</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .system-info {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .system-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .info-value {
+            font-weight: bold;
+        }
+
+        .info-value.success {
+            color: #27ae60;
+        }
+
+        .info-value.warning {
+            color: #f39c12;
+        }
+
+        .info-value.error {
+            color: #e74c3c;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .data-display {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .data-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #34495e;
+            border-radius: 5px;
+        }
+
+        .data-item h4 {
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .alert.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 系統分離測試</h1>
+            <p>驗證商品管理系統和菜單管理系統的獨立性</p>
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2>📦 商品管理系統</h2>
+                <div class="system-info">
+                    <h3>系統資訊</h3>
+                    <div class="info-item">
+                        <span class="info-label">服務名稱</span>
+                        <span class="info-value">AdminProductService</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">數據集合</span>
+                        <span class="info-value">products</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">狀態字段</span>
+                        <span class="info-value">status (active/inactive)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">對應頁面</span>
+                        <span class="info-value">訂單頁面 (order.html)</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn primary" onclick="testProductSystem()">🔍 測試商品系統</button>
+                    <button class="btn success" onclick="createTestProduct()">➕ 創建測試商品</button>
+                    <button class="btn warning" onclick="loadProducts()">📋 載入商品列表</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>🍽️ 菜單管理系統</h2>
+                <div class="system-info">
+                    <h3>系統資訊</h3>
+                    <div class="info-item">
+                        <span class="info-label">服務名稱</span>
+                        <span class="info-value">MenuService</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">數據集合</span>
+                        <span class="info-value">menu_items</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">狀態字段</span>
+                        <span class="info-value">isAvailable (true/false)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">對應頁面</span>
+                        <span class="info-value">菜單頁面 (menu.html)</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn primary" onclick="testMenuSystem()">🔍 測試菜單系統</button>
+                    <button class="btn success" onclick="createTestMenuItem()">➕ 創建測試菜單</button>
+                    <button class="btn warning" onclick="loadMenuItems()">📋 載入菜單列表</button>
+                </div>
+            </div>
+
+            <div class="panel full-width">
+                <h2>📊 測試結果</h2>
+                <div class="alert info">
+                    <strong>測試說明：</strong> 此頁面用於驗證兩個系統的獨立性。商品管理系統使用 products 集合，菜單管理系統使用 menu_items 集合，兩者完全獨立運作。
+                </div>
+                <div class="data-display" id="testResults">
+                    <div class="data-item">
+                        <h4>系統分離測試工具已載入</h4>
+                        <p>點擊上方按鈕開始測試...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- 本地配置和服務 -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/admin-product.service.js"></script>
+    <script src="../js/services/menu.service.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const resultsContainer = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'data-item';
+            logEntry.innerHTML = `
+                <h4>[${timestamp}] ${type.toUpperCase()}</h4>
+                <p>${message}</p>
+            `;
+            resultsContainer.appendChild(logEntry);
+            resultsContainer.scrollTop = resultsContainer.scrollHeight;
+        }
+
+        async function testProductSystem() {
+            try {
+                log('開始測試商品管理系統...', 'info');
+                
+                // 測試獲取商品
+                const result = await AdminProductService.getProducts({ limit: 5 });
+                log(`商品系統測試成功: 找到 ${result.products.length} 個商品`, 'success');
+                
+                // 顯示商品詳情
+                result.products.forEach(product => {
+                    log(`商品: ${product.name} (${product.status}) - 集合: products`, 'info');
+                });
+                
+            } catch (error) {
+                log(`商品系統測試失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function testMenuSystem() {
+            try {
+                log('開始測試菜單管理系統...', 'info');
+                
+                // 測試獲取菜單項目
+                const menuItems = await MenuService.getAllMenuItems({ limit: 5 });
+                log(`菜單系統測試成功: 找到 ${menuItems.length} 個菜單項目`, 'success');
+                
+                // 顯示菜單詳情
+                menuItems.forEach(item => {
+                    log(`菜單: ${item.name} (${item.isAvailable ? '上架' : '下架'}) - 集合: menu_items`, 'info');
+                });
+                
+            } catch (error) {
+                log(`菜單系統測試失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestProduct() {
+            try {
+                log('創建測試商品...', 'info');
+                
+                const testProduct = {
+                    name: `測試商品_${Date.now()}`,
+                    price: 100,
+                    category: '測試分類',
+                    description: '這是一個測試商品',
+                    status: 'active',
+                    sortOrder: 999,
+                    stock: 50
+                };
+                
+                const result = await AdminProductService.createProduct(testProduct);
+                log(`測試商品創建成功: ${result.name} (ID: ${result.id})`, 'success');
+                
+            } catch (error) {
+                log(`創建測試商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function createTestMenuItem() {
+            try {
+                log('創建測試菜單項目...', 'info');
+                
+                const testMenuItem = {
+                    name: `測試菜單_${Date.now()}`,
+                    price: 80,
+                    category: '測試分類',
+                    description: '這是一個測試菜單項目',
+                    isAvailable: true,
+                    sortOrder: 999,
+                    stock: 30
+                };
+                
+                const result = await MenuService.createMenuItem(testMenuItem);
+                log(`測試菜單創建成功: ${result.name} (ID: ${result.id})`, 'success');
+                
+            } catch (error) {
+                log(`創建測試菜單失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                log('載入商品列表...', 'info');
+                
+                const result = await AdminProductService.getProducts({ limit: 10 });
+                log(`載入 ${result.products.length} 個商品:`, 'info');
+                
+                result.products.forEach(product => {
+                    log(`- ${product.name} | 狀態: ${product.status} | 價格: $${product.price}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`載入商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadMenuItems() {
+            try {
+                log('載入菜單列表...', 'info');
+                
+                const menuItems = await MenuService.getAllMenuItems({ limit: 10 });
+                log(`載入 ${menuItems.length} 個菜單項目:`, 'info');
+                
+                menuItems.forEach(item => {
+                    log(`- ${item.name} | 狀態: ${item.isAvailable ? '上架' : '下架'} | 價格: $${item.price}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`載入菜單失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動測試
+        window.addEventListener('load', () => {
+            log('系統分離測試工具已載入', 'info');
+            log('商品管理系統: AdminProductService → products 集合', 'info');
+            log('菜單管理系統: MenuService → menu_items 集合', 'info');
+            log('兩個系統完全獨立，不會相互影響', 'success');
+        });
+    </script>
+</body>
+</html> 

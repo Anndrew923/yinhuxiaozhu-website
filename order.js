@@ -31,20 +31,29 @@ async function loadProducts() {
     // 顯示載入狀態
     showLoadingState();
 
-    // 從 Firestore 獲取商品數據
+    // 從 Firestore 獲取商品數據（使用客戶端排序，與管理頁面保持一致）
     const db = firebase.firestore();
     const snapshot = await db
       .collection("products")
-      .where("status", "==", "active") // 只載入上架的商品
-      .orderBy("createdAt", "desc") // 按建立時間排序
-      .get();
+      .get(); // 獲取所有商品，在客戶端進行篩選和排序
 
     products = [];
     snapshot.forEach((doc) => {
-      products.push({
-        id: doc.id,
-        ...doc.data(),
-      });
+      const productData = doc.data();
+      // 只載入上架的商品
+      if (productData.status === "active") {
+        products.push({
+          id: doc.id,
+          ...productData,
+        });
+      }
+    });
+
+    // 客戶端排序，與 AdminProductService 保持一致
+    products.sort((a, b) => {
+      const aValue = a.sortOrder || 999;
+      const bValue = b.sortOrder || 999;
+      return aValue - bValue; // 升序排列
     });
 
     console.log(`成功載入 ${products.length} 個商品`);
@@ -99,7 +108,7 @@ function renderCategories(categories) {
     .map(
       (category) => `
     <div class="category-item" data-category="${category.id}">
-      ${category.icon} ${category.name}
+      ${category.icon || ''} ${category.name}
     </div>
   `
     )

@@ -41,9 +41,10 @@ const MenuService = (function () {
         category: itemData.category,
         description: itemData.description || "",
         image: itemData.image || null,
-        isAvailable: itemData.isAvailable !== false,
+        isAvailable: itemData.isAvailable !== false, // 使用 isAvailable 字段
         sortOrder: Number(itemData.sortOrder) || 999,
         tags: itemData.tags || [],
+        stock: itemData.stock || 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         createdBy: auth.currentUser?.uid || 'system'
@@ -78,9 +79,11 @@ const MenuService = (function () {
         const items = [];
         snapshot.forEach((doc) => {
           const item = { id: doc.id, ...doc.data() };
-          // 在記憶體中進行過濾
-          if (options.isAvailable !== undefined && item.isAvailable !== options.isAvailable) {
-            return;
+          // 在記憶體中進行過濾 - 使用 isAvailable 字段
+          if (options.isAvailable !== undefined) {
+            if (item.isAvailable !== options.isAvailable) {
+              return;
+            }
           }
           items.push(item);
         });
@@ -106,6 +109,7 @@ const MenuService = (function () {
           query = query.where("category", "==", options.category);
         }
         if (options.isAvailable !== undefined) {
+          // 使用 isAvailable 字段
           query = query.where("isAvailable", "==", options.isAvailable);
         }
         
@@ -141,8 +145,10 @@ const MenuService = (function () {
             if (options.category && item.category !== options.category) {
               return;
             }
-            if (options.isAvailable !== undefined && item.isAvailable !== options.isAvailable) {
-              return;
+            if (options.isAvailable !== undefined) {
+              if (item.isAvailable !== options.isAvailable) {
+                return;
+              }
             }
             items.push(item);
           });
@@ -196,6 +202,12 @@ const MenuService = (function () {
         updatedAt: new Date().toISOString(),
         updatedBy: auth.currentUser?.uid || 'system'
       };
+      
+      // 使用 isAvailable 字段
+      if (updateData.isAvailable !== undefined) {
+        updatePayload.isAvailable = updateData.isAvailable;
+      }
+      
       // 確保不更新 id
       delete updatePayload.id;
       await db.collection("menu_items").doc(itemId).update(updatePayload);

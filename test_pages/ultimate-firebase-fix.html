@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終極 Firebase 修復工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            color: #333;
+            font-size: 3em;
+            margin: 0 0 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+            margin: 0;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .panel h2 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .status-display {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .status-display.healthy {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .status-display.unhealthy {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .status-display.warning {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        .status-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        .status-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .status-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .btn {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn.emergency {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+        .btn.emergency:hover {
+            box-shadow: 0 5px 15px rgba(220,53,69,0.4);
+        }
+        .btn.success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        .btn.success:hover {
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+        }
+        .btn.warning {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+        }
+        .btn.warning:hover {
+            box-shadow: 0 5px 15px rgba(255,193,7,0.4);
+        }
+        .progress-container {
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            height: 30px;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .log-container {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        .strategy-list {
+            list-style: none;
+            padding: 0;
+        }
+        .strategy-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .strategy-info {
+            flex: 1;
+        }
+        .strategy-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .strategy-desc {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .strategy-priority {
+            background: #007bff;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .health-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .health-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .health-item.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .health-item.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .health-item.warning {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        .health-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        .health-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .health-status {
+            font-size: 0.8em;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 5px solid;
+        }
+        .alert.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .alert.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .alert.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .alert.error {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 終極 Firebase 修復工具</h1>
+            <p>專業級 Firebase 連接問題診斷與修復解決方案</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 左側面板：狀態監控 -->
+            <div class="panel">
+                <h2>📊 即時狀態監控</h2>
+                
+                <div id="overallStatus" class="status-display">
+                    <div class="status-icon">🔍</div>
+                    <div class="status-text">正在檢查狀態...</div>
+                    <div class="status-details">請稍候</div>
+                </div>
+
+                <div class="health-indicators" id="healthIndicators">
+                    <!-- 健康指標將在這裡動態生成 -->
+                </div>
+
+                <div class="button-group">
+                    <button class="btn" onclick="checkHealth()">🔄 重新檢查</button>
+                    <button class="btn success" onclick="runQuickFix()">⚡ 快速修復</button>
+                    <button class="btn emergency" onclick="runUltimateFix()">🚨 終極修復</button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">0%</div>
+                </div>
+            </div>
+
+            <!-- 右側面板：修復策略 -->
+            <div class="panel">
+                <h2>🔧 修復策略</h2>
+                
+                <div class="alert info">
+                    <strong>智能修復系統</strong><br>
+                    系統將自動選擇最適合的修復策略，按優先級順序執行
+                </div>
+
+                <ul class="strategy-list" id="strategyList">
+                    <!-- 修復策略將在這裡動態生成 -->
+                </ul>
+
+                <div class="button-group">
+                    <button class="btn" onclick="showStrategyDetails()">📋 策略詳情</button>
+                    <button class="btn warning" onclick="runAutoTroubleshoot()">🤖 自動故障排除</button>
+                    <button class="btn" onclick="exportReport()">📄 匯出報告</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 全寬面板：日誌和詳細資訊 -->
+        <div class="panel full-width">
+            <h2>📋 詳細日誌</h2>
+            
+            <div class="button-group">
+                <button class="btn" onclick="clearLog()">🗑️ 清除日誌</button>
+                <button class="btn" onclick="downloadLog()">💾 下載日誌</button>
+                <button class="btn" onclick="toggleAutoScroll()">📜 自動滾動</button>
+            </div>
+
+            <div class="log-container" id="logContainer">
+                <!-- 日誌內容將在這裡顯示 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- 本地配置和服務 -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/ultimate-firebase-fix.js"></script>
+    
+    <script>
+        let autoScroll = true;
+        let currentHealthStatus = null;
+        let isRunning = false;
+
+        // 日誌功能
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            const logContainer = document.getElementById('logContainer');
+            logContainer.textContent += logEntry;
+            
+            if (autoScroll) {
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+            
+            console.log(logEntry.trim());
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').textContent = '';
+        }
+
+        function downloadLog() {
+            const logContent = document.getElementById('logContainer').textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ultimate-firebase-fix-${new Date().toISOString().slice(0,19)}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function toggleAutoScroll() {
+            autoScroll = !autoScroll;
+            log(`自動滾動: ${autoScroll ? '開啟' : '關閉'}`);
+        }
+
+        // 更新進度條
+        function updateProgress(percent, text = '') {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = text || percent + '%';
+        }
+
+        // 更新整體狀態
+        function updateOverallStatus(status, message, details = '') {
+            const statusDisplay = document.getElementById('overallStatus');
+            const icon = statusDisplay.querySelector('.status-icon');
+            const text = statusDisplay.querySelector('.status-text');
+            const detailsEl = statusDisplay.querySelector('.status-details');
+
+            statusDisplay.className = `status-display ${status}`;
+            
+            switch (status) {
+                case 'healthy':
+                    icon.textContent = '✅';
+                    text.textContent = '系統正常';
+                    break;
+                case 'unhealthy':
+                    icon.textContent = '❌';
+                    text.textContent = '系統異常';
+                    break;
+                case 'warning':
+                    icon.textContent = '⚠️';
+                    text.textContent = '系統警告';
+                    break;
+                default:
+                    icon.textContent = '🔍';
+                    text.textContent = '檢查中...';
+            }
+
+            if (message) text.textContent = message;
+            if (details) detailsEl.textContent = details;
+        }
+
+        // 生成健康指標
+        function generateHealthIndicators(healthData) {
+            const container = document.getElementById('healthIndicators');
+            container.innerHTML = '';
+
+            if (!healthData || !healthData.results) {
+                container.innerHTML = '<div class="health-item warning"><div class="health-icon">❓</div><div class="health-label">狀態未知</div></div>';
+                return;
+            }
+
+            healthData.results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = `health-item ${result.status}`;
+                
+                const icon = result.status === 'success' ? '✅' : result.status === 'error' ? '❌' : '⚠️';
+                const label = result.name;
+                const status = result.status === 'success' ? '正常' : result.status === 'error' ? '錯誤' : '警告';
+
+                item.innerHTML = `
+                    <div class="health-icon">${icon}</div>
+                    <div class="health-label">${label}</div>
+                    <div class="health-status">${status}</div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 生成修復策略列表
+        function generateStrategyList() {
+            const container = document.getElementById('strategyList');
+            container.innerHTML = '';
+
+            const strategies = UltimateFirebaseFix.fixStrategies;
+            const sortedStrategies = Object.entries(strategies)
+                .sort(([,a], [,b]) => a.priority - b.priority);
+
+            sortedStrategies.forEach(([key, strategy]) => {
+                const item = document.createElement('li');
+                item.className = 'strategy-item';
+                
+                item.innerHTML = `
+                    <div class="strategy-info">
+                        <div class="strategy-name">${strategy.name}</div>
+                        <div class="strategy-desc">優先級: ${strategy.priority} | 超時: ${strategy.timeout}ms</div>
+                    </div>
+                    <div class="strategy-priority">P${strategy.priority}</div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 健康檢查
+        async function checkHealth() {
+            if (isRunning) return;
+            isRunning = true;
+
+            log('開始健康檢查...');
+            updateOverallStatus('', '檢查中...', '正在診斷系統狀態');
+            updateProgress(0, '初始化...');
+
+            try {
+                updateProgress(25, '載入 Firebase...');
+                await UltimateFirebaseFix.ultimateInitFirebase();
+
+                updateProgress(50, '執行健康檢查...');
+                const healthData = await UltimateFirebaseFix.healthCheck();
+
+                updateProgress(75, '分析結果...');
+                currentHealthStatus = healthData;
+
+                updateProgress(100, '完成');
+                
+                if (healthData.healthy) {
+                    updateOverallStatus('healthy', '系統正常', `成功率: ${(healthData.successRate * 100).toFixed(1)}%`);
+                    log('✅ 健康檢查完成 - 系統正常', 'success');
+                } else {
+                    updateOverallStatus('unhealthy', '系統異常', `成功率: ${(healthData.successRate * 100).toFixed(1)}%`);
+                    log('❌ 健康檢查完成 - 發現問題', 'error');
+                }
+
+                generateHealthIndicators(healthData);
+
+            } catch (error) {
+                updateOverallStatus('unhealthy', '檢查失敗', error.message);
+                log(`健康檢查失敗: ${error.message}`, 'error');
+                generateHealthIndicators(null);
+            } finally {
+                isRunning = false;
+            }
+        }
+
+        // 快速修復
+        async function runQuickFix() {
+            if (isRunning) return;
+            isRunning = true;
+
+            log('開始快速修復...');
+            updateOverallStatus('', '修復中...', '執行快速修復策略');
+            updateProgress(0, '準備修復...');
+
+            try {
+                updateProgress(25, '執行基本重連...');
+                const result = await UltimateFirebaseFix.executeFixStrategy('basicReconnect');
+
+                if (result.success) {
+                    updateProgress(100, '修復成功');
+                    updateOverallStatus('healthy', '快速修復成功', result.message);
+                    log(`✅ 快速修復成功: ${result.message}`, 'success');
+                } else {
+                    updateProgress(100, '修復失敗');
+                    updateOverallStatus('unhealthy', '快速修復失敗', result.error);
+                    log(`❌ 快速修復失敗: ${result.error}`, 'error');
+                }
+
+            } catch (error) {
+                updateOverallStatus('unhealthy', '修復錯誤', error.message);
+                log(`快速修復錯誤: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+            }
+        }
+
+        // 終極修復
+        async function runUltimateFix() {
+            if (isRunning) return;
+            isRunning = true;
+
+            log('🚨 開始終極修復程序...');
+            updateOverallStatus('', '終極修復中...', '執行最強修復策略');
+            updateProgress(0, '準備終極修復...');
+
+            try {
+                updateProgress(20, '清理環境...');
+                await UltimateFirebaseFix.executeFixStrategy('ultimateFix');
+
+                updateProgress(100, '終極修復完成');
+                updateOverallStatus('healthy', '終極修復成功', '系統已完全修復');
+                log('✅ 終極修復成功！', 'success');
+
+                // 重新檢查健康狀態
+                setTimeout(checkHealth, 2000);
+
+            } catch (error) {
+                updateOverallStatus('unhealthy', '終極修復失敗', error.message);
+                log(`❌ 終極修復失敗: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+            }
+        }
+
+        // 自動故障排除
+        async function runAutoTroubleshoot() {
+            if (isRunning) return;
+            isRunning = true;
+
+            log('🤖 開始自動故障排除...');
+            updateOverallStatus('', '自動排除中...', '智能選擇最佳修復策略');
+            updateProgress(0, '分析問題...');
+
+            try {
+                const result = await UltimateFirebaseFix.autoTroubleshoot();
+
+                if (result.success) {
+                    updateProgress(100, '故障排除成功');
+                    updateOverallStatus('healthy', '故障排除成功', `使用策略: ${result.strategy}`);
+                    log(`✅ 自動故障排除成功，使用策略: ${result.strategy}`, 'success');
+                } else {
+                    updateProgress(100, '故障排除失敗');
+                    updateOverallStatus('unhealthy', '故障排除失敗', '所有策略都失敗了');
+                    log(`❌ 自動故障排除失敗: ${result.message}`, 'error');
+                }
+
+                // 顯示詳細結果
+                result.results.forEach(r => {
+                    log(`${r.strategy}: ${r.success ? '成功' : '失敗'} - ${r.message}`, r.success ? 'success' : 'error');
+                });
+
+            } catch (error) {
+                updateOverallStatus('unhealthy', '故障排除錯誤', error.message);
+                log(`自動故障排除錯誤: ${error.message}`, 'error');
+            } finally {
+                isRunning = false;
+            }
+        }
+
+        // 顯示策略詳情
+        function showStrategyDetails() {
+            log('📋 修復策略詳情:');
+            const strategies = UltimateFirebaseFix.fixStrategies;
+            
+            Object.entries(strategies).forEach(([key, strategy]) => {
+                log(`策略 ${strategy.priority}: ${strategy.name} (超時: ${strategy.timeout}ms)`, 'info');
+            });
+        }
+
+        // 匯出報告
+        function exportReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                healthStatus: currentHealthStatus,
+                strategies: UltimateFirebaseFix.fixStrategies,
+                log: document.getElementById('logContainer').textContent
+            };
+
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ultimate-firebase-fix-report-${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            log('📄 報告已匯出', 'success');
+        }
+
+        // 頁面載入時初始化
+        window.addEventListener('load', () => {
+            log('🚀 終極 Firebase 修復工具已載入', 'info');
+            generateStrategyList();
+            
+            // 延遲執行健康檢查
+            setTimeout(() => {
+                checkHealth();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

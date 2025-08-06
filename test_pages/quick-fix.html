@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速修復商品排序 | 隱湖小竹</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .quick-fix-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .fix-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fix-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .fix-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-right: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fix-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .fix-button.success {
+            background: #27ae60;
+        }
+        
+        .fix-button.success:hover {
+            background: #229954;
+        }
+        
+        .fix-button.warning {
+            background: #f39c12;
+        }
+        
+        .fix-button.warning:hover {
+            background: #e67e22;
+        }
+        
+        .fix-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-display {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .status-value {
+            font-weight: 700;
+            color: #3498db;
+        }
+        
+        .status-value.success {
+            color: #27ae60;
+        }
+        
+        .status-value.warning {
+            color: #f39c12;
+        }
+        
+        .status-value.error {
+            color: #e74c3c;
+        }
+        
+        .log-area {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .log-success {
+            color: #2ecc71;
+        }
+        
+        .log-error {
+            color: #e74c3c;
+        }
+        
+        .log-info {
+            color: #3498db;
+        }
+        
+        .log-warning {
+            color: #f39c12;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="quick-fix-container">
+        <div class="fix-section">
+            <h1 class="fix-title">
+                <i class="fas fa-tools"></i>
+                快速修復商品排序問題
+            </h1>
+            <p>這個頁面提供簡單的解決方案來修復前台訂餐頁面和管理員商品管理頁面的排序同步問題。</p>
+        </div>
+
+        <div class="fix-section">
+            <div class="alert alert-info">
+                <strong><i class="fas fa-info-circle"></i> 說明：</strong>
+                這個工具會自動檢查並修復商品排序問題，確保前台和管理員頁面使用相同的數據源和排序邏輯。
+            </div>
+        </div>
+
+        <div class="fix-section">
+            <h2 class="fix-title">當前狀態</h2>
+            <div id="statusDisplay" class="status-display">
+                <div class="status-item">
+                    <span class="status-label">Firebase 連接</span>
+                    <span class="status-value" id="firebaseStatus">檢查中...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">商品總數</span>
+                    <span class="status-value" id="totalProducts">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">有排序值</span>
+                    <span class="status-value" id="productsWithSort">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">無排序值</span>
+                    <span class="status-value" id="productsWithoutSort">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">狀態</span>
+                    <span class="status-value" id="overallStatus">-</span>
+                </div>
+            </div>
+            
+            <button class="fix-button" onclick="checkStatus()">
+                <i class="fas fa-sync-alt"></i>
+                檢查狀態
+            </button>
+        </div>
+
+        <div class="fix-section">
+            <h2 class="fix-title">快速修復</h2>
+            <button class="fix-button success" onclick="quickFix()" id="quickFixBtn">
+                <i class="fas fa-magic"></i>
+                一鍵修復
+            </button>
+            <button class="fix-button warning" onclick="testSync()" id="testSyncBtn">
+                <i class="fas fa-check-circle"></i>
+                測試同步
+            </button>
+            
+            <div id="progressContainer" class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">準備中...</div>
+            </div>
+        </div>
+
+        <div class="fix-section">
+            <h2 class="fix-title">操作日誌</h2>
+            <button class="fix-button" onclick="clearLog()">
+                <i class="fas fa-trash"></i>
+                清除日誌
+            </button>
+            <div id="logArea" class="log-area">
+                <div class="log-entry log-info">等待操作開始...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/unified-product.service.js"></script>
+
+    <script>
+        let isProcessing = false;
+
+        // 日誌功能
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '<div class="log-entry log-info">日誌已清除</div>';
+        }
+
+        // 更新進度條
+        function updateProgress(percent, text) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressContainer = document.getElementById('progressContainer');
+            
+            progressContainer.style.display = 'block';
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = text;
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+
+        // 更新狀態顯示
+        function updateStatus(key, value, type = 'normal') {
+            const element = document.getElementById(key);
+            if (element) {
+                element.textContent = value;
+                element.className = `status-value ${type}`;
+            }
+        }
+
+        // 檢查狀態
+        async function checkStatus() {
+            try {
+                log('開始檢查系統狀態...', 'info');
+                updateProgress(10, '檢查 Firebase 連接...');
+                
+                // 檢查 Firebase 連接
+                try {
+                    await UnifiedProductService.getProducts({ limit: 1 });
+                    updateStatus('firebaseStatus', '正常', 'success');
+                    log('Firebase 連接正常', 'success');
+                } catch (error) {
+                    updateStatus('firebaseStatus', '失敗', 'error');
+                    log(`Firebase 連接失敗: ${error.message}`, 'error');
+                    return;
+                }
+
+                updateProgress(30, '獲取商品數據...');
+                
+                // 獲取商品統計
+                const result = await UnifiedProductService.getProducts();
+                const products = result.products;
+                
+                updateStatus('totalProducts', `${products.length} 個`);
+                
+                const productsWithSort = products.filter(p => p.sortOrder !== undefined && p.sortOrder !== null).length;
+                const productsWithoutSort = products.length - productsWithSort;
+                
+                updateStatus('productsWithSort', `${productsWithSort} 個`, productsWithSort === products.length ? 'success' : 'warning');
+                updateStatus('productsWithoutSort', `${productsWithoutSort} 個`, productsWithoutSort > 0 ? 'warning' : 'success');
+                
+                const overallStatus = productsWithoutSort === 0 ? '正常' : '需要修復';
+                const statusType = productsWithoutSort === 0 ? 'success' : 'warning';
+                updateStatus('overallStatus', overallStatus, statusType);
+                
+                updateProgress(100, '檢查完成');
+                
+                log(`狀態檢查完成: 總商品=${products.length}, 有排序=${productsWithSort}, 無排序=${productsWithoutSort}`, 'success');
+                
+                // 啟用或禁用按鈕
+                document.getElementById('quickFixBtn').disabled = productsWithoutSort === 0;
+                document.getElementById('testSyncBtn').disabled = false;
+                
+                setTimeout(hideProgress, 1000);
+                
+            } catch (error) {
+                log(`檢查狀態失敗: ${error.message}`, 'error');
+                hideProgress();
+            }
+        }
+
+        // 快速修復
+        async function quickFix() {
+            if (isProcessing) {
+                log('已有操作正在進行中，請稍候', 'warning');
+                return;
+            }
+
+            const confirmed = confirm('確定要執行快速修復嗎？這將為所有缺少排序值的商品添加排序。');
+            if (!confirmed) {
+                return;
+            }
+
+            isProcessing = true;
+            
+            try {
+                log('開始快速修復...', 'info');
+                updateProgress(20, '獲取商品列表...');
+                
+                const result = await UnifiedProductService.getProducts();
+                const products = result.products;
+                
+                const productsWithoutSort = products.filter(p => p.sortOrder === undefined || p.sortOrder === null);
+                
+                if (productsWithoutSort.length === 0) {
+                    log('所有商品都有排序值，無需修復', 'info');
+                    updateProgress(100, '無需修復');
+                    setTimeout(() => {
+                        checkStatus();
+                        hideProgress();
+                    }, 1000);
+                    return;
+                }
+                
+                log(`發現 ${productsWithoutSort.length} 個商品缺少排序值，開始修復...`, 'info');
+                updateProgress(40, '修復排序值...');
+                
+                // 批量更新排序值
+                const batchSize = 10;
+                let fixed = 0;
+                
+                for (let i = 0; i < productsWithoutSort.length; i += batchSize) {
+                    const batch = window.firebaseDB.batch();
+                    const batchProducts = productsWithoutSort.slice(i, i + batchSize);
+                    
+                    batchProducts.forEach((product, index) => {
+                        const productRef = window.firebaseDB.collection("products").doc(product.id);
+                        const newSortOrder = (products.length + i + index + 1) * 10;
+                        batch.update(productRef, {
+                            sortOrder: newSortOrder,
+                            updatedAt: new Date().toISOString()
+                        });
+                        fixed++;
+                    });
+                    
+                    await batch.commit();
+                    const progress = 40 + (i / productsWithoutSort.length) * 50;
+                    updateProgress(progress, `修復中... (${fixed}/${productsWithoutSort.length})`);
+                }
+                
+                updateProgress(100, '修復完成');
+                
+                log(`快速修復完成: 修復了 ${fixed} 個商品`, 'success');
+                
+                // 重新檢查狀態
+                setTimeout(() => {
+                    checkStatus();
+                }, 1000);
+                
+            } catch (error) {
+                log(`快速修復失敗: ${error.message}`, 'error');
+            } finally {
+                isProcessing = false;
+                setTimeout(hideProgress, 1000);
+            }
+        }
+
+        // 測試同步
+        async function testSync() {
+            if (isProcessing) {
+                log('已有操作正在進行中，請稍候', 'warning');
+                return;
+            }
+
+            isProcessing = true;
+            
+            try {
+                log('開始測試排序同步...', 'info');
+                updateProgress(20, '測試排序邏輯...');
+                
+                // 獲取商品並測試排序
+                const result = await UnifiedProductService.getProducts({
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+                
+                const products = result.products;
+                
+                // 檢查排序是否正確
+                let isCorrectlySorted = true;
+                for (let i = 1; i < products.length; i++) {
+                    const prevSort = products[i - 1].sortOrder || 999;
+                    const currentSort = products[i].sortOrder || 999;
+                    if (prevSort > currentSort) {
+                        isCorrectlySorted = false;
+                        break;
+                    }
+                }
+                
+                updateProgress(60, '測試前台服務...');
+                
+                // 測試前台服務
+                const frontendResult = await UnifiedProductService.getMenuProducts({
+                    isAvailable: true,
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+                
+                updateProgress(100, '測試完成');
+                
+                if (isCorrectlySorted) {
+                    log('排序邏輯正確', 'success');
+                } else {
+                    log('排序邏輯有問題', 'error');
+                }
+                
+                log(`前台服務返回 ${frontendResult.length} 個上架商品`, 'info');
+                log('排序同步測試完成', 'success');
+                
+            } catch (error) {
+                log(`測試同步失敗: ${error.message}`, 'error');
+            } finally {
+                isProcessing = false;
+                setTimeout(hideProgress, 1000);
+            }
+        }
+
+        // 頁面載入完成後自動檢查狀態
+        window.addEventListener('load', () => {
+            log('快速修復頁面已載入', 'info');
+            setTimeout(() => {
+                checkStatus();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

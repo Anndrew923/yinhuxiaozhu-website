@@ -22,19 +22,67 @@ const AdminProductService = (function () {
 
       let query = db.collection("products");
 
-      // 簡化查詢邏輯，避免複合索引問題
-      // 先獲取所有商品，然後在客戶端進行篩選和排序
-      console.log("開始查詢商品...");
+      // 根據篩選條件構建查詢
+      // 優先使用服務器端篩選，充分利用索引
       
+      if (status && status !== "all") {
+        console.log("按狀態篩選:", status);
+        query = query.where("status", "==", status);
+      }
+
+      if (category && category !== "all") {
+        console.log("按分類篩選:", category);
+        query = query.where("category", "==", category);
+      }
+
+      // 根據排序欄位和索引選擇合適的排序方式
+      let finalSortBy = sortBy;
+      let finalSortOrder = sortOrder;
+
+      // 檢查是否有對應的索引
+      if (status && status !== "all") {
+        // 如果有狀態篩選，使用對應的複合索引
+        if (sortBy === "sortOrder") {
+          finalSortBy = "sortOrder";
+          finalSortOrder = "asc"; // 索引中定義為升序
+        } else if (sortBy === "createdAt") {
+          finalSortBy = "createdAt";
+          finalSortOrder = "desc"; // 索引中定義為降序
+        }
+      } else if (category && category !== "all") {
+        // 如果有分類篩選，使用對應的複合索引
+        if (sortBy === "sortOrder") {
+          finalSortBy = "sortOrder";
+          finalSortOrder = "asc"; // 索引中定義為升序
+        }
+      } else {
+        // 沒有篩選條件時，使用默認排序
+        finalSortBy = "sortOrder";
+        finalSortOrder = "asc";
+      }
+
+      // 應用排序
+      console.log("應用排序:", finalSortBy, finalSortOrder);
+      query = query.orderBy(finalSortBy, finalSortOrder);
+
+      // 應用分頁
+      if (lastDoc) {
+        query = query.startAfter(lastDoc);
+      }
+
+      if (limit) {
+        query = query.limit(limit);
+      }
+
+      console.log("開始查詢商品...");
       const snapshot = await query.get();
       console.log(`查詢完成，獲取到 ${snapshot.size} 個商品`);
-      
+
       let products = [];
       let lastDocument = null;
 
       snapshot.forEach((doc) => {
         const productData = doc.data();
-        console.log("處理商品:", doc.id, productData.name, "狀態:", productData.status);
         products.push({
           id: doc.id,
           ...productData,
@@ -42,20 +90,7 @@ const AdminProductService = (function () {
         lastDocument = doc;
       });
 
-      // 客戶端篩選
-      if (status && status !== "all") {
-        console.log("按狀態篩選:", status);
-        products = products.filter(product => product.status === status);
-        console.log("篩選後商品數量:", products.length);
-      }
-
-      if (category && category !== "all") {
-        console.log("按分類篩選:", category);
-        products = products.filter(product => product.category === category);
-        console.log("篩選後商品數量:", products.length);
-      }
-
-      // 客戶端搜尋
+      // 客戶端搜尋（因為Firestore不支持全文搜尋）
       if (searchTerm) {
         console.log("按搜尋詞篩選:", searchTerm);
         const searchLower = searchTerm.toLowerCase();
@@ -68,11 +103,101 @@ const AdminProductService = (function () {
         console.log("搜尋後商品數量:", products.length);
       }
 
+      console.log("最終返回商品數量:", products.length);
+      
+      return {
+        products,
+        lastDoc: lastDocument,
+        hasMore: products.length === limit,
+      };
+    } catch (error) {
+      console.error("獲取商品列表失敗:", error);
+      
+      // 如果是索引錯誤，回退到客戶端篩選
+      if (error.code === 'failed-precondition' || error.code === 'unimplemented') {
+        console.warn("索引不匹配，回退到客戶端篩選模式");
+        return await getProductsFallback(options);
+      }
+      
+      throw error;
+    }
+  }
+
+  // 回退方案：客戶端篩選（當索引不匹配時使用）
+  async function getProductsFallback(options = {}) {
+    try {
+      const {
+        category = null,
+        status = null,
+        searchTerm = "",
+        sortBy = "sortOrder",
+        sortOrder = "asc",
+        limit = 20,
+        lastDoc = null,
+      } = options;
+
+      console.log("使用回退方案：客戶端篩選");
+
+      let query = db.collection("products");
+      
+      // 只按sortOrder排序，避免複合索引問題
+      query = query.orderBy("sortOrder", "asc");
+      
+      if (limit) {
+        query = query.limit(100); // 獲取更多數據進行客戶端篩選
+      }
+
+      const snapshot = await query.get();
+      console.log(`回退查詢完成，獲取到 ${snapshot.size} 個商品`);
+      
+      let products = [];
+      let lastDocument = null;
+
+      snapshot.forEach((doc) => {
+        const productData = doc.data();
+        products.push({
+          id: doc.id,
+          ...productData,
+        });
+        lastDocument = doc;
+      });
+
+      // 客戶端篩選
+      if (status && status !== "all") {
+        console.log("客戶端按狀態篩選:", status);
+        products = products.filter(product => product.status === status);
+      }
+
+      if (category && category !== "all") {
+        console.log("客戶端按分類篩選:", category);
+        products = products.filter(product => product.category === category);
+      }
+
+      // 客戶端搜尋
+      if (searchTerm) {
+        console.log("客戶端按搜尋詞篩選:", searchTerm);
+        const searchLower = searchTerm.toLowerCase();
+        products = products.filter(
+          (product) =>
+            product.name.toLowerCase().includes(searchLower) ||
+            (product.description &&
+              product.description.toLowerCase().includes(searchLower))
+        );
+      }
+
       // 客戶端排序
-      console.log("按", sortBy, sortOrder, "排序");
+      console.log("客戶端按", sortBy, sortOrder, "排序");
       products.sort((a, b) => {
         let aValue = a[sortBy] || 999;
         let bValue = b[sortBy] || 999;
+        
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          if (sortOrder === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        }
         
         if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
@@ -91,7 +216,7 @@ const AdminProductService = (function () {
         products = products.slice(0, limit);
       }
 
-      console.log("最終返回商品數量:", products.length);
+      console.log("回退方案最終返回商品數量:", products.length);
       
       return {
         products,
@@ -99,7 +224,7 @@ const AdminProductService = (function () {
         hasMore: products.length === limit,
       };
     } catch (error) {
-      console.error("獲取商品列表失敗:", error);
+      console.error("回退方案也失敗:", error);
       throw error;
     }
   }

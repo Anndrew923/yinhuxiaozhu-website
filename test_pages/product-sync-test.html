@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品排序同步測試</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .sync-status {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .status-value {
+            font-weight: bold;
+        }
+
+        .status-value.success {
+            color: #27ae60;
+        }
+
+        .status-value.warning {
+            color: #f39c12;
+        }
+
+        .status-value.error {
+            color: #e74c3c;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .product-list {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            margin-bottom: 8px;
+            border-radius: 5px;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .product-order {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .product-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .product-sort {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .alert.warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert.danger {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .comparison-result {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 商品排序同步測試</h1>
+            <p>驗證商品頁面和商品管理頁面的排序一致性</p>
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2>📦 商品頁面排序</h2>
+                <div class="sync-status">
+                    <div class="status-item">
+                        <span class="status-label">數據來源</span>
+                        <span class="status-value">order.js</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">排序字段</span>
+                        <span class="status-value">sortOrder</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">排序方向</span>
+                        <span class="status-value">升序 (asc)</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">商品數量</span>
+                        <span class="status-value" id="orderPageCount">載入中...</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn primary" onclick="loadOrderPageProducts()">🔄 載入商品頁面數據</button>
+                    <button class="btn success" onclick="createTestProduct()">➕ 創建測試商品</button>
+                </div>
+
+                <div class="product-list" id="orderPageProducts">
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        點擊「載入商品頁面數據」開始測試
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>⚙️ 商品管理頁面排序</h2>
+                <div class="sync-status">
+                    <div class="status-item">
+                        <span class="status-label">數據來源</span>
+                        <span class="status-value">AdminProductService</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">排序字段</span>
+                        <span class="status-value">sortOrder</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">排序方向</span>
+                        <span class="status-value">升序 (asc)</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">商品數量</span>
+                        <span class="status-value" id="adminPageCount">載入中...</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn primary" onclick="loadAdminPageProducts()">🔄 載入管理頁面數據</button>
+                    <button class="btn warning" onclick="testSortSync()">🔍 測試排序同步</button>
+                </div>
+
+                <div class="product-list" id="adminPageProducts">
+                    <div style="text-align: center; color: #666; padding: 20px;">
+                        點擊「載入管理頁面數據」開始測試
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel full-width">
+                <h2>📊 同步測試結果</h2>
+                <div class="alert info">
+                    <strong>測試說明：</strong> 此頁面用於驗證商品頁面（order.js）和商品管理頁面（AdminProductService）的排序是否完全一致。兩個頁面都應該使用相同的 sortOrder 字段進行升序排列。
+                </div>
+                <div class="comparison-result" id="comparisonResult">
+                    <div style="color: #3498db;">
+                        等待測試結果...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- 本地配置和服務 -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/admin-product.service.js"></script>
+
+    <script>
+        let orderPageProducts = [];
+        let adminPageProducts = [];
+
+        function log(message, type = 'info') {
+            const resultContainer = document.getElementById('comparisonResult');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#e74c3c' : 
+                                  type === 'success' ? '#2ecc71' : 
+                                  type === 'warning' ? '#f39c12' : '#3498db';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            resultContainer.appendChild(logEntry);
+            resultContainer.scrollTop = resultContainer.scrollHeight;
+        }
+
+        // 模擬 order.js 的載入邏輯
+        async function loadOrderPageProducts() {
+            try {
+                log('開始載入商品頁面數據（模擬 order.js）...', 'info');
+                
+                const db = firebase.firestore();
+                const snapshot = await db.collection("products").get();
+
+                orderPageProducts = [];
+                snapshot.forEach((doc) => {
+                    const productData = doc.data();
+                    // 只載入上架的商品
+                    if (productData.status === "active") {
+                        orderPageProducts.push({
+                            id: doc.id,
+                            ...productData,
+                        });
+                    }
+                });
+
+                // 客戶端排序，與 AdminProductService 保持一致
+                orderPageProducts.sort((a, b) => {
+                    const aValue = a.sortOrder || 999;
+                    const bValue = b.sortOrder || 999;
+                    return aValue - bValue; // 升序排列
+                });
+
+                document.getElementById('orderPageCount').textContent = orderPageProducts.length;
+                renderProductList('orderPageProducts', orderPageProducts);
+                log(`商品頁面載入完成: ${orderPageProducts.length} 個商品`, 'success');
+                
+            } catch (error) {
+                log(`商品頁面載入失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 載入管理頁面數據
+        async function loadAdminPageProducts() {
+            try {
+                log('開始載入管理頁面數據（AdminProductService）...', 'info');
+                
+                const result = await AdminProductService.getProducts({
+                    status: 'active',
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+
+                adminPageProducts = result.products;
+                document.getElementById('adminPageCount').textContent = adminPageProducts.length;
+                renderProductList('adminPageProducts', adminPageProducts);
+                log(`管理頁面載入完成: ${adminPageProducts.length} 個商品`, 'success');
+                
+            } catch (error) {
+                log(`管理頁面載入失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 渲染商品列表
+        function renderProductList(containerId, products) {
+            const container = document.getElementById(containerId);
+            
+            if (products.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">沒有商品數據</div>';
+                return;
+            }
+
+            const productsHTML = products.map((product, index) => `
+                <div class="product-item">
+                    <div class="product-order">${index + 1}</div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-details">
+                            價格: NT$ ${product.price} | 分類: ${product.category || '未分類'}
+                        </div>
+                    </div>
+                    <div class="product-sort">${product.sortOrder || 999}</div>
+                </div>
+            `).join('');
+
+            container.innerHTML = productsHTML;
+        }
+
+        // 測試排序同步
+        function testSortSync() {
+            if (orderPageProducts.length === 0 || adminPageProducts.length === 0) {
+                log('請先載入兩個頁面的數據', 'warning');
+                return;
+            }
+
+            log('開始測試排序同步...', 'info');
+            
+            // 比較商品數量
+            if (orderPageProducts.length !== adminPageProducts.length) {
+                log(`❌ 商品數量不一致: 商品頁面 ${orderPageProducts.length} 個，管理頁面 ${adminPageProducts.length} 個`, 'error');
+                return;
+            }
+
+            // 比較排序順序
+            let isSync = true;
+            for (let i = 0; i < orderPageProducts.length; i++) {
+                const orderProduct = orderPageProducts[i];
+                const adminProduct = adminPageProducts[i];
+                
+                if (orderProduct.id !== adminProduct.id) {
+                    log(`❌ 第 ${i + 1} 位商品不一致:`, 'error');
+                    log(`   商品頁面: ${orderProduct.name} (ID: ${orderProduct.id}, sortOrder: ${orderProduct.sortOrder})`, 'error');
+                    log(`   管理頁面: ${adminProduct.name} (ID: ${adminProduct.id}, sortOrder: ${adminProduct.sortOrder})`, 'error');
+                    isSync = false;
+                }
+            }
+
+            if (isSync) {
+                log('✅ 排序完全同步！兩個頁面的商品順序完全一致', 'success');
+                log(`📊 總共 ${orderPageProducts.length} 個商品，排序順序:`, 'info');
+                orderPageProducts.forEach((product, index) => {
+                    log(`   ${index + 1}. ${product.name} (sortOrder: ${product.sortOrder})`, 'info');
+                });
+            } else {
+                log('❌ 排序不同步，請檢查排序邏輯', 'error');
+            }
+        }
+
+        // 創建測試商品
+        async function createTestProduct() {
+            try {
+                log('創建測試商品...', 'info');
+                
+                const testProduct = {
+                    name: `測試商品_${Date.now()}`,
+                    price: Math.floor(Math.random() * 500) + 100,
+                    category: '測試分類',
+                    description: '這是一個測試商品',
+                    status: 'active',
+                    sortOrder: Math.floor(Math.random() * 100) + 1,
+                    stock: Math.floor(Math.random() * 50) + 10
+                };
+                
+                const result = await AdminProductService.createProduct(testProduct);
+                log(`測試商品創建成功: ${result.name} (sortOrder: ${result.sortOrder})`, 'success');
+                
+                // 重新載入數據
+                await loadOrderPageProducts();
+                await loadAdminPageProducts();
+                
+            } catch (error) {
+                log(`創建測試商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 頁面載入時自動測試
+        window.addEventListener('load', () => {
+            log('商品排序同步測試工具已載入', 'info');
+            log('商品頁面: order.js → 客戶端排序 (sortOrder asc)', 'info');
+            log('管理頁面: AdminProductService → 客戶端排序 (sortOrder asc)', 'info');
+            log('兩個頁面應該完全同步', 'success');
+        });
+    </script>
+</body>
+</html> 

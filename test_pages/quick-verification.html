@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速驗證測試</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .test-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn.success {
+            background: #27ae60;
+        }
+
+        .btn.success:hover {
+            background: #229954;
+        }
+
+        .result {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            background: #27ae60;
+        }
+
+        .result.error {
+            background: #e74c3c;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .product-sort {
+            background: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 快速驗證測試</h1>
+            <p>驗證修正後的排序邏輯是否正常工作</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 排序邏輯測試</h2>
+            <button class="btn" onclick="testSortingLogic()">測試排序算法</button>
+            <button class="btn" onclick="testDataConsistency()">測試數據一致性</button>
+            <button class="btn success" onclick="runFullVerification()">執行完整驗證</button>
+            <div id="sortingResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📦 商品數據測試</h2>
+            <button class="btn" onclick="loadAndDisplayProducts()">載入商品數據</button>
+            <button class="btn" onclick="createTestProducts()">創建測試商品</button>
+            <div id="productResult" class="result" style="display: none;"></div>
+            <div id="productList" class="product-list" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔄 同步測試</h2>
+            <button class="btn" onclick="testSync()">測試同步</button>
+            <div id="syncResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- 本地配置和服務 -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/services/admin-product.service.js"></script>
+
+    <script>
+        function log(message, type = 'info', containerId = 'sortingResult') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+            container.style.display = 'block';
+        }
+
+        // 測試排序邏輯
+        function testSortingLogic() {
+            const container = document.getElementById('sortingResult');
+            container.innerHTML = '';
+            container.className = 'result';
+
+            log('開始測試排序邏輯...', 'info');
+
+            // 測試數據
+            const testData = [
+                { name: '商品A', sortOrder: 3 },
+                { name: '商品B', sortOrder: 1 },
+                { name: '商品C', sortOrder: 2 },
+                { name: '商品D', sortOrder: null },
+                { name: '商品E', sortOrder: undefined },
+                { name: '商品F', sortOrder: 0 }
+            ];
+
+            // 測試 order.js 排序邏輯
+            const orderJsSorted = [...testData].sort((a, b) => {
+                const aValue = a.sortOrder || 999;
+                const bValue = b.sortOrder || 999;
+                return aValue - bValue;
+            });
+
+            // 測試 AdminProductService 排序邏輯
+            const adminServiceSorted = [...testData].sort((a, b) => {
+                let aValue = a.sortOrder || 999;
+                let bValue = b.sortOrder || 999;
+                
+                // 確保數字類型正確比較
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                    return aValue - bValue;
+                }
+                
+                return aValue > bValue ? 1 : -1;
+            });
+
+            // 驗證結果
+            const expectedOrder = ['商品F', '商品B', '商品C', '商品A', '商品D', '商品E'];
+            const orderJsOrder = orderJsSorted.map(p => p.name);
+            const adminServiceOrder = adminServiceSorted.map(p => p.name);
+
+            log('測試結果:', 'info');
+            log(`期望順序: ${expectedOrder.join(' → ')}`, 'info');
+            log(`order.js 順序: ${orderJsOrder.join(' → ')}`, 'info');
+            log(`AdminService 順序: ${adminServiceOrder.join(' → ')}`, 'info');
+
+            const orderJsCorrect = JSON.stringify(orderJsOrder) === JSON.stringify(expectedOrder);
+            const adminServiceCorrect = JSON.stringify(adminServiceOrder) === JSON.stringify(expectedOrder);
+
+            if (orderJsCorrect && adminServiceCorrect) {
+                log('✅ 排序邏輯測試通過！兩個排序算法結果一致', 'success');
+                container.className = 'result success';
+            } else {
+                log('❌ 排序邏輯測試失敗！排序結果不一致', 'error');
+                container.className = 'result error';
+            }
+        }
+
+        // 測試數據一致性
+        async function testDataConsistency() {
+            const container = document.getElementById('sortingResult');
+            container.innerHTML = '';
+            container.className = 'result';
+
+            log('開始測試數據一致性...', 'info');
+
+            try {
+                // 使用 order.js 邏輯
+                const db = firebase.firestore();
+                const snapshot = await db.collection("products").get();
+                
+                const orderJsProducts = [];
+                snapshot.forEach((doc) => {
+                    const productData = doc.data();
+                    if (productData.status === "active") {
+                        orderJsProducts.push({
+                            id: doc.id,
+                            ...productData,
+                        });
+                    }
+                });
+
+                orderJsProducts.sort((a, b) => {
+                    const aValue = a.sortOrder || 999;
+                    const bValue = b.sortOrder || 999;
+                    return aValue - bValue;
+                });
+
+                // 使用 AdminProductService
+                const result = await AdminProductService.getProducts({
+                    status: 'active',
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+
+                const adminServiceProducts = result.products;
+
+                log(`數據載入完成:`, 'info');
+                log(`order.js: ${orderJsProducts.length} 個商品`, 'info');
+                log(`AdminService: ${adminServiceProducts.length} 個商品`, 'info');
+
+                // 比較結果
+                if (orderJsProducts.length === adminServiceProducts.length) {
+                    let isConsistent = true;
+                    for (let i = 0; i < orderJsProducts.length; i++) {
+                        if (orderJsProducts[i].id !== adminServiceProducts[i].id) {
+                            isConsistent = false;
+                            log(`❌ 第 ${i + 1} 位不一致: ${orderJsProducts[i].name} vs ${adminServiceProducts[i].name}`, 'error');
+                        }
+                    }
+
+                    if (isConsistent) {
+                        log('✅ 數據一致性測試通過！兩個方法返回相同的排序結果', 'success');
+                        container.className = 'result success';
+                    } else {
+                        log('❌ 數據一致性測試失敗！排序結果不一致', 'error');
+                        container.className = 'result error';
+                    }
+                } else {
+                    log(`❌ 商品數量不一致: ${orderJsProducts.length} vs ${adminServiceProducts.length}`, 'error');
+                    container.className = 'result error';
+                }
+
+            } catch (error) {
+                log(`❌ 數據一致性測試失敗: ${error.message}`, 'error');
+                container.className = 'result error';
+            }
+        }
+
+        // 載入並顯示商品
+        async function loadAndDisplayProducts() {
+            const container = document.getElementById('productResult');
+            const listContainer = document.getElementById('productList');
+            container.innerHTML = '';
+            container.style.display = 'block';
+            listContainer.style.display = 'none';
+
+            log('開始載入商品數據...', 'info');
+
+            try {
+                const result = await AdminProductService.getProducts({
+                    status: 'active',
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc',
+                    limit: 10
+                });
+
+                log(`成功載入 ${result.products.length} 個商品`, 'success');
+
+                // 顯示商品列表
+                const productsHTML = result.products.map((product, index) => `
+                    <div class="product-card">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-sort">${product.sortOrder || 999}</div>
+                        <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                            第 ${index + 1} 位
+                        </div>
+                    </div>
+                `).join('');
+
+                listContainer.innerHTML = productsHTML;
+                listContainer.style.display = 'grid';
+
+            } catch (error) {
+                log(`❌ 載入商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 創建測試商品
+        async function createTestProducts() {
+            const container = document.getElementById('productResult');
+            container.innerHTML = '';
+            container.style.display = 'block';
+
+            log('創建測試商品...', 'info');
+
+            try {
+                const testProducts = [
+                    {
+                        name: `測試商品_${Date.now()}_1`,
+                        price: 100,
+                        category: '測試分類',
+                        description: '測試商品1',
+                        status: 'active',
+                        sortOrder: Math.floor(Math.random() * 50) + 1
+                    },
+                    {
+                        name: `測試商品_${Date.now()}_2`,
+                        price: 150,
+                        category: '測試分類',
+                        description: '測試商品2',
+                        status: 'active',
+                        sortOrder: Math.floor(Math.random() * 50) + 1
+                    }
+                ];
+
+                for (const productData of testProducts) {
+                    const result = await AdminProductService.createProduct(productData);
+                    log(`✅ 創建商品: ${result.name} (sortOrder: ${result.sortOrder})`, 'success');
+                }
+
+                log('測試商品創建完成', 'success');
+
+            } catch (error) {
+                log(`❌ 創建測試商品失敗: ${error.message}`, 'error');
+            }
+        }
+
+        // 測試同步
+        async function testSync() {
+            const container = document.getElementById('syncResult');
+            container.innerHTML = '';
+            container.style.display = 'block';
+
+            log('開始同步測試...', 'info');
+
+            try {
+                // 模擬 order.js 載入
+                const db = firebase.firestore();
+                const snapshot = await db.collection("products").get();
+                
+                const orderJsProducts = [];
+                snapshot.forEach((doc) => {
+                    const productData = doc.data();
+                    if (productData.status === "active") {
+                        orderJsProducts.push({
+                            id: doc.id,
+                            ...productData,
+                        });
+                    }
+                });
+
+                orderJsProducts.sort((a, b) => {
+                    const aValue = a.sortOrder || 999;
+                    const bValue = b.sortOrder || 999;
+                    return aValue - bValue;
+                });
+
+                // 使用 AdminProductService
+                const result = await AdminProductService.getProducts({
+                    status: 'active',
+                    sortBy: 'sortOrder',
+                    sortOrder: 'asc'
+                });
+
+                const adminServiceProducts = result.products;
+
+                // 驗證同步
+                if (orderJsProducts.length === adminServiceProducts.length) {
+                    let syncCount = 0;
+                    for (let i = 0; i < orderJsProducts.length; i++) {
+                        if (orderJsProducts[i].id === adminServiceProducts[i].id) {
+                            syncCount++;
+                        }
+                    }
+
+                    const syncRate = (syncCount / orderJsProducts.length) * 100;
+                    log(`同步率: ${syncRate.toFixed(1)}% (${syncCount}/${orderJsProducts.length})`, 'info');
+
+                    if (syncRate === 100) {
+                        log('✅ 完全同步！商品頁面和管理頁面排序完全一致', 'success');
+                        container.className = 'result success';
+                    } else {
+                        log('⚠️ 部分同步，存在排序差異', 'error');
+                        container.className = 'result error';
+                    }
+                } else {
+                    log(`❌ 商品數量不一致，無法同步`, 'error');
+                    container.className = 'result error';
+                }
+
+            } catch (error) {
+                log(`❌ 同步測試失敗: ${error.message}`, 'error');
+                container.className = 'result error';
+            }
+        }
+
+        // 執行完整驗證
+        async function runFullVerification() {
+            log('🚀 開始執行完整驗證...', 'info');
+
+            // 執行所有測試
+            testSortingLogic();
+            setTimeout(() => testDataConsistency(), 1000);
+            setTimeout(() => testSync(), 2000);
+        }
+
+        // 頁面載入時初始化
+        window.addEventListener('load', () => {
+            console.log('快速驗證測試工具已載入');
+        });
+    </script>
+</body>
+</html> 

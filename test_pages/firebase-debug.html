@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 連接診斷工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 5px solid #007bff;
+        }
+        .test-section h3 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log-area {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        .config-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .quick-fix {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .quick-fix h3 {
+            margin-top: 0;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase 連接診斷工具</h1>
+        
+        <div class="quick-fix">
+            <h3>🚀 一鍵修復</h3>
+            <p>如果其他方法都失敗，點擊下方按鈕進行全面修復</p>
+            <button onclick="emergencyFix()" id="emergencyBtn">緊急修復 Firebase 連接</button>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <h3>📡 基本連接測試</h3>
+                <div id="basicStatus" class="status info">等待測試...</div>
+                <button onclick="testBasicConnection()">測試基本連接</button>
+                <button onclick="testFirebaseSDK()">測試 SDK 載入</button>
+                <button onclick="testNetworkConnectivity()">測試網路連接</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🔧 配置檢查</h3>
+                <div id="configStatus" class="status info">等待檢查...</div>
+                <button onclick="checkFirebaseConfig()">檢查 Firebase 配置</button>
+                <button onclick="validateProjectSettings()">驗證專案設定</button>
+                <button onclick="testAuthentication()">測試認證</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🗄️ 資料庫測試</h3>
+                <div id="dbStatus" class="status info">等待測試...</div>
+                <button onclick="testFirestoreConnection()">測試 Firestore</button>
+                <button onclick="testRealtimeDB()">測試 Realtime DB</button>
+                <button onclick="testBatchOperations()">測試批次操作</button>
+            </div>
+
+            <div class="test-section">
+                <h3>🌐 網路診斷</h3>
+                <div id="networkStatus" class="status info">等待診斷...</div>
+                <button onclick="testCORS()">測試 CORS</button>
+                <button onclick="testDNS()">測試 DNS 解析</button>
+                <button onclick="testFirewall()">測試防火牆</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 詳細診斷報告</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <button onclick="runFullDiagnostic()">執行完整診斷</button>
+            <button onclick="exportDiagnosticReport()">匯出診斷報告</button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 配置資訊</h3>
+            <div id="configDisplay" class="config-display">載入中...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 診斷日誌</h3>
+            <div id="logArea" class="log-area"></div>
+            <button onclick="clearLog()">清除日誌</button>
+            <button onclick="downloadLog()">下載日誌</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    
+    <!-- 本地配置 -->
+    <script src="../js/firebase-config.js"></script>
+    
+    <script>
+        let diagnosticResults = {};
+        let isEmergencyMode = false;
+
+        // 日誌功能
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            const logArea = document.getElementById('logArea');
+            logArea.textContent += logEntry;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(logEntry.trim());
+        }
+
+        function clearLog() {
+            document.getElementById('logArea').textContent = '';
+        }
+
+        function downloadLog() {
+            const logContent = document.getElementById('logArea').textContent;
+            const blob = new Blob([logContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `firebase-diagnostic-${new Date().toISOString().slice(0,19)}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 更新進度條
+        function updateProgress(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        // 更新狀態顯示
+        function updateStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        // 基本連接測試
+        async function testBasicConnection() {
+            log('開始基本連接測試...');
+            updateStatus('basicStatus', '測試中...', 'info');
+            
+            try {
+                // 測試 Firebase 是否已載入
+                if (!window.firebase) {
+                    throw new Error('Firebase SDK 未載入');
+                }
+                
+                // 測試 Firestore 是否可用
+                const db = firebase.firestore();
+                if (!db) {
+                    throw new Error('Firestore 初始化失敗');
+                }
+                
+                // 測試簡單查詢
+                const testQuery = await db.collection('test').limit(1).get();
+                log('基本連接測試成功', 'success');
+                updateStatus('basicStatus', '✅ 連接正常', 'success');
+                diagnosticResults.basicConnection = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`基本連接測試失敗: ${error.message}`, 'error');
+                updateStatus('basicStatus', `❌ 連接失敗: ${error.message}`, 'error');
+                diagnosticResults.basicConnection = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試 Firebase SDK 載入
+        async function testFirebaseSDK() {
+            log('測試 Firebase SDK 載入...');
+            
+            const sdkTests = {
+                'firebase': !!window.firebase,
+                'firebase.app': !!window.firebase?.app,
+                'firebase.firestore': !!window.firebase?.firestore,
+                'firebase.auth': !!window.firebase?.auth,
+                'firebase.storage': !!window.firebase?.storage
+            };
+            
+            const results = Object.entries(sdkTests);
+            const successCount = results.filter(([_, available]) => available).length;
+            
+            log(`SDK 載入結果: ${successCount}/${results.length} 模組可用`);
+            
+            results.forEach(([module, available]) => {
+                log(`${module}: ${available ? '✅' : '❌'}`, available ? 'success' : 'error');
+            });
+            
+            if (successCount === results.length) {
+                updateStatus('basicStatus', '✅ SDK 完全載入', 'success');
+            } else {
+                updateStatus('basicStatus', `⚠️ SDK 部分載入 (${successCount}/${results.length})`, 'warning');
+            }
+        }
+
+        // 測試網路連接
+        async function testNetworkConnectivity() {
+            log('測試網路連接...');
+            
+            const testUrls = [
+                'https://www.google.com',
+                'https://firebase.google.com',
+                'https://console.firebase.google.com'
+            ];
+            
+            for (const url of testUrls) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+                    log(`✅ ${url} 可達`, 'success');
+                } catch (error) {
+                    log(`❌ ${url} 不可達: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // 檢查 Firebase 配置
+        async function checkFirebaseConfig() {
+            log('檢查 Firebase 配置...');
+            
+            try {
+                // 檢查是否有配置
+                if (!firebase.apps.length) {
+                    throw new Error('Firebase 應用未初始化');
+                }
+                
+                const app = firebase.app();
+                const config = app.options;
+                
+                // 顯示配置資訊（隱藏敏感資訊）
+                const safeConfig = {
+                    apiKey: config.apiKey ? `${config.apiKey.substring(0, 8)}...` : '未設定',
+                    authDomain: config.authDomain || '未設定',
+                    projectId: config.projectId || '未設定',
+                    storageBucket: config.storageBucket || '未設定',
+                    messagingSenderId: config.messagingSenderId || '未設定',
+                    appId: config.appId ? `${config.appId.substring(0, 8)}...` : '未設定'
+                };
+                
+                document.getElementById('configDisplay').textContent = JSON.stringify(safeConfig, null, 2);
+                
+                // 驗證必要欄位
+                const requiredFields = ['apiKey', 'projectId', 'authDomain'];
+                const missingFields = requiredFields.filter(field => !config[field]);
+                
+                if (missingFields.length === 0) {
+                    log('✅ Firebase 配置完整', 'success');
+                    updateStatus('configStatus', '✅ 配置正確', 'success');
+                } else {
+                    log(`⚠️ 缺少必要配置: ${missingFields.join(', ')}`, 'warning');
+                    updateStatus('configStatus', `⚠️ 配置不完整: ${missingFields.join(', ')}`, 'warning');
+                }
+                
+                diagnosticResults.config = { status: 'success', config: safeConfig, timestamp: new Date() };
+                
+            } catch (error) {
+                log(`配置檢查失敗: ${error.message}`, 'error');
+                updateStatus('configStatus', `❌ 配置錯誤: ${error.message}`, 'error');
+                diagnosticResults.config = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 驗證專案設定
+        async function validateProjectSettings() {
+            log('驗證專案設定...');
+            
+            try {
+                const db = firebase.firestore();
+                
+                // 測試讀取權限
+                const testRead = await db.collection('products').limit(1).get();
+                log('✅ 讀取權限正常', 'success');
+                
+                // 測試寫入權限（創建測試文檔）
+                const testDoc = db.collection('test').doc('diagnostic-test');
+                await testDoc.set({
+                    timestamp: new Date(),
+                    test: true
+                });
+                log('✅ 寫入權限正常', 'success');
+                
+                // 清理測試文檔
+                await testDoc.delete();
+                log('✅ 刪除權限正常', 'success');
+                
+                updateStatus('configStatus', '✅ 專案權限正常', 'success');
+                diagnosticResults.projectSettings = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`專案設定驗證失敗: ${error.message}`, 'error');
+                updateStatus('configStatus', `❌ 權限問題: ${error.message}`, 'error');
+                diagnosticResults.projectSettings = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試認證
+        async function testAuthentication() {
+            log('測試認證功能...');
+            
+            try {
+                const auth = firebase.auth();
+                
+                // 檢查認證狀態
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    log(`✅ 已認證用戶: ${currentUser.email}`, 'success');
+                } else {
+                    log('ℹ️ 未認證用戶', 'info');
+                }
+                
+                // 測試匿名認證
+                const anonymousResult = await auth.signInAnonymously();
+                log('✅ 匿名認證成功', 'success');
+                
+                // 登出
+                await auth.signOut();
+                log('✅ 登出成功', 'success');
+                
+                updateStatus('configStatus', '✅ 認證功能正常', 'success');
+                diagnosticResults.authentication = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`認證測試失敗: ${error.message}`, 'error');
+                updateStatus('configStatus', `❌ 認證問題: ${error.message}`, 'error');
+                diagnosticResults.authentication = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試 Firestore 連接
+        async function testFirestoreConnection() {
+            log('測試 Firestore 連接...');
+            
+            try {
+                const db = firebase.firestore();
+                
+                // 測試基本查詢
+                const productsQuery = await db.collection('products').limit(5).get();
+                log(`✅ Firestore 查詢成功，獲取 ${productsQuery.size} 個文檔`, 'success');
+                
+                // 測試實時監聽
+                const unsubscribe = db.collection('products').limit(1)
+                    .onSnapshot(snapshot => {
+                        log('✅ Firestore 實時監聽正常', 'success');
+                        unsubscribe();
+                    }, error => {
+                        log(`❌ Firestore 實時監聽失敗: ${error.message}`, 'error');
+                    });
+                
+                updateStatus('dbStatus', '✅ Firestore 連接正常', 'success');
+                diagnosticResults.firestore = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`Firestore 測試失敗: ${error.message}`, 'error');
+                updateStatus('dbStatus', `❌ Firestore 錯誤: ${error.message}`, 'error');
+                diagnosticResults.firestore = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試 Realtime Database
+        async function testRealtimeDB() {
+            log('測試 Realtime Database...');
+            
+            try {
+                const rtdb = firebase.database();
+                if (!rtdb) {
+                    log('ℹ️ Realtime Database 未配置', 'info');
+                    updateStatus('dbStatus', 'ℹ️ Realtime DB 未配置', 'info');
+                    return;
+                }
+                
+                // 測試讀取
+                const snapshot = await rtdb.ref('test').once('value');
+                log('✅ Realtime Database 讀取成功', 'success');
+                
+                updateStatus('dbStatus', '✅ Realtime DB 正常', 'success');
+                diagnosticResults.realtimeDB = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`Realtime Database 測試失敗: ${error.message}`, 'error');
+                updateStatus('dbStatus', `❌ Realtime DB 錯誤: ${error.message}`, 'error');
+                diagnosticResults.realtimeDB = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試批次操作
+        async function testBatchOperations() {
+            log('測試批次操作...');
+            
+            try {
+                const db = firebase.firestore();
+                const batch = db.batch();
+                
+                // 創建測試文檔
+                const testDoc1 = db.collection('test').doc('batch-test-1');
+                const testDoc2 = db.collection('test').doc('batch-test-2');
+                
+                batch.set(testDoc1, { test: true, timestamp: new Date() });
+                batch.set(testDoc2, { test: true, timestamp: new Date() });
+                
+                await batch.commit();
+                log('✅ 批次寫入成功', 'success');
+                
+                // 清理測試文檔
+                const deleteBatch = db.batch();
+                deleteBatch.delete(testDoc1);
+                deleteBatch.delete(testDoc2);
+                await deleteBatch.commit();
+                log('✅ 批次刪除成功', 'success');
+                
+                updateStatus('dbStatus', '✅ 批次操作正常', 'success');
+                diagnosticResults.batchOperations = { status: 'success', timestamp: new Date() };
+                
+            } catch (error) {
+                log(`批次操作測試失敗: ${error.message}`, 'error');
+                updateStatus('dbStatus', `❌ 批次操作錯誤: ${error.message}`, 'error');
+                diagnosticResults.batchOperations = { status: 'error', error: error.message, timestamp: new Date() };
+            }
+        }
+
+        // 測試 CORS
+        async function testCORS() {
+            log('測試 CORS 設定...');
+            
+            try {
+                const response = await fetch('https://firestore.googleapis.com/v1/projects/test/databases/(default)/documents', {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (response.status === 200 || response.status === 403) {
+                    log('✅ CORS 設定正常', 'success');
+                    updateStatus('networkStatus', '✅ CORS 正常', 'success');
+                } else {
+                    log(`⚠️ CORS 回應異常: ${response.status}`, 'warning');
+                    updateStatus('networkStatus', `⚠️ CORS 異常: ${response.status}`, 'warning');
+                }
+                
+            } catch (error) {
+                log(`CORS 測試失敗: ${error.message}`, 'error');
+                updateStatus('networkStatus', `❌ CORS 錯誤: ${error.message}`, 'error');
+            }
+        }
+
+        // 測試 DNS 解析
+        async function testDNS() {
+            log('測試 DNS 解析...');
+            
+            const firebaseDomains = [
+                'firebase.google.com',
+                'console.firebase.google.com',
+                'firestore.googleapis.com'
+            ];
+            
+            for (const domain of firebaseDomains) {
+                try {
+                    const response = await fetch(`https://${domain}`, { method: 'HEAD', mode: 'no-cors' });
+                    log(`✅ ${domain} DNS 解析成功`, 'success');
+                } catch (error) {
+                    log(`❌ ${domain} DNS 解析失敗: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // 測試防火牆
+        async function testFirewall() {
+            log('測試防火牆設定...');
+            
+            const testPorts = [
+                { port: 443, protocol: 'https' },
+                { port: 80, protocol: 'http' }
+            ];
+            
+            for (const test of testPorts) {
+                try {
+                    const response = await fetch(`${test.protocol}://firebase.google.com`, { 
+                        method: 'HEAD', 
+                        mode: 'no-cors' 
+                    });
+                    log(`✅ 端口 ${test.port} (${test.protocol}) 可達`, 'success');
+                } catch (error) {
+                    log(`❌ 端口 ${test.port} (${test.protocol}) 不可達: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // 執行完整診斷
+        async function runFullDiagnostic() {
+            log('開始完整診斷...');
+            isEmergencyMode = true;
+            
+            const tests = [
+                { name: '基本連接', func: testBasicConnection },
+                { name: 'SDK 載入', func: testFirebaseSDK },
+                { name: '網路連接', func: testNetworkConnectivity },
+                { name: '配置檢查', func: checkFirebaseConfig },
+                { name: '專案設定', func: validateProjectSettings },
+                { name: '認證測試', func: testAuthentication },
+                { name: 'Firestore', func: testFirestoreConnection },
+                { name: '批次操作', func: testBatchOperations },
+                { name: 'CORS 測試', func: testCORS },
+                { name: 'DNS 解析', func: testDNS },
+                { name: '防火牆', func: testFirewall }
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                const progress = ((i + 1) / tests.length) * 100;
+                updateProgress(progress);
+                
+                log(`執行測試 ${i + 1}/${tests.length}: ${test.name}`);
+                await test.func();
+                
+                // 等待一下再執行下一個測試
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            updateProgress(100);
+            log('完整診斷完成！', 'success');
+            generateDiagnosticReport();
+        }
+
+        // 生成診斷報告
+        function generateDiagnosticReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                results: diagnosticResults,
+                summary: {
+                    total: Object.keys(diagnosticResults).length,
+                    success: Object.values(diagnosticResults).filter(r => r.status === 'success').length,
+                    error: Object.values(diagnosticResults).filter(r => r.status === 'error').length,
+                    warning: Object.values(diagnosticResults).filter(r => r.status === 'warning').length
+                }
+            };
+            
+            log('診斷報告已生成', 'info');
+            console.log('完整診斷報告:', report);
+            
+            // 儲存到 localStorage
+            localStorage.setItem('firebaseDiagnosticReport', JSON.stringify(report));
+        }
+
+        // 匯出診斷報告
+        function exportDiagnosticReport() {
+            const report = localStorage.getItem('firebaseDiagnosticReport');
+            if (!report) {
+                log('沒有可匯出的診斷報告', 'warning');
+                return;
+            }
+            
+            const blob = new Blob([report], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `firebase-diagnostic-report-${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log('診斷報告已下載', 'success');
+        }
+
+        // 緊急修復
+        async function emergencyFix() {
+            log('🚨 開始緊急修復程序...');
+            const btn = document.getElementById('emergencyBtn');
+            btn.disabled = true;
+            btn.textContent = '修復中...';
+            
+            try {
+                // 1. 重新載入 Firebase SDK
+                log('步驟 1: 重新載入 Firebase SDK');
+                await reloadFirebaseSDK();
+                
+                // 2. 重新初始化 Firebase
+                log('步驟 2: 重新初始化 Firebase');
+                await reinitializeFirebase();
+                
+                // 3. 測試連接
+                log('步驟 3: 測試連接');
+                await testBasicConnection();
+                
+                // 4. 清理快取
+                log('步驟 4: 清理快取');
+                await clearCache();
+                
+                log('✅ 緊急修復完成！', 'success');
+                
+            } catch (error) {
+                log(`❌ 緊急修復失敗: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '緊急修復 Firebase 連接';
+            }
+        }
+
+        // 重新載入 Firebase SDK
+        async function reloadFirebaseSDK() {
+            return new Promise((resolve) => {
+                // 移除現有的 Firebase 腳本
+                const existingScripts = document.querySelectorAll('script[src*="firebase"]');
+                existingScripts.forEach(script => script.remove());
+                
+                // 重新載入 Firebase SDK
+                const script1 = document.createElement('script');
+                script1.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js';
+                script1.onload = () => {
+                    const script2 = document.createElement('script');
+                    script2.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js';
+                    script2.onload = () => {
+                        const script3 = document.createElement('script');
+                        script3.src = 'https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js';
+                        script3.onload = () => {
+                            log('✅ Firebase SDK 重新載入完成', 'success');
+                            resolve();
+                        };
+                        document.head.appendChild(script3);
+                    };
+                    document.head.appendChild(script2);
+                };
+                document.head.appendChild(script1);
+            });
+        }
+
+        // 重新初始化 Firebase
+        async function reinitializeFirebase() {
+            return new Promise((resolve, reject) => {
+                // 等待 Firebase 載入
+                let attempts = 0;
+                const maxAttempts = 30;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+                    if (window.firebase && window.firebase.app) {
+                        clearInterval(checkInterval);
+                        try {
+                            // 重新載入配置
+                            const configScript = document.createElement('script');
+                            configScript.src = '../js/firebase-config.js';
+                            configScript.onload = () => {
+                                log('✅ Firebase 重新初始化完成', 'success');
+                                resolve();
+                            };
+                            configScript.onerror = () => reject(new Error('配置載入失敗'));
+                            document.head.appendChild(configScript);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    } else if (attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        reject(new Error('Firebase 載入超時'));
+                    }
+                }, 200);
+            });
+        }
+
+        // 清理快取
+        async function clearCache() {
+            try {
+                // 清理 localStorage
+                const keysToKeep = ['firebaseDiagnosticReport'];
+                const keysToRemove = Object.keys(localStorage).filter(key => !keysToKeep.includes(key));
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                
+                // 清理 sessionStorage
+                sessionStorage.clear();
+                
+                log('✅ 快取清理完成', 'success');
+            } catch (error) {
+                log(`⚠️ 快取清理部分失敗: ${error.message}`, 'warning');
+            }
+        }
+
+        // 頁面載入時自動執行基本檢查
+        window.addEventListener('load', () => {
+            log('Firebase 診斷工具已載入', 'info');
+            setTimeout(() => {
+                testFirebaseSDK();
+                checkFirebaseConfig();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

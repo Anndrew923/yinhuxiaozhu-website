@@ -699,7 +699,7 @@
 
     <!-- App Scripts -->
     <script src="js/firebase-config.js"></script>
-    <script src="js/services/menu.service.js"></script> <!-- 改為只使用 MenuService -->
+                <script src="js/services/menu.service.js"></script>
 
     <script>
       // 全域變數
@@ -754,21 +754,21 @@
         try {
           console.log("開始載入動態菜單數據...");
           
-          // 使用 MenuService 獲取菜單項目
-          const [noodles, drinks] = await Promise.all([
-            MenuService.getAllMenuItems({
-              category: "麵食",
-              isAvailable: true,
-              orderBy: "sortOrder",
-              orderDirection: "asc"
-            }),
-            MenuService.getAllMenuItems({
-              category: "飲品", 
-              isAvailable: true,
-              orderBy: "sortOrder",
-              orderDirection: "asc"
-            })
-          ]);
+                      // 使用 MenuService 獲取菜單項目
+            const [noodles, drinks] = await Promise.all([
+              MenuService.getAllMenuItems({
+                category: "麵食",
+                isAvailable: true,
+                orderBy: "sortOrder",
+                orderDirection: "asc"
+              }),
+              MenuService.getAllMenuItems({
+                category: "飲品", 
+                isAvailable: true,
+                orderBy: "sortOrder",
+                orderDirection: "asc"
+              })
+            ]);
 
           console.log(`數據載入完成 - 麵食: ${noodles.length} 項, 飲品: ${drinks.length} 項`);
 
