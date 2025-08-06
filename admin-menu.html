@@ -923,13 +923,28 @@
       async function toggleAvailability(itemId) {
         console.log('切換上下架狀態，項目ID:', itemId);
         try {
+          // 顯示載入狀態
+          const button = event.target.closest('button');
+          const originalText = button.innerHTML;
+          button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>處理中...';
+          button.disabled = true;
+          
           await MenuService.toggleMenuItemAvailability(itemId);
           await loadMenuItems();
           await loadMenuStats();
           console.log('上下架切換成功');
+          
+          // 恢復按鈕狀態
+          button.innerHTML = originalText;
+          button.disabled = false;
         } catch (error) {
           console.error("切換上下架狀態失敗:", error);
           alert("操作失敗：" + error.message);
+          
+          // 恢復按鈕狀態
+          const button = event.target.closest('button');
+          button.innerHTML = originalText;
+          button.disabled = false;
         }
       }
 
@@ -995,12 +1010,37 @@
       document.getElementById('productImage').addEventListener('change', function(e) {
           const file = e.target.files[0];
           const preview = document.getElementById('imagePreview');
+          
           if (file) {
+              // 驗證文件類型
+              if (!file.type.startsWith('image/')) {
+                  alert('請選擇有效的圖片文件');
+                  e.target.value = '';
+                  preview.innerHTML = '';
+                  return;
+              }
+              
+              // 驗證文件大小 (10MB)
+              const maxSize = 10 * 1024 * 1024;
+              if (file.size > maxSize) {
+                  alert('圖片文件大小不能超過 10MB');
+                  e.target.value = '';
+                  preview.innerHTML = '';
+                  return;
+              }
+              
               const reader = new FileReader();
               reader.onload = function(e) {
                   preview.innerHTML = `<img src="${e.target.result}" alt="預覽圖片" class="image-preview"><p style="font-size: 12px; color: #666; margin-top: 5px;">新圖片預覽</p>`;
               };
+              reader.onerror = function() {
+                  alert('圖片預覽失敗，請重新選擇');
+                  e.target.value = '';
+                  preview.innerHTML = '';
+              };
               reader.readAsDataURL(file);
+          } else {
+              preview.innerHTML = '';
           }
       });
 
@@ -1060,12 +1100,37 @@
         uploader.addEventListener('change', function(e) {
           const file = e.target.files[0];
           if (file) {
+            // 驗證文件類型
+            if (!file.type.startsWith('image/')) {
+              alert('請選擇有效的圖片文件');
+              uploader.value = '';
+              preview.style.display = 'none';
+              uploadBtn.style.display = 'none';
+              return;
+            }
+            
+            // 驗證文件大小 (20MB for full menu)
+            const maxSize = 20 * 1024 * 1024;
+            if (file.size > maxSize) {
+              alert('完整菜單圖片大小不能超過 20MB');
+              uploader.value = '';
+              preview.style.display = 'none';
+              uploadBtn.style.display = 'none';
+              return;
+            }
+            
             // 顯示預覽
             const reader = new FileReader();
             reader.onload = function(e) {
               previewImg.src = e.target.result;
               preview.style.display = 'block';
               uploadBtn.style.display = 'inline-flex';
+            };
+            reader.onerror = function() {
+              alert('圖片預覽失敗，請重新選擇');
+              uploader.value = '';
+              preview.style.display = 'none';
+              uploadBtn.style.display = 'none';
             };
             reader.readAsDataURL(file);
           }
@@ -1154,6 +1219,20 @@
           `;
         }
       }
+      
+      // 全局錯誤處理
+      window.addEventListener('error', function(e) {
+        console.error('全局錯誤:', e.error);
+        if (e.error && e.error.message) {
+          alert('系統錯誤：' + e.error.message);
+        }
+      });
+
+      // 未處理的 Promise 錯誤
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('未處理的 Promise 錯誤:', e.reason);
+        alert('網路錯誤，請檢查連線狀態');
+      });
     </script>
    </body>
 </html>

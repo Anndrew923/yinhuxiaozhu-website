@@ -198,13 +198,44 @@
         justify-content: center;
       }
 
-      .admin-profile {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        cursor: pointer;
-        position: relative;
-      }
+             .admin-profile {
+         display: flex;
+         align-items: center;
+         gap: 10px;
+         cursor: pointer;
+         position: relative;
+         padding: 8px 12px;
+         border-radius: 8px;
+         transition: background-color 0.2s ease;
+       }
+
+       .admin-profile:hover {
+         background-color: #f8f9fa;
+       }
+
+       .admin-profile #adminName {
+         cursor: pointer;
+         transition: color 0.2s ease;
+       }
+
+       .admin-profile #adminName:hover {
+         color: #3498db;
+         text-decoration: underline;
+       }
+
+               .admin-profile .logout-btn {
+          background: none;
+          border: none;
+          color: #e74c3c;
+          cursor: pointer;
+          padding: 0;
+          font-size: inherit;
+          transition: color 0.2s ease;
+        }
+
+        .admin-profile .logout-btn:hover {
+          color: #c0392b;
+        }
 
       .admin-avatar {
         width: 36px;
@@ -553,16 +584,18 @@
         </div>
 
         <div class="top-nav-actions">
-          <button class="notification-btn">
-            <i class="fas fa-bell"></i>
-            <span class="notification-badge" id="notificationBadge">3</span>
-          </button>
+                  <button class="notification-btn" onclick="showDevelopmentNotice()" title="功能開發中">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notificationBadge">開發中</span>
+        </button>
 
-          <div class="admin-profile" id="adminProfile">
-            <div class="admin-avatar" id="adminAvatar">A</div>
-            <span id="adminName">管理員</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
+                     <div class="admin-profile">
+             <div class="admin-avatar" id="adminAvatar">A</div>
+             <span id="adminName">管理員</span>
+             <button class="logout-btn" id="logoutBtn" title="登出">
+               <i class="fas fa-sign-out-alt"></i>
+             </button>
+           </div>
         </div>
       </header>
 
@@ -654,35 +687,35 @@
 
           <!-- 最近活動 -->
           <div class="recent-activities">
-            <h3>最近活動</h3>
+            <h3>最近活動 <span style="font-size: 12px; color: #e74c3c; font-weight: normal;">(開發中)</span></h3>
             <div id="recentActivitiesContainer">
-              <div class="activity-item">
+              <div class="activity-item" style="opacity: 0.6;">
                 <div class="activity-icon new-order">
-                  <i class="fas fa-shopping-bag"></i>
+                  <i class="fas fa-tools"></i>
                 </div>
                 <div class="activity-content">
-                  <div class="activity-text">新訂單 #ORDER_001 - 陳小姐</div>
-                  <div class="activity-time">5 分鐘前</div>
+                  <div class="activity-text">功能開發中 - 即將推出</div>
+                  <div class="activity-time">敬請期待</div>
                 </div>
               </div>
 
-              <div class="activity-item">
+              <div class="activity-item" style="opacity: 0.6;">
                 <div class="activity-icon payment">
-                  <i class="fas fa-credit-card"></i>
+                  <i class="fas fa-code"></i>
                 </div>
                 <div class="activity-content">
-                  <div class="activity-text">訂單 #ORDER_002 付款完成</div>
-                  <div class="activity-time">15 分鐘前</div>
+                  <div class="activity-text">系統整合中</div>
+                  <div class="activity-time">開發階段</div>
                 </div>
               </div>
 
-              <div class="activity-item">
+              <div class="activity-item" style="opacity: 0.6;">
                 <div class="activity-icon shipped">
-                  <i class="fas fa-truck"></i>
+                  <i class="fas fa-rocket"></i>
                 </div>
                 <div class="activity-content">
-                  <div class="activity-text">訂單 #ORDER_003 已出貨</div>
-                  <div class="activity-time">1 小時前</div>
+                  <div class="activity-text">即將上線</div>
+                  <div class="activity-time">測試階段</div>
                 </div>
               </div>
             </div>
@@ -736,19 +769,39 @@
             return;
           }
 
-          currentAdmin = adminCheck.adminData;
-          updateAdminInfo(currentAdmin);
-          loadDashboardData();
+                     currentAdmin = adminCheck.adminData;
+           
+           // 添加 uid 到管理員資料中
+           currentAdmin.uid = user.uid;
+           
+           // 驗證管理員資料完整性
+           if (!currentAdmin || !currentAdmin.name || !currentAdmin.email) {
+             console.error('管理員資料不完整:', currentAdmin);
+             alert('管理員資料載入失敗，請重新登入');
+             await AuthService.signOut();
+             window.location.href = "admin-login.html";
+             return;
+           }
+           
+           updateAdminInfo(currentAdmin);
+           loadDashboardData();
         });
 
-        // 更新管理員資訊
-        function updateAdminInfo(adminData) {
-          adminInfo.textContent = `${getRoleName(adminData.role)} | ${
-            adminData.email
-          }`;
-          adminName.textContent = adminData.name;
-          adminAvatar.textContent = adminData.name.charAt(0).toUpperCase();
-        }
+                 // 更新管理員資訊
+         function updateAdminInfo(adminData) {
+           adminInfo.textContent = `${getRoleName(adminData.role)} | ${
+             adminData.email
+           }`;
+           adminName.textContent = adminData.name;
+           adminAvatar.textContent = adminData.name.charAt(0).toUpperCase();
+           
+           // 移除舊的事件監聽器，避免重複綁定
+           adminName.removeEventListener('click', adminName._editHandler);
+           
+           // 創建新的事件處理器並保存引用
+           adminName._editHandler = () => editAdminName(adminData);
+           adminName.addEventListener('click', adminName._editHandler);
+         }
 
         // 獲取角色名稱
         function getRoleName(role) {
@@ -1130,18 +1183,78 @@
           '</div>';
         }
 
-        // 管理員個人資料下拉選單
-        document
-          .getElementById("adminProfile")
-          .addEventListener("click", function () {
-            // 這裡可以添加下拉選單功能
-            const confirmLogout = confirm("確定要登出嗎？");
-            if (confirmLogout) {
-              AuthService.signOut().then(() => {
-                window.location.href = "admin-login.html";
-              });
-            }
-          });
+                 // 編輯管理員姓名
+         async function editAdminName(adminData) {
+           const newName = prompt('請輸入新的管理員姓名：', adminData.name);
+           
+           if (newName && newName.trim() && newName !== adminData.name) {
+             try {
+               // 驗證 adminData.uid 是否存在
+               if (!adminData.uid) {
+                 throw new Error('管理員ID不存在');
+               }
+               
+               // 驗證姓名長度
+               if (newName.trim().length < 1 || newName.trim().length > 20) {
+                 alert('姓名長度必須在1-20個字符之間');
+                 return;
+               }
+               
+               // 更新 Firebase 中的管理員資料
+               await firebase.firestore()
+                 .collection('admins')
+                 .doc(adminData.uid)
+                 .update({
+                   name: newName.trim(),
+                   updatedAt: new Date().toISOString()
+                 });
+               
+               // 更新本地顯示
+               adminData.name = newName.trim();
+               updateAdminInfo(adminData);
+               
+               alert('管理員姓名更新成功！');
+             } catch (error) {
+               console.error('更新管理員姓名失敗:', error);
+               if (error.message === '管理員ID不存在') {
+                 alert('系統錯誤：無法識別管理員身份，請重新登入');
+               } else {
+                 alert('更新失敗，請稍後再試');
+               }
+             }
+           }
+         }
+
+         // 顯示開發中通知
+         function showDevelopmentNotice() {
+           alert('🔧 通知功能正在開發中\n\n此功能將包含：\n• 新訂單通知\n• 庫存警告\n• 系統更新\n• 重要訊息提醒\n\n敬請期待！');
+         }
+
+                 // 管理員登出功能
+         document
+           .getElementById("logoutBtn")
+           .addEventListener("click", function () {
+             const confirmLogout = confirm("確定要登出管理後台嗎？");
+             if (confirmLogout) {
+               // 顯示登出中狀態
+               const logoutBtn = this;
+               const originalTitle = logoutBtn.title;
+               logoutBtn.title = '登出中...';
+               logoutBtn.style.opacity = '0.5';
+               
+               AuthService.signOut()
+                 .then(() => {
+                   window.location.href = "admin-login.html";
+                 })
+                 .catch((error) => {
+                   console.error('登出失敗:', error);
+                   alert('登出失敗，請稍後再試');
+                   // 恢復按鈕狀態
+                   logoutBtn.title = originalTitle;
+                   logoutBtn.style.opacity = '1';
+                 });
+             }
+           });
       });
     </script>
   </body>

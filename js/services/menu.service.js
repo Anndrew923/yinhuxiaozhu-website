@@ -292,10 +292,28 @@ const MenuService = (function () {
   async function uploadImage(file, category = "menu_images") {
     try {
       await initFirebase();
-      const fileName = `${category}/${Date.now()}_${file.name}`;
+      
+      // 驗證文件
+      if (!file || !file.type.startsWith('image/')) {
+        throw new Error('請選擇有效的圖片文件');
+      }
+      
+      // 檢查文件大小 (限制為 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        throw new Error('圖片文件大小不能超過 10MB');
+      }
+      
+      // 生成安全的文件名
+      const timestamp = Date.now();
+      const randomId = Math.random().toString(36).substring(2, 15);
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const fileName = `${category}/${timestamp}_${randomId}.${fileExtension}`;
+      
       const storageRef = storage.ref().child(fileName);
       const snapshot = await storageRef.put(file);
       const downloadURL = await snapshot.ref.getDownloadURL();
+      
       return {
         url: downloadURL,
         path: fileName,

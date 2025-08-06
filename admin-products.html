@@ -13,6 +13,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
       * {
         margin: 0;
@@ -260,6 +261,154 @@
         display: flex;
         gap: 10px;
         align-items: center;
+      }
+
+      /* 排序功能樣式 */
+      .sort-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e1e8ed;
+      }
+
+      .sort-controls .sort-info {
+        font-size: 14px;
+        color: #666;
+        flex: 1;
+      }
+
+      .sort-controls .sort-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .sort-btn {
+        padding: 6px 12px;
+        border: 1px solid #e1e8ed;
+        background: white;
+        color: #666;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      }
+
+      .sort-btn:hover {
+        background: #e9ecef;
+      }
+
+      .sort-btn.active {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+      }
+
+      .sort-btn.save {
+        background: #27ae60;
+        color: white;
+        border-color: #27ae60;
+      }
+
+      .sort-btn.save:hover {
+        background: #229954;
+      }
+
+      .sort-btn.cancel {
+        background: #e74c3c;
+        color: white;
+        border-color: #e74c3c;
+      }
+
+      .sort-btn.cancel:hover {
+        background: #c0392b;
+      }
+
+      /* 拖拽手柄樣式 */
+      .drag-handle {
+        width: 20px;
+        height: 20px;
+        cursor: grab;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 12px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+
+      .drag-handle:hover {
+        background: #e9ecef;
+        color: #666;
+      }
+
+      .drag-handle:active {
+        cursor: grabbing;
+        background: #dee2e6;
+      }
+
+      .drag-handle i {
+        pointer-events: none;
+      }
+
+      /* 排序數字輸入框 */
+      .sort-input {
+        width: 60px;
+        padding: 4px 8px;
+        border: 1px solid #e1e8ed;
+        border-radius: 4px;
+        font-size: 12px;
+        text-align: center;
+        background: white;
+      }
+
+      .sort-input:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+      }
+
+      .sort-input.invalid {
+        border-color: #e74c3c;
+        background: #fff5f5;
+      }
+
+      /* 拖拽時的樣式 */
+      .sortable-ghost {
+        opacity: 0.5;
+        background: #f8f9fa;
+      }
+
+      .sortable-chosen {
+        background: #e3f2fd;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+      }
+
+      .sortable-drag {
+        background: white;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transform: rotate(5deg);
+      }
+
+      /* 排序模式指示器 */
+      .sort-mode-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        background: #e3f2fd;
+        color: #1976d2;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .sort-mode-indicator i {
+        font-size: 10px;
       }
 
       .products-table {
@@ -1058,6 +1207,36 @@
             </button>
           </div>
         </div>
+        
+        <!-- 排序控制區域 -->
+        <div class="sort-controls" id="sortControls" style="display: none;">
+          <div class="sort-info">
+            <span class="sort-mode-indicator">
+              <i class="fas fa-sort"></i>
+              排序模式
+            </span>
+            <span id="sortInfoText">拖拽商品行或修改排序數字來調整順序</span>
+          </div>
+          <div class="sort-buttons">
+            <button class="sort-btn" onclick="enableSortMode()">
+              <i class="fas fa-sort-amount-down"></i>
+              啟用排序
+            </button>
+            <button class="sort-btn save" onclick="saveSortOrder()" id="saveSortBtn" style="display: none;">
+              <i class="fas fa-save"></i>
+              保存排序
+            </button>
+            <button class="sort-btn cancel" onclick="cancelSortMode()" id="cancelSortBtn" style="display: none;">
+              <i class="fas fa-times"></i>
+              取消
+            </button>
+            <button class="sort-btn" onclick="autoSortProducts()" id="autoSortBtn" style="display: none;">
+              <i class="fas fa-magic"></i>
+              智能排序
+            </button>
+          </div>
+        </div>
+        
         <div id="tableContainer">
           <div class="loading">
             <i class="fas fa-spinner"></i>
@@ -1265,6 +1444,12 @@
       let hasMore = true;
 
       document.addEventListener("DOMContentLoaded", function () {
+        // 初始化排序樣式
+        initSortStyles();
+        
+        // 顯示排序控制區域
+        document.getElementById('sortControls').style.display = 'block';
+        
         // 檢查認證狀態
         firebase.auth().onAuthStateChanged(async (user) => {
           if (!user) {
@@ -1352,6 +1537,8 @@
       // 載入商品列表
       async function loadProducts(reset = true) {
         try {
+          console.log("loadProducts 被調用，reset:", reset);
+          
           const tableContainer = document.getElementById("tableContainer");
 
           if (reset) {
@@ -1368,13 +1555,20 @@
           const category = document.getElementById("categoryFilter").value;
           const status = document.getElementById("statusFilter").value;
 
+          console.log("篩選條件:", { searchTerm, category, status });
+
+          // 使用實際篩選條件
           const result = await AdminProductService.getProducts({
             category: category,
             status: status,
             searchTerm: searchTerm,
+            sortBy: "sortOrder",
+            sortOrder: "asc",
             limit: 20,
             lastDoc: reset ? null : lastDoc,
           });
+
+          console.log("API返回結果:", result);
 
           products = reset
             ? result.products
@@ -1382,7 +1576,18 @@
           lastDoc = result.lastDoc;
           hasMore = result.hasMore;
 
+          console.log("更新後的products陣列:", products);
+
           renderProductsTable();
+          
+          // 如果排序模式已啟用，重新初始化排序功能
+          if (isSortMode) {
+            initSortable();
+            addSortInputListeners();
+            // 更新排序模式指示器
+            document.querySelector('.sort-mode-indicator').innerHTML = '<i class="fas fa-sort-amount-down"></i> 排序模式';
+            document.getElementById('sortInfoText').textContent = '排序模式已啟用，拖拽商品行或修改排序數字來調整順序';
+          }
         } catch (error) {
           console.error("載入商品列表失敗:", error);
           document.getElementById("tableContainer").innerHTML =
@@ -1392,19 +1597,25 @@
 
       // 渲染商品表格
       function renderProductsTable() {
+        console.log("renderProductsTable 被調用");
+        console.log("products陣列長度:", products.length);
+        console.log("products陣列內容:", products);
+        
         const tableContainer = document.getElementById("tableContainer");
 
         if (products.length === 0) {
+          console.log("商品數量為0，顯示空狀態");
           tableContainer.innerHTML =
             '<div class="empty-state"><i class="fas fa-box-open"></i><h3>暫無商品</h3><p>還沒有任何商品，點擊上方按鈕新增第一個商品吧！</p></div>';
           return;
         }
 
         const html = `
-          <table class="products-table">
+          <table class="products-table" id="productsTable">
             <thead>
               <tr>
                 <th><input type="checkbox" onchange="toggleAllProducts(this)"></th>
+                <th style="width: 50px;">排序</th>
                 <th>商品圖片</th>
                 <th>商品資訊</th>
                 <th>分類</th>
@@ -1414,15 +1625,29 @@
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="productsTableBody">
               ${products
                 .map(
-                  (product) => `
-                <tr>
+                  (product, index) => `
+                <tr data-product-id="${product.id}" data-sort-order="${product.sortOrder || 999}">
                   <td>
                     <input type="checkbox" value="${
                       product.id
                     }" onchange="updateSelectedProducts(this)">
+                  </td>
+                  <td>
+                    <div class="sort-cell">
+                      <div class="drag-handle" title="拖拽排序">
+                        <i class="fas fa-grip-vertical"></i>
+                      </div>
+                      <input type="number" 
+                             class="sort-input" 
+                             value="${product.sortOrder || 999}" 
+                             min="1" 
+                             max="9999"
+                             onchange="updateSortOrder('${product.id}', this.value)"
+                             title="排序數字（數字越小越靠前）">
+                    </div>
                   </td>
                   <td>
                     <img src="${product.image || ""}" alt="${
@@ -1649,7 +1874,9 @@
             shelfLife: document.getElementById("shelfLife").value.trim(),
             ingredients: document.getElementById("ingredients").value.trim(),
             allergens: document.getElementById("allergens").value.trim(),
-            noticeItems: getNoticeItems()
+            noticeItems: getNoticeItems(),
+            // 排序欄位
+            sortOrder: productId ? undefined : 999 // 新商品預設排序為999
           };
 
           if (productId) {
@@ -1980,8 +2207,21 @@
 
         try {
           if (action === "delete") {
+            // 刪除操作需要逐個處理，避免部分失敗
+            const failedDeletes = [];
             for (const productId of selectedProducts) {
-              await AdminProductService.deleteProduct(productId);
+              try {
+                await AdminProductService.deleteProduct(productId);
+              } catch (deleteError) {
+                console.error(`刪除商品 ${productId} 失敗:`, deleteError);
+                failedDeletes.push(productId);
+              }
+            }
+            
+            if (failedDeletes.length > 0) {
+              alert(`批量刪除完成，但有 ${failedDeletes.length} 個商品刪除失敗`);
+            } else {
+              alert("批量刪除完成！");
             }
           } else {
             const status = action === "activate" ? "active" : "inactive";
@@ -1989,9 +2229,9 @@
               selectedProducts,
               status
             );
+            alert("批量操作完成！");
           }
-
-          alert("批量操作完成！");
+          
           selectedProducts = [];
           document.getElementById("batchAction").value = "";
           await loadProducts();
@@ -2033,6 +2273,518 @@
             closeProductModal();
           }
         });
+
+      // ========== 商品排序功能 ==========
+      
+      // 全域變數
+      let isSortMode = false;
+      let originalSortOrders = {};
+      let sortableInstance = null;
+      let hasUnsavedChanges = false;
+
+      // 啟用排序模式
+      function enableSortMode() {
+        isSortMode = true;
+        hasUnsavedChanges = false;
+        
+        // 保存原始排序數據
+        originalSortOrders = {};
+        document.querySelectorAll('#productsTableBody tr').forEach(row => {
+          const productId = row.dataset.productId;
+          const sortOrder = row.dataset.sortOrder;
+          originalSortOrders[productId] = sortOrder;
+        });
+        
+        // 顯示排序控制按鈕
+        document.getElementById('saveSortBtn').style.display = 'inline-block';
+        document.getElementById('cancelSortBtn').style.display = 'inline-block';
+        document.getElementById('autoSortBtn').style.display = 'inline-block';
+        
+        // 更新UI狀態
+        document.getElementById('sortInfoText').textContent = '排序模式已啟用，拖拽商品行或修改排序數字來調整順序';
+        document.querySelector('.sort-mode-indicator').innerHTML = '<i class="fas fa-sort-amount-down"></i> 排序模式';
+        
+        // 初始化拖拽功能
+        initSortable();
+        
+        // 添加排序輸入框事件監聽
+        addSortInputListeners();
+      }
+
+      // 取消排序模式
+      function cancelSortMode() {
+        if (hasUnsavedChanges && !confirm('有未保存的排序變更，確定要取消嗎？')) {
+          return;
+        }
+        
+        isSortMode = false;
+        hasUnsavedChanges = false;
+        
+        // 恢復原始排序
+        restoreOriginalSort();
+        
+        // 隱藏排序控制按鈕
+        document.getElementById('saveSortBtn').style.display = 'none';
+        document.getElementById('cancelSortBtn').style.display = 'none';
+        document.getElementById('autoSortBtn').style.display = 'none';
+        
+        // 更新UI狀態
+        document.getElementById('sortInfoText').textContent = '拖拽商品行或修改排序數字來調整順序';
+        document.querySelector('.sort-mode-indicator').innerHTML = '<i class="fas fa-sort"></i> 排序模式';
+        
+        // 清理拖拽功能
+        cleanupSortable();
+      }
+
+      // 保存排序
+      async function saveSortOrder() {
+        try {
+          // 收集所有排序數據
+          const sortUpdates = [];
+          document.querySelectorAll('#productsTableBody tr').forEach((row, index) => {
+            const productId = row.dataset.productId;
+            const sortInput = row.querySelector('.sort-input');
+            const newSortOrder = parseInt(sortInput.value) || 999;
+            
+            // 驗證排序值
+            if (newSortOrder < 1 || newSortOrder > 9999) {
+              throw new Error(`商品排序值無效: ${newSortOrder}`);
+            }
+            
+            sortUpdates.push({
+              productId: productId,
+              sortOrder: newSortOrder
+            });
+          });
+          
+          // 顯示載入狀態
+          const saveBtn = document.getElementById('saveSortBtn');
+          const originalText = saveBtn.innerHTML;
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+          saveBtn.disabled = true;
+          
+          // 保存原始狀態用於錯誤恢復
+          const originalState = JSON.parse(JSON.stringify(originalSortOrders));
+          
+          try {
+            // 批量更新排序
+            await AdminProductService.batchUpdateSort(sortUpdates);
+            
+            // 更新本地數據
+            originalSortOrders = {};
+            sortUpdates.forEach(update => {
+              originalSortOrders[update.productId] = update.sortOrder;
+            });
+            
+            hasUnsavedChanges = false;
+            
+            // 恢復按鈕狀態
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+            
+            // 顯示成功訊息
+            showNotification('排序保存成功！', 'success');
+            
+            // 重新載入商品列表以確保數據同步
+            await loadProducts();
+            
+          } catch (apiError) {
+            // API錯誤時恢復原始狀態
+            console.error('API錯誤，恢復原始狀態:', apiError);
+            originalSortOrders = originalState;
+            restoreOriginalSort();
+            throw apiError;
+          }
+          
+        } catch (error) {
+          console.error('保存排序失敗:', error);
+          showNotification('保存排序失敗：' + error.message, 'error');
+          
+          // 恢復按鈕狀態
+          const saveBtn = document.getElementById('saveSortBtn');
+          saveBtn.innerHTML = '<i class="fas fa-save"></i> 保存排序';
+          saveBtn.disabled = false;
+        }
+      }
+
+      // 智能排序
+      function autoSortProducts() {
+        const rows = Array.from(document.querySelectorAll('#productsTableBody tr'));
+        
+        // 根據商品狀態和創建時間智能排序
+        rows.sort((a, b) => {
+          const aStatus = a.querySelector('.status-badge').textContent.trim();
+          const bStatus = b.querySelector('.status-badge').textContent.trim();
+          
+          // 上架商品優先
+          if (aStatus === '上架中' && bStatus !== '上架中') return -1;
+          if (aStatus !== '上架中' && bStatus === '上架中') return 1;
+          
+          // 同狀態下按名稱排序
+          const aName = a.querySelector('.product-name').textContent;
+          const bName = b.querySelector('.product-name').textContent;
+          return aName.localeCompare(bName, 'zh-TW');
+        });
+        
+        // 重新分配排序數字
+        rows.forEach((row, index) => {
+          const sortInput = row.querySelector('.sort-input');
+          const newSortOrder = (index + 1) * 10; // 間隔10，方便後續調整
+          sortInput.value = newSortOrder;
+          row.dataset.sortOrder = newSortOrder;
+        });
+        
+        // 重新排序表格
+        const tbody = document.getElementById('productsTableBody');
+        rows.forEach(row => tbody.appendChild(row));
+        
+        hasUnsavedChanges = true;
+        showNotification('智能排序完成，請點擊保存按鈕保存變更', 'info');
+      }
+
+      // 更新單個商品排序
+      function updateSortOrder(productId, newSortOrder) {
+        if (!isSortMode) return;
+        
+        const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+        if (row) {
+          // 驗證輸入
+          const value = parseInt(newSortOrder);
+          
+          if (isNaN(value) || value < 1 || value > 9999) {
+            const input = row.querySelector('.sort-input');
+            input.classList.add('invalid');
+            showNotification('排序數字必須在1-9999之間', 'warning');
+            return; // 不更新無效值
+          }
+          
+          row.dataset.sortOrder = value;
+          hasUnsavedChanges = true;
+          
+          const input = row.querySelector('.sort-input');
+          input.classList.remove('invalid');
+        }
+      }
+
+      // 初始化拖拽功能
+      function initSortable() {
+        if (typeof Sortable === 'undefined') {
+          // 如果沒有Sortable.js，使用原生拖拽
+          initNativeSortable();
+        } else {
+          // 使用Sortable.js
+          const tbody = document.getElementById('productsTableBody');
+          sortableInstance = Sortable.create(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag',
+            onEnd: function(evt) {
+              updateSortOrdersAfterDrag();
+            }
+          });
+        }
+      }
+
+      // 原生拖拽實現
+      function initNativeSortable() {
+        const tbody = document.getElementById('productsTableBody');
+        const rows = tbody.querySelectorAll('tr');
+        
+        // 清理之前的事件監聽器
+        rows.forEach(row => {
+          const handle = row.querySelector('.drag-handle');
+          if (handle) {
+            // 移除舊的事件監聽器
+            handle.removeEventListener('mousedown', startDrag);
+            // 添加新的事件監聽器
+            handle.addEventListener('mousedown', startDrag);
+          }
+        });
+      }
+
+      // 開始拖拽
+      function startDrag(e) {
+        e.preventDefault();
+        const row = e.target.closest('tr');
+        if (!row) return;
+        
+        const tbody = document.getElementById('productsTableBody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const startIndex = rows.indexOf(row);
+        
+        // 創建拖拽元素
+        const dragElement = row.cloneNode(true);
+        dragElement.style.position = 'absolute';
+        dragElement.style.top = '-1000px';
+        dragElement.style.opacity = '0.8';
+        dragElement.style.zIndex = '1000';
+        document.body.appendChild(dragElement);
+        
+        // 設置拖拽事件
+        const moveHandler = (e) => {
+          const rect = tbody.getBoundingClientRect();
+          const y = e.clientY - rect.top;
+          const rowHeight = row.offsetHeight;
+          const newIndex = Math.floor(y / rowHeight);
+          
+          if (newIndex >= 0 && newIndex < rows.length && newIndex !== startIndex) {
+            // 移動行
+            if (newIndex > startIndex) {
+              tbody.insertBefore(row, rows[newIndex + 1]);
+            } else {
+              tbody.insertBefore(row, rows[newIndex]);
+            }
+            
+            // 更新排序數字
+            updateSortOrdersAfterDrag();
+          }
+        };
+        
+        const upHandler = () => {
+          document.removeEventListener('mousemove', moveHandler);
+          document.removeEventListener('mouseup', upHandler);
+          document.body.removeChild(dragElement);
+        };
+        
+        document.addEventListener('mousemove', moveHandler);
+        document.addEventListener('mouseup', upHandler);
+      }
+
+      // 拖拽結束後更新排序
+      function updateSortOrdersAfterDrag() {
+        const rows = document.querySelectorAll('#productsTableBody tr');
+        rows.forEach((row, index) => {
+          const sortInput = row.querySelector('.sort-input');
+          const newSortOrder = (index + 1) * 10;
+          sortInput.value = newSortOrder;
+          row.dataset.sortOrder = newSortOrder;
+        });
+        
+        hasUnsavedChanges = true;
+      }
+
+      // 清理拖拽功能
+      function cleanupSortable() {
+        if (sortableInstance) {
+          sortableInstance.destroy();
+          sortableInstance = null;
+        }
+      }
+
+      // 恢復原始排序
+      function restoreOriginalSort() {
+        document.querySelectorAll('#productsTableBody tr').forEach(row => {
+          const productId = row.dataset.productId;
+          const originalOrder = originalSortOrders[productId];
+          if (originalOrder) {
+            const sortInput = row.querySelector('.sort-input');
+            sortInput.value = originalOrder;
+            row.dataset.sortOrder = originalOrder;
+            sortInput.classList.remove('invalid');
+          }
+        });
+      }
+
+      // 添加排序輸入框事件監聽
+      function addSortInputListeners() {
+        document.querySelectorAll('.sort-input').forEach(input => {
+          // 移除舊的事件監聽器
+          input.removeEventListener('blur', validateSortInput);
+          // 添加新的事件監聽器
+          input.addEventListener('blur', validateSortInput);
+        });
+      }
+      
+      // 驗證排序輸入
+      function validateSortInput() {
+        const value = parseInt(this.value);
+        if (isNaN(value) || value < 1 || value > 9999) {
+          this.classList.add('invalid');
+          showNotification('排序數字必須在1-9999之間', 'warning');
+        } else {
+          this.classList.remove('invalid');
+        }
+      }
+
+      // 顯示通知
+      function showNotification(message, type = 'info') {
+        // 防止XSS攻擊
+        const sanitizeHTML = (str) => {
+          const div = document.createElement('div');
+          div.textContent = str;
+          return div.innerHTML;
+        };
+        
+        // 創建通知元素
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        
+        const iconMap = {
+          'success': 'check-circle',
+          'error': 'exclamation-circle', 
+          'warning': 'exclamation-triangle',
+          'info': 'info-circle'
+        };
+        
+        notification.innerHTML = `
+          <i class="fas fa-${iconMap[type] || 'info-circle'}"></i>
+          <span>${sanitizeHTML(message)}</span>
+        `;
+        
+        // 添加到頁面
+        document.body.appendChild(notification);
+        
+        // 自動移除
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 3000);
+      }
+
+      // 顯示錯誤訊息
+      function showError(message) {
+        showNotification(message, 'error');
+      }
+
+      // 初始化排序功能樣式
+      function initSortStyles() {
+        // 檢查是否已經添加過樣式
+        if (document.getElementById('sort-styles')) return;
+        
+        const style = document.createElement('style');
+        style.id = 'sort-styles';
+        style.textContent = `
+          .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+          }
+          
+          .notification-success {
+            background: #27ae60;
+          }
+          
+          .notification-error {
+            background: #e74c3c;
+          }
+          
+          .notification-warning {
+            background: #f39c12;
+          }
+          
+          .notification-info {
+            background: #3498db;
+          }
+          
+          @keyframes slideIn {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          
+          .sort-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+          }
+          
+          .sort-input.invalid {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+          }
+          
+          .sortable-ghost {
+            opacity: 0.5;
+            background: #f8f9fa;
+          }
+          
+          .sortable-chosen {
+            background: #e3f2fd;
+          }
+          
+          .sortable-drag {
+            background: #fff3e0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      // 測試函數：直接檢查Firebase數據
+      async function testFirebaseData() {
+        try {
+          console.log("=== 開始測試Firebase數據 ===");
+          
+          const db = firebase.firestore();
+          const snapshot = await db.collection("products").get();
+          
+          console.log("總商品數量:", snapshot.size);
+          
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            console.log("商品:", {
+              id: doc.id,
+              name: data.name,
+              status: data.status,
+              category: data.category,
+              sortOrder: data.sortOrder
+            });
+          });
+          
+          console.log("=== Firebase數據測試完成 ===");
+        } catch (error) {
+          console.error("測試Firebase數據失敗:", error);
+        }
+      }
+
+      // 頁面離開前檢查未保存的變更
+      window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+          e.preventDefault();
+          e.returnValue = '有未保存的排序變更，確定要離開嗎？';
+        }
+      });
+
+      // 全局錯誤處理
+      window.addEventListener('error', function(e) {
+        console.error('全局錯誤:', e.error);
+        if (e.error && e.error.message) {
+          showNotification('系統錯誤：' + e.error.message, 'error');
+        }
+      });
+
+      // 未處理的 Promise 錯誤
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('未處理的 Promise 錯誤:', e.reason);
+        showNotification('網路錯誤，請檢查連線狀態', 'error');
+      });
+
+      // 將測試函數掛載到全域，方便在控制台調用
+      window.testFirebaseData = testFirebaseData;
+      
+      // 添加重試機制
+      window.retryLoadProducts = function() {
+        console.log('重試載入商品...');
+        loadProducts();
+      };
     </script>
   </body>
 </html>

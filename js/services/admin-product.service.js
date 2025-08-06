@@ -12,52 +12,52 @@ const AdminProductService = (function () {
         category = null,
         status = null,
         searchTerm = "",
-        sortBy = "createdAt",
-        sortOrder = "desc",
+        sortBy = "sortOrder",
+        sortOrder = "asc",
         limit = 20,
         lastDoc = null,
       } = options;
 
+      console.log("getProducts 被調用，選項:", options);
+
       let query = db.collection("products");
 
-      // 篩選條件
-      if (category && category !== "all") {
-        query = query.where("category", "==", category);
-      }
-
-      if (status && status !== "all") {
-        query = query.where("status", "==", status);
-      }
-
-      // 排序
-      query = query.orderBy(sortBy, sortOrder);
-
-      // 搜尋功能（改為客戶端搜尋，避免複雜索引需求）
-      // 注意：搜尋將在客戶端進行，以簡化索引需求
-
-      // 分頁
-      if (limit) {
-        query = query.limit(limit);
-      }
-
-      if (lastDoc) {
-        query = query.startAfter(lastDoc);
-      }
-
+      // 簡化查詢邏輯，避免複合索引問題
+      // 先獲取所有商品，然後在客戶端進行篩選和排序
+      console.log("開始查詢商品...");
+      
       const snapshot = await query.get();
+      console.log(`查詢完成，獲取到 ${snapshot.size} 個商品`);
+      
       let products = [];
       let lastDocument = null;
 
       snapshot.forEach((doc) => {
+        const productData = doc.data();
+        console.log("處理商品:", doc.id, productData.name, "狀態:", productData.status);
         products.push({
           id: doc.id,
-          ...doc.data(),
+          ...productData,
         });
         lastDocument = doc;
       });
 
+      // 客戶端篩選
+      if (status && status !== "all") {
+        console.log("按狀態篩選:", status);
+        products = products.filter(product => product.status === status);
+        console.log("篩選後商品數量:", products.length);
+      }
+
+      if (category && category !== "all") {
+        console.log("按分類篩選:", category);
+        products = products.filter(product => product.category === category);
+        console.log("篩選後商品數量:", products.length);
+      }
+
       // 客戶端搜尋
       if (searchTerm) {
+        console.log("按搜尋詞篩選:", searchTerm);
         const searchLower = searchTerm.toLowerCase();
         products = products.filter(
           (product) =>
@@ -65,12 +65,38 @@ const AdminProductService = (function () {
             (product.description &&
               product.description.toLowerCase().includes(searchLower))
         );
+        console.log("搜尋後商品數量:", products.length);
       }
 
+      // 客戶端排序
+      console.log("按", sortBy, sortOrder, "排序");
+      products.sort((a, b) => {
+        let aValue = a[sortBy] || 999;
+        let bValue = b[sortBy] || 999;
+        
+        if (typeof aValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+        
+        if (sortOrder === 'asc') {
+          return aValue > bValue ? 1 : -1;
+        } else {
+          return aValue < bValue ? 1 : -1;
+        }
+      });
+
+      // 分頁處理
+      if (limit && products.length > limit) {
+        products = products.slice(0, limit);
+      }
+
+      console.log("最終返回商品數量:", products.length);
+      
       return {
         products,
         lastDoc: lastDocument,
-        hasMore: snapshot.size === limit,
+        hasMore: products.length === limit,
       };
     } catch (error) {
       console.error("獲取商品列表失敗:", error);
@@ -98,17 +124,33 @@ const AdminProductService = (function () {
   // 創建新商品
   async function createProduct(productData) {
     try {
+      // 驗證必要字段
+      if (!productData.name || !productData.name.trim()) {
+        throw new Error("商品名稱不能為空");
+      }
+      
+      if (!productData.price || parseFloat(productData.price) <= 0) {
+        throw new Error("商品價格必須大於0");
+      }
+
       const newProduct = {
         ...productData,
+        name: productData.name.trim(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         status: productData.status || "active",
         stock: parseInt(productData.stock) || 0,
         price: parseFloat(productData.price) || 0,
         originalPrice: parseFloat(productData.originalPrice) || 0,
+        sortOrder: parseInt(productData.sortOrder) || 999,
         views: 0,
         sales: 0,
       };
+
+      // 驗證排序值
+      if (newProduct.sortOrder < 1 || newProduct.sortOrder > 9999) {
+        newProduct.sortOrder = 999;
+      }
 
       const docRef = await db.collection("products").add(newProduct);
       return {
@@ -177,6 +219,45 @@ const AdminProductService = (function () {
       return true;
     } catch (error) {
       console.error("批量更新商品狀態失敗:", error);
+      throw error;
+    }
+  }
+
+  // 批量更新商品排序
+  async function batchUpdateSort(sortUpdates) {
+    try {
+      // 驗證輸入數據
+      if (!Array.isArray(sortUpdates) || sortUpdates.length === 0) {
+        throw new Error("無效的排序數據");
+      }
+
+      // 驗證每個排序更新
+      for (const update of sortUpdates) {
+        if (!update.productId || !update.sortOrder) {
+          throw new Error("排序數據格式錯誤");
+        }
+        
+        const sortOrder = Number(update.sortOrder);
+        if (isNaN(sortOrder) || sortOrder < 1 || sortOrder > 9999) {
+          throw new Error(`商品 ${update.productId} 的排序值無效: ${update.sortOrder}`);
+        }
+      }
+
+      const batch = db.batch();
+
+      sortUpdates.forEach((update) => {
+        const productRef = db.collection("products").doc(update.productId);
+        batch.update(productRef, {
+          sortOrder: Number(update.sortOrder),
+          updatedAt: new Date().toISOString(),
+        });
+      });
+
+      await batch.commit();
+      console.log(`批量更新 ${sortUpdates.length} 個商品排序`);
+      return true;
+    } catch (error) {
+      console.error("批量更新商品排序失敗:", error);
       throw error;
     }
   }
@@ -456,6 +537,7 @@ const AdminProductService = (function () {
     updateProduct,
     deleteProduct,
     batchUpdateProductStatus,
+    batchUpdateSort,
     updateStock,
     checkStockWarning,
     getStockWarnings,
